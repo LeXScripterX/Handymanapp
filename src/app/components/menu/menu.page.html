@@ -1,0 +1,44 @@
+<ion-menu contentId="main-content">
+  <!-- Cabecera de usuario / Perfil -->
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Menu</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <!-- Perfil rápido -->
+  <ion-content class="ion-padding">
+    <div class="user-avatar-section ion-padding ion-text-center">
+      <ion-avatar style="margin: 0 auto; width: 64px; height: 64px;">
+        <img alt="Avatar del usuario" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+      </ion-avatar>
+      <ion-label>
+        <h2><strong>Usuario Handyman</strong></h2>
+        <p>Cliente / Técnico</p>
+      </ion-label>
+    </div>
+
+    <ion-item-divider></ion-item-divider>
+
+    <!-- Lista de navegación
+     <ion-list lines="none">
+       <ion-menu-toggle auto-hide="false">
+        <ion-item button routerLink="/home" routerDirection="root">
+          <ion-icon name="home-outline" slot="start"></ion-icon>
+          <ion-label>Inicio</ion-label>
+        </ion-item>
+     </ion-list>
+    -->
+
+  </ion-content>
+</ion-menu>
+<div class="ion-page" id="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>HANDYMANAPP</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding"> Tap the button in the toolbar to open the menu. </ion-content>
+</div>
