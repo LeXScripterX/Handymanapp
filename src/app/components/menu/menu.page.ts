@@ -1,20 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar,
-  IonMenu,
-  IonButtons,
-  IonMenuButton,
-  IonAvatar,
-  IonLabel,
-  IonItemDivider,
-  IonList,
-  IonMenuToggle,
-
-} from '@ionic/angular';
+import { IonContent, IonHeader, IonTitle, IonToolbar,IonMenu,
+         IonButtons,IonMenuButton,IonAvatar,IonLabel,IonList,
+         IonItem,IonMenuToggle,}
+        from '@ionic/angular';
 
 
 @Component({
@@ -24,6 +14,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     IonContent,
     IonHeader,
     IonTitle,
@@ -33,9 +24,10 @@ import {
     IonMenuButton,
     IonAvatar,
     IonLabel,
-    IonItemDivider,
     IonList,
-    IonMenuToggle,
+    IonItem,
+    IonMenuToggle
+  
   
   ]
 })
