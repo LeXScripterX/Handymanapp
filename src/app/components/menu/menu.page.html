@@ -1,11 +1,11 @@
-<ion-menu contentId="main-content">
-  <ion-header>
+<ion-menu contenId="main-content">
+   <ion-header>
     <ion-toolbar color="primary">
-      <ion-title>Menú</ion-title>
+      <ion-tittle>Menu</ion-tittle>
     </ion-toolbar>
-  </ion-header>
+   </ion-header>
 
-  <ion-content>
+   <ion-content>
     <div class="ion-padding ion-text-center">
       <ion-avatar style="margin: 0 auto; width: 64px; height: 64px;">
         <img alt="Avatar del usuario" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
@@ -17,29 +17,25 @@
 
     <ion-list lines="none">
       <ion-menu-toggle auto-hide="false">
-        <ion-item button routerLink="/home">
-          <ion-label>Inicio</ion-label>
-        </ion-item>
-        
-        <ion-item button routerLink="/operaciones">
-          <ion-label>Operaciones</ion-label>
+        <ion-item button routrtLink="/home">
+        <ion-label>Inicio</ion-label>
         </ion-item>
       </ion-menu-toggle>
     </ion-list>
-  </ion-content>
+   </ion-content>
 </ion-menu>
 
 <div class="ion-page" id="main-content">
   <ion-header>
     <ion-toolbar color="primary">
-      <ion-buttons slot="start">
+      <ion-buttons> 
         <ion-menu-button></ion-menu-button>
       </ion-buttons>
-      <ion-title>HANDYMANAPP</ion-title>
+      <ion-tittle>HANDYMANAPP</ion-tittle>
     </ion-toolbar>
   </ion-header>
 
-  <ion-content class="ion-padding">
+  <ion-conten class="ion-padding">
     <router-outlet></router-outlet>
-  </ion-content>
+  </ion-conten>
 </div>
