@@ -1,14 +1,18 @@
 <ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>HANDYMANAPP</ion-title>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- Aquí incrustas tu componente de menú -->
-  <app-menu></app-menu>
-
-  <div id="container">
-<ion-icon name="logo-android"></ion-icon>
-<ion-icon name="logo-android" size="large"></ion-icon>
-<ion-icon name="logo-android" color="primary"></ion-icon>
-<ion-icon name="logo-android" size="large" color="primary"></ion-icon>
+  <div id="container" class="ion-padding ion-text-center">
+    <h1>Hola soy el home</h1>
+    <ion-icon name="logo-android"></ion-icon>
+    <ion-icon name="logo-android" size="large"></ion-icon>
+    <ion-icon name="logo-android" color="primary"></ion-icon>
+    <ion-icon name="logo-android" size="large" color="primary"></ion-icon>
   </div>
 </ion-content>

@@ -1,20 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-//import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { 
+  IonContent, 
+  IonHeader, 
+  IonTitle, 
+  IonToolbar, 
+  IonButtons, 
+  IonMenuButton, 
+  MenuController 
+} from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-operaciones',
   templateUrl: './operaciones.page.html',
   styleUrls: ['./operaciones.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonButtons, 
+    IonMenuButton, 
+    CommonModule, 
+    FormsModule
+  ]
 })
-export class OperacionesPage implements OnInit {
+export class OperacionesPage {
+  constructor(private menuCtrl: MenuController) {}
 
-  constructor() { }
-
-  ngOnInit() {
+  ionViewWillEnter() {
+    this.menuCtrl.enable(true);
   }
-
 }
+

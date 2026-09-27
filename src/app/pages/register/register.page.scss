@@ -1,0 +1,47 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 8px;
+
+  .titulo {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ion-color-dark);
+  }
+
+  .subtitulo {
+    font-size: 15px;
+    color: var(--ion-color-medium);
+    margin-top: 0;
+    margin-bottom: 24px;
+  }
+
+  .segmento-rol {
+    margin-bottom: 24px;
+  }
+
+  .campo {
+    --background: var(--ion-color-light);
+    --border-radius: 12px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+
+    ion-label {
+      font-weight: 600;
+      color: var(--ion-color-medium-shade);
+    }
+  }
+
+  .boton-registrar {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    --box-shadow: none;
+    height: 48px;
+    font-weight: 600;
+  }
+}

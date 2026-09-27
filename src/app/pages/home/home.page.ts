@@ -1,21 +1,39 @@
 import { Component } from '@angular/core';
-import { MenuPage } from '../../components/menu/menu.page';
 import { addIcons } from 'ionicons';
-import { logoAndroid}  from 'ionicons/icons';
+import { logoAndroid } from 'ionicons/icons';
 import { 
   IonHeader, 
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonMenuButton,
   IonContent, 
-  IonIcon
-} from '@ionic/angular';
+  IonIcon,
+  MenuController,
+} from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonContent, MenuPage, IonIcon],
+  imports: [
+    IonHeader, 
+    IonToolbar, 
+    IonTitle, 
+    IonButtons, 
+    IonMenuButton, 
+    IonContent, 
+    IonIcon
+  ],
 })
 export class HomePage {
- constructor() {
-  addIcons({ logoAndroid});
- }
+  constructor(private menuCtrl: MenuController) {
+    addIcons({ logoAndroid });
+  }
+
+  ionViewWillEnter() {
+    this.menuCtrl.enable(true);
+  }
 }
+

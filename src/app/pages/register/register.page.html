@@ -1,0 +1,68 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="register-container">
+    <h1 class="titulo">Crea tu cuenta</h1>
+    <p class="subtitulo">Únete a HandymanApp</p>
+
+    <ion-segment
+      [value]="rolSeleccionado"
+      (ionChange)="seleccionarRol($event.detail.value)"
+      class="segmento-rol"
+    >
+      <ion-segment-button value="cliente">
+        <ion-label>Cliente</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="handyman">
+        <ion-label>Handyman</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <form [formGroup]="form" (ngSubmit)="registrar()">
+      <ion-item class="campo" lines="none">
+        <ion-label position="stacked">Nombre completo</ion-label>
+        <ion-input formControlName="nombre" placeholder="Tu nombre"></ion-input>
+      </ion-item>
+
+      <ion-item class="campo" lines="none">
+        <ion-label position="stacked">Correo electrónico</ion-label>
+        <ion-input
+          formControlName="email"
+          type="email"
+          placeholder="tu@correo.com"
+          inputmode="email"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item class="campo" lines="none">
+        <ion-label position="stacked">Contraseña</ion-label>
+        <ion-input formControlName="password" type="password" placeholder="••••••••"></ion-input>
+      </ion-item>
+
+      <ion-item class="campo" lines="none">
+        <ion-label position="stacked">Confirmar contraseña</ion-label>
+        <ion-input
+          formControlName="confirmarPassword"
+          type="password"
+          placeholder="••••••••"
+        ></ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        shape="round"
+        class="boton-registrar"
+        [disabled]="cargando"
+      >
+        {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

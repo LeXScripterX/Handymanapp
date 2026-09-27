@@ -1,0 +1,19 @@
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { Auth, authState } from '@angular/fire/auth';
+import { map, take } from 'rxjs';
+
+// Úsalo en app.routes.ts en las rutas que requieran sesión, ej: home.
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+
+  return authState(auth).pipe(
+    take(1),
+    map((usuario) => {
+      if (usuario) return true;
+      router.navigate(['/login']);
+      return false;
+    })
+  );
+};
