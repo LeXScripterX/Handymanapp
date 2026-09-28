@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { 
   IonContent, 
   IonHeader, 
@@ -13,6 +13,7 @@ import {
   IonItem, 
   IonMenuToggle 
 } from '@ionic/angular/standalone';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-menu',
@@ -35,5 +36,13 @@ import {
   ]
 })
 export class MenuPage {
-  constructor() {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  async cerrasrSession() {
+    await this.authService.cerrarSesion();
+    this.router.navigateByUrl('/login', { replaceUrl: true});
+  }
 }

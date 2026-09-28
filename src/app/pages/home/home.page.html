@@ -1,18 +1,64 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+<ion-header class="ion-no-border">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button color="light"></ion-menu-button>
     </ion-buttons>
-    <ion-title>HANDYMANAPP</ion-title>
+
+    <div class="barra">
+      <div class="logo"><span class="punto"></span>handyman</div>
+      <div class="acciones">
+        <span class="pill-rol">{{ etiquetaRol() }}</span>
+        <button type="button" class="campana" aria-label="Notificaciones">
+          <ion-icon name="notifications-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <div id="container" class="ion-padding ion-text-center">
-    <h1>Hola soy el home</h1>
-    <ion-icon name="logo-android"></ion-icon>
-    <ion-icon name="logo-android" size="large"></ion-icon>
-    <ion-icon name="logo-android" color="primary"></ion-icon>
-    <ion-icon name="logo-android" size="large" color="primary"></ion-icon>
+<ion-content>
+  <div class="contenido">
+    <h1 class="saludo">Hola{{ nombre() ? ', ' + nombre() : '' }}</h1>
+    <p class="subtitulo">¿Qué necesitas reparar hoy?</p>
+
+    <label class="buscador">
+      <ion-icon name="construct-outline"></ion-icon>
+      <input type="search" placeholder="Busca un servicio o handyman" />
+    </label>
+
+    <section class="emergencia">
+      <div>
+        <h3>¿Emergencia en casa?</h3>
+        <p>Un handyman llega en menos de 40 min</p>
+      </div>
+      <button type="button">Pedir ya</button>
+    </section>
+
+    <h2 class="seccion">Categorías</h2>
+    <div class="categorias">
+      @for (cat of categorias; track cat.nombre) {
+        <button type="button" class="categoria">
+          <ion-icon [name]="cat.icono"></ion-icon>
+          {{ cat.nombre }}
+        </button>
+      }
+    </div>
+
+    <h2 class="seccion">Handymen cerca de ti</h2>
+    <div class="handymen">
+      @for (h of handymen; track h.nombre) {
+        <div class="handyman">
+          <div class="avatar">{{ h.nombre.charAt(0) }}</div>
+          <div class="datos">
+            <strong>{{ h.nombre }}</strong>
+            <span>{{ h.oficio }}</span>
+          </div>
+          <div class="extra">
+            <div class="calif"><ion-icon name="star"></ion-icon>{{ h.calificacion }}</div>
+            <span>{{ h.distancia }}</span>
+          </div>
+        </div>
+      }
+    </div>
   </div>
 </ion-content>

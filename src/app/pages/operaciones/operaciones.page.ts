@@ -31,7 +31,7 @@ export class OperacionesPage {
   constructor(private menuCtrl: MenuController) {}
 
   ionViewWillEnter() {
-    this.menuCtrl.enable(true);
+   this.menuCtrl.enable(window.matchMedia('(min-width: 992px)').matches);
   }
 }
 

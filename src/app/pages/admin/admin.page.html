@@ -1,13 +1,13 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>admin</ion-title>
+    <ion-title>Panel de administrador</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">Cerrar sesión</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">admin</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <h2>Hola, admin</h2>
+  <p>Aquí irá la gestión de usuarios y servicios.</p>
 </ion-content>

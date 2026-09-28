@@ -1,27 +1,254 @@
-#container {
-  text-align: center;
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+$fondo: #f6f3ee;
+$borde: #d5cfc6;
+$muted: #7b848c;
+$fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+ion-toolbar {
+  --background: #{$azul};
+  --color: #ffffff;
+  --border-width: 0;
+  --min-height: 64px;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 8px;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $fuente;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
 }
 
-#container a {
-  text-decoration: none;
+.punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $coral;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pill-rol {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campana {
+  display: flex;
+  background: none;
+  border: 0;
+  color: #ffffff;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+ion-content {
+  --background: #{$fondo};
+}
+
+.contenido {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 24px;
+  color: $azul;
+}
+
+.saludo {
+  margin: 0 0 4px;
+  font-family: $fuente;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.subtitulo {
+  margin: 0 0 18px;
+  color: $muted;
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1.5px solid $borde;
+  border-radius: 20px;
+
+  ion-icon {
+    flex-shrink: 0;
+    font-size: 34px;
+    color: $azul;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 16px;
+    color: $azul;
+
+    &::placeholder {
+      color: $muted;
+    }
+  }
+}
+
+.emergencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 18px;
+  background: $azul;
+  color: #ffffff;
+  border-radius: 20px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-family: $fuente;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  button {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    background: $coral;
+    color: #ffffff;
+    border: 0;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.seccion {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.categorias {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.categoria {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 92px;
+  background: #ffffff;
+  border: 1.5px solid $borde;
+  border-radius: 16px;
+  color: $azul;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 26px;
+  }
+}
+
+.handymen {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.handyman {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1.5px solid $borde;
+  border-radius: 16px;
+
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: $azul;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .datos {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+    }
+
+    span {
+      font-size: 13px;
+      color: $muted;
+    }
+  }
+
+  .extra {
+    text-align: right;
+    font-size: 13px;
+    color: $muted;
+
+    .calif {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      color: $azul;
+      font-weight: 700;
+
+      ion-icon {
+        color: $coral;
+      }
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  .categorias {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }

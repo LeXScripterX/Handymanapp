@@ -1,66 +1,75 @@
 .login-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 100%;
   max-width: 420px;
   margin: 0 auto;
-  padding: 16px 8px;
+  padding-top: 24px;
+}
 
-  .titulo {
-    font-size: 26px;
-    font-weight: 700;
+.titulo {
+  font-weight: 800;
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.subtitulo {
+  color: var(--ion-color-medium);
+  margin-bottom: 24px;
+}
+
+.segmento-rol {
+  --background: var(--ion-color-light);
+  border-radius: 999px;
+  margin-bottom: 24px;
+  padding: 4px;
+
+  ion-segment-button {
+    --indicator-color: #1a1a2e;
+    --color-checked: #ffffff;
+    --border-radius: 999px;
+    font-weight: 600;
+    min-height: 44px;
+  }
+}
+
+.campo {
+  --background: transparent;
+  --padding-start: 0;
+  margin-bottom: 12px;
+
+  ion-label {
+    font-weight: 600;
     margin-bottom: 6px;
-    color: var(--ion-color-dark);
   }
 
-  .subtitulo {
-    font-size: 15px;
-    color: var(--ion-color-medium);
-    margin-top: 0;
-    margin-bottom: 24px;
-  }
-
-  .segmento-rol {
-    margin-bottom: 24px;
-  }
-
-  .campo {
+  ion-input {
     --background: var(--ion-color-light);
-    --border-radius: 12px;
-    margin-bottom: 16px;
+    --padding-start: 14px;
     border-radius: 12px;
-
-    ion-label {
-      font-weight: 600;
-      color: var(--ion-color-medium-shade);
-    }
+    margin-top: 6px;
   }
+}
 
-  .boton-ingresar {
-    margin-top: 24px;
-    margin-bottom: 12px;
-    --box-shadow: none;
-    height: 48px;
+.boton-ingresar {
+  --background: #ef6a5a;
+  --background-activated: #e2543f;
+  --box-shadow: none;
+  margin-top: 16px;
+  font-weight: 700;
+}
+
+.boton-crear-cuenta {
+  margin-top: 12px;
+  --border-radius: 999px;
+  font-weight: 700;
+}
+
+.link-handyman {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--ion-color-medium);
+
+  a {
+    color: var(--ion-color-primary);
     font-weight: 600;
-  }
-
-  .boton-crear-cuenta {
-    margin-bottom: 20px;
-    height: 48px;
-    font-weight: 600;
-  }
-
-  .link-handyman {
-    text-align: center;
-    font-size: 14px;
-    color: var(--ion-color-medium);
-
-    a {
-      color: var(--ion-color-primary);
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: underline;
-    }
+    cursor: pointer;
   }
 }
