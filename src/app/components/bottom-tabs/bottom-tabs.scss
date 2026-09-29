@@ -1,0 +1,50 @@
+
+      .tabs {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        max-width: 520px;
+        margin: 0 auto;
+        z-index: 100;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 6px 4px;
+        background: #ffffff;
+        border: 1.5px solid #d5cfc6;
+        border-radius: 24px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .tab {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 6px 0;
+        background: none;
+        border: 0;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: #7b848c;
+        cursor: pointer;
+      }
+
+      .tab ion-icon {
+        font-size: 22px;
+      }
+
+      .tab.activo {
+        color: #ef6a5a;
+      }
+
+      /* En web/PC los tabs no se muestran: se usa el menú lateral */
+      @media (min-width: 992px) {
+        .tabs {
+          display: none;
+        }
+      }
+    

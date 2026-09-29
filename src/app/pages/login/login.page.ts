@@ -53,39 +53,41 @@ export class LoginPage {
     this.menuCtrl.enable(false);
   }
 
-
   seleccionarRol(rol: string | number | undefined) {
     if (rol === 'cliente' || rol === 'handyman') {
       this.rolSeleccionado = rol;
     }
   }
 
-
-async ingresar() {
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
-  }
-
-  this.cargando = true;
-  const { email, password } = this.form.value;
-
-  try {
-    await this.authService.iniciarSesion(email, password);
-    const uid = this.authService['auth'].currentUser?.uid;
-    const perfil = uid ? await this.authService.obtenerPerfil(uid) : null;
-
-    if (perfil?.rol === 'admin') {
-      this.router.navigateByUrl('/admin', { replaceUrl: true });
-    } else {
-      this.router.navigateByUrl('/home', { replaceUrl: true });
+  async ingresar() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-  } catch (error: any) {
-    await this.mostrarError(this.traducirError(error?.code));
-  } finally {
-    this.cargando = false;
+
+    this.cargando = true;
+    const { email, password } = this.form.value;
+
+    try {
+      const credenciales = await this.authService.iniciarSesion(email, password);
+      const perfil = await this.authService.obtenerPerfil(credenciales.user.uid);
+      this.redirigirSegunRol(perfil?.rol);
+    } catch (error: any) {
+      await this.mostrarError(this.traducirError(error?.code));
+    } finally {
+      this.cargando = false;
+    }
   }
-}
+
+  private redirigirSegunRol(rol: UserRole | undefined) {
+    const rutas: Record<UserRole, string> = {
+      cliente: '/home-cliente',
+      handyman: '/home-handyman',
+      admin: '/admin',
+    };
+    this.router.navigateByUrl(rutas[rol ?? 'cliente'], { replaceUrl: true });
+  }
+
   irARegistro() {
     this.router.navigate(['/register'], {
       queryParams: { rol: this.rolSeleccionado },

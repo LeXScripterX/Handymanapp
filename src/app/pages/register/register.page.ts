@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import {
   IonHeader,
   IonToolbar,
@@ -14,8 +15,6 @@ import {
   IonItem,
   IonInput,
   IonButton,
-  ToastController,
-  MenuController,
 } from '@ionic/angular/standalone';
 import { AuthService, UserRole } from '../../services/auth.service';
 
@@ -56,16 +55,10 @@ export class RegisterPage implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastCtrl: ToastController,
-    private menuCtrl: MenuController
+    private toastCtrl: ToastController
   ) {}
 
-  ionViewWillEnter() {
-    this.menuCtrl.enable(false);
-  }
-
   ngOnInit() {
-
     const rolQuery = this.route.snapshot.queryParamMap.get('rol') as UserRole;
     if (rolQuery === 'cliente' || rolQuery === 'handyman') {
       this.rolSeleccionado = rolQuery;
@@ -94,7 +87,8 @@ export class RegisterPage implements OnInit {
     this.cargando = true;
     try {
       await this.authService.registrar(email, password, nombre, this.rolSeleccionado);
-      this.router.navigateByUrl('/home', { replaceUrl: true });
+      const ruta = this.rolSeleccionado === 'handyman' ? '/home-handyman' : '/home-cliente';
+      this.router.navigateByUrl(ruta, { replaceUrl: true });
     } catch (error: any) {
       await this.mostrarError(this.traducirError(error?.code));
     } finally {

@@ -21,8 +21,8 @@ import { AuthService, UserRole } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  templateUrl: 'home-cliente.page.html',
+  styleUrls: ['home-cliente.page.scss'],
   standalone: true,
   imports: [
     IonHeader, 
@@ -35,7 +35,7 @@ import { AuthService, UserRole } from '../../services/auth.service';
     IonTitle
   ],
 })
-export class HomePage {
+export class HomeCliente {
 
 private authService = inject(AuthService);
   private menuCtrl = inject(MenuController);

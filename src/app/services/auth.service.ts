@@ -61,9 +61,9 @@ export class AuthService {
     await setDoc(doc(this.firestore, `users/${credenciales.user.uid}`), nuevoUsuario);
   }
 
-  async iniciarSesion(email: string, password: string): Promise<void> {
-    await signInWithEmailAndPassword(this.auth, email, password);
-  }
+async iniciarSesion(email: string, password: string) {
+  return await signInWithEmailAndPassword(this.auth, email, password);
+}
 
   async cerrarSesion(): Promise<void> {
     await signOut(this.auth);

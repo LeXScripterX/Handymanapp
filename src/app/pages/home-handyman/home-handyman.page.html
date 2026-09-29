@@ -1,0 +1,90 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button color="light"></ion-menu-button>
+    </ion-buttons>
+
+    <div class="barra">
+      <div class="logo"><span class="punto"></span>handyman</div>
+      <div class="acciones">
+        <span class="pill-rol">Handyman</span>
+        <button type="button" class="campana" aria-label="Notificaciones">
+          <ion-icon name="notifications-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="contenido">
+    <div class="encabezado">
+      <div>
+        <h1 class="saludo">Hola{{ saludoInicial() ? ', ' + saludoInicial() : '' }}</h1>
+        <p class="subtitulo">{{ disponible() ? 'Estás disponible para trabajos' : 'No estás recibiendo solicitudes' }}</p>
+      </div>
+      <button type="button" class="switch" [class.activo]="disponible()" (click)="alternarDisponibilidad()">
+        <span class="bolita"></span>
+      </button>
+    </div>
+
+    <div class="resumen">
+      <div class="tarjeta">
+        <ion-icon name="cash-outline"></ion-icon>
+        <strong>${{ gananciasHoy() | number }}</strong>
+        <span>Hoy</span>
+      </div>
+      <div class="tarjeta">
+        <ion-icon name="construct-outline"></ion-icon>
+        <strong>{{ trabajosCompletados() }}</strong>
+        <span>Completados</span>
+      </div>
+      <div class="tarjeta">
+        <ion-icon name="star"></ion-icon>
+        <strong>{{ calificacion() }}</strong>
+        <span>Calificación</span>
+      </div>
+    </div>
+
+    <h2 class="seccion">Solicitudes nuevas</h2>
+    @if (solicitudes().length === 0) {
+      <p class="vacio">No tienes solicitudes por ahora.</p>
+    } @else {
+      <div class="lista">
+        @for (s of solicitudes(); track s.cliente) {
+          <div class="solicitud">
+            <div class="datos">
+              <strong>{{ s.servicio }}</strong>
+              <span>{{ s.cliente }}</span>
+              <div class="meta">
+                <span><ion-icon name="location-outline"></ion-icon>{{ s.distancia }}</span>
+                <span><ion-icon name="time-outline"></ion-icon>{{ s.hace }}</span>
+              </div>
+            </div>
+            <div class="botones">
+              <button type="button" class="rechazar" (click)="rechazar(s)">Rechazar</button>
+              <button type="button" class="aceptar" (click)="aceptar(s)">Aceptar</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <h2 class="seccion">Trabajos en curso</h2>
+    @if (trabajosEnCurso().length === 0) {
+      <p class="vacio">No tienes trabajos en curso.</p>
+    } @else {
+      <div class="lista">
+        @for (t of trabajosEnCurso(); track t.cliente) {
+          <div class="trabajo">
+            <div>
+              <strong>{{ t.servicio }}</strong>
+              <span>{{ t.cliente }}</span>
+            </div>
+            <span class="estado">{{ t.estado }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ion-content>

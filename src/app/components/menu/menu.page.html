@@ -1,36 +1,37 @@
-<ion-menu contentId="main-content">
-  <ion-header>
-    <ion-toolbar color="primary">
-      <ion-title>Menú</ion-title>
+<ion-menu contentId="main-content" side="start">
+  <ion-header class="ion-no-border">
+    <ion-toolbar>
+      <ion-title>
+        <span class="logo"><span class="punto"></span>handyman</span>
+      </ion-title>
     </ion-toolbar>
   </ion-header>
 
   <ion-content>
-    <div class="ion-padding ion-text-center">
-      <ion-avatar style="margin: 0 auto; width: 64px; height: 64px;">
-        <img alt="Avatar del usuario" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
-      </ion-avatar>
-      <ion-label>
-        <h2><strong>Usuario Handyman</strong></h2>
-      </ion-label>
+    <div class="perfil">
+      <ion-avatar>{{ inicial() }}</ion-avatar>
+      <div class="datos">
+        <strong>{{ nombre() || 'Usuario' }}</strong>
+        <span class="pill">{{ etiquetaRol() }}</span>
+      </div>
     </div>
 
     <ion-list lines="none">
-      <ion-menu-toggle auto-hide="false">
-        <ion-item button routerLink="/home">
-          <ion-label>Inicio</ion-label>
-        </ion-item>
-        
-        <ion-item button routerLink="/operaciones">
-          <ion-label>Operaciones</ion-label>
-        </ion-item>
-
-
-      <ion-item button routerLink="">
-          <ion-label>Cerrar session</ion-label>
-        </ion-item>
-
-      </ion-menu-toggle>
+      @for (item of items(); track item.ruta) {
+        <ion-menu-toggle auto-hide="false">
+          <ion-item button (click)="ir(item.ruta)">
+            <ion-icon [name]="item.icono" slot="start"></ion-icon>
+            <ion-label>{{ item.etiqueta }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      }
     </ion-list>
+
+    <ion-menu-toggle auto-hide="false" class="salir">
+      <ion-item button (click)="cerrasrSession()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        <ion-label>Cerrar sesión</ion-label>
+      </ion-item>
+    </ion-menu-toggle>
   </ion-content>
 </ion-menu>

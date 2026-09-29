@@ -18,8 +18,13 @@ export const routes: Routes = [
   },
 
   {
-    path: 'home',
-    loadComponent: () => import('./pages/home/home.page').then((m) => m.HomePage),
+    path: 'home-cliente',
+    loadComponent: () => import('./pages/home-cliente/home-cliente.page').then((m) => m.HomeCliente ),
+  },
+
+   {
+    path: 'home-handyman',
+    loadComponent: () => import('./pages/home-handyman/home-handyman.page').then((m) => m.HomeHandymanPage),
   },
   
   {
