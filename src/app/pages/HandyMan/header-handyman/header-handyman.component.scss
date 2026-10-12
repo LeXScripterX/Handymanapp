@@ -1,0 +1,83 @@
+// Definición de variables necesarias para el header
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+
+ion-toolbar.header-toolbar {
+  --background: #ffffff; 
+  --color: #{$azul};
+  --border-width: 0;
+  /* 1. Aumentamos la altura de la barra para darle aire al logo nuevo */
+  --min-height: 70px; 
+  box-shadow: 0 2px 15px rgba(31, 45, 58, 0.05); 
+}
+
+.menu-icono {
+  color: $azul; 
+  margin-left: 8px; /* Despega un poco el menú de la esquina izquierda */
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  /* 2. Añadimos padding a los lados para empujar todo hacia el centro */
+  padding: 0 30px 0 28px; 
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+
+  .logo-img {
+    /* 3. Hacemos el logo notablemente más grande */
+    max-height: 38px; 
+    width: auto;
+    object-fit: contain;
+  }
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  /* Aumentamos un poco la separación entre la píldora y la campana */
+  gap: 16px; 
+}
+
+.pill-rol {
+  background: rgba(31, 45, 58, 0.06); 
+  color: $azul;
+  /* Hacemos la píldora un poquito más grande para que no se vea miniatura */
+  padding: 8px 18px; 
+  border-radius: 999px;
+  font-size: 14px; 
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.campana {
+  position: relative;
+  display: flex;
+  background: none;
+  border: 0;
+  color: $azul;
+  /* Campana un poco más grande para equilibrar el peso visual */
+  font-size: 28px; 
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  .punto-notificacion {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: $coral;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+  }
+}

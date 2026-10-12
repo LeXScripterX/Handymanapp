@@ -23,7 +23,7 @@ interface Tab {
           <button
             type="button"
             class="tab"
-            [class.activo]="rutaActual().startsWith(tab.ruta)"
+            [class.activo]="rutaActual().includes(tab.ruta)"
             (click)="ir(tab.ruta)"
           >
             <ion-icon [name]="tab.icono"></ion-icon>
@@ -33,22 +33,26 @@ interface Tab {
       </nav>
     }
   `,
-    styleUrls:[`./bottom-tabs.scss`],
+  styleUrls:[`./bottom-tabs.scss`],
 })
 export class BottomTabsComponent {
   private router = inject(Router);
   private menuCtrl = inject(MenuController);
 
+  // Actualizamos las rutas para que coincidan con los nuevos nombres de página
   readonly tabs: Tab[] = [
-    { ruta: '/home', etiqueta: 'Inicio', icono: 'home-outline' },
-    { ruta: '/operaciones', etiqueta: 'Operaciones', icono: 'clipboard-outline' },
-    { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person-outline' },
+    { ruta: '/home-handyman', etiqueta: 'Inicio', icono: 'home-outline' },
+    { ruta: '/operaciones-handyman', etiqueta: 'Operaciones', icono: 'clipboard-outline' },
+    // CAMBIO CLAVE: Actualizamos la ruta a '/perfil-handyman'
+    { ruta: '/perfil-handyman', etiqueta: 'Perfil', icono: 'person-outline' },
   ];
 
   private mediaEscritorio = window.matchMedia('(min-width: 992px)');
   esEscritorio = signal(this.mediaEscritorio.matches);
   rutaActual = signal(this.router.url);
-  visible = computed(() => this.tabs.some((t) => this.rutaActual().startsWith(t.ruta)));
+  
+  // Hacemos que sea visible si la ruta actual incluye alguna de las rutas de los tabs
+  visible = computed(() => this.tabs.some((t) => this.rutaActual().includes(t.ruta)));
 
   constructor() {
     addIcons({ homeOutline, clipboardOutline, personOutline });
@@ -60,15 +64,12 @@ export class BottomTabsComponent {
       )
       .subscribe((e) => this.rutaActual.set(e.urlAfterRedirects));
 
-    // Se actualiza al cambiar el tamaño de la ventana (ej. pantalla completa)
     this.mediaEscritorio.addEventListener('change', (e) => this.esEscritorio.set(e.matches));
 
-    // Deja espacio abajo para los tabs (ver global.scss)
     effect(() => {
       document.body.classList.toggle('con-tabs', this.visible());
     });
 
-    // Menú lateral: solo en web/PC y solo en las pantallas con tabs (no en login/registro/admin)
     effect(() => {
       this.menuCtrl.enable(this.esEscritorio() && this.visible());
     });

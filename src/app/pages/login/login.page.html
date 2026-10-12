@@ -1,66 +1,110 @@
-<ion-content class="ion-padding">
-  <div class="login-container">
-    <h1 class="titulo">Bienvenido de nuevo</h1>
-    <p class="subtitulo">Elige cómo quieres entrar a HandymanApp</p>
+<ion-content class="login-page">
+  <div class="contenedor-centrado">
+    
+    <div class="logo-cabecera">
+      <img src="assets/Logo_HandyMan.jpg" alt="Handyman Logo" class="logo-img" />
+    </div>
 
-    <ion-segment
-      [value]="rolSeleccionado"
-      (ionChange)="seleccionarRol($event.detail.value)"
-      class="segmento-rol"
-    >
-      <ion-segment-button value="cliente">
-        <ion-label>Cliente</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="handyman">
-        <ion-label>Handyman</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <div class="login-card">
+      <div class="header-card">
+        <h1 class="titulo">Bienvenido de nuevo</h1>
+        <p class="subtitulo">Ingresa a tu cuenta para continuar</p>
+      </div>
 
+      <div class="selector-rol">
+        <button 
+          type="button" 
+          class="btn-rol" 
+          [class.activo]="rolSeleccionado === 'cliente'"
+          (click)="seleccionarRol('cliente')">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Cliente</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn-rol" 
+          [class.activo]="rolSeleccionado === 'handyman'"
+          (click)="seleccionarRol('handyman')">
+          <ion-icon name="construct-outline"></ion-icon>
+          <span>Handyman</span>
+        </button>
+      </div>
 
-    <form [formGroup]="form" (ngSubmit)="ingresar()">
-      <ion-item class="campo" lines="none">
-        <ion-label position="stacked">Correo electrónico</ion-label>
-        <ion-input
-          formControlName="email"
-          type="email"
-          placeholder="tu@correo.com"
-          inputmode="email"
-        ></ion-input>
-      </ion-item>
+      <form [formGroup]="form" (ngSubmit)="ingresar()">
+        
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Correo electrónico</label>
+          <div class="input-caja" [class.campo-invalido]="form.get('email')?.invalid && form.get('email')?.touched">
+            <ion-icon name="mail-outline"></ion-icon>
+            <input 
+              formControlName="email" 
+              type="email" 
+              placeholder="tu@correo.com" 
+              inputmode="email"
+              autocomplete="email"
+            />
+          </div>
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <span class="mensaje-error">Ingresa un correo electrónico válido</span>
+          }
+        </div>
 
-      <ion-item class="campo" lines="none">
-        <ion-label position="stacked">Contraseña</ion-label>
-        <ion-input
-          formControlName="password"
-          type="password"
-          placeholder="••••••••"
-        ></ion-input>
-      </ion-item>
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Contraseña</label>
+          <div class="input-caja" [class.campo-invalido]="form.get('password')?.invalid && form.get('password')?.touched">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input 
+              formControlName="password" 
+              type="password" 
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <span class="mensaje-error">La contraseña debe tener al menos 6 caracteres</span>
+          }
+        </div>
 
-      <ion-button
-        expand="block"
-        type="submit"
-        shape="round"
-        class="boton-ingresar"
-        [disabled]="cargando"
-      >
-        {{ cargando ? 'Ingresando...' : 'Ingresar' }}
-      </ion-button>
-    </form>
+        <button 
+          type="submit" 
+          class="btn-primario" 
+          [disabled]="cargando">
+          @if (cargando) {
+            <span>Ingresando...</span>
+          } @else {
+            <span>Ingresar</span>
+          }
+        </button>
+      </form>
 
-    <ion-button
-      expand="block"
-      fill="outline"
-      shape="round"
-      class="boton-crear-cuenta"
-      (click)="irARegistro()"
-    >
-      Crear cuenta nueva
-    </ion-button>
+      <div class="divisor">
+        <span class="linea"></span>
+        <span class="texto-o">o</span>
+        <span class="linea"></span>
+      </div>
 
-    <p class="link-handyman" *ngIf="rolSeleccionado === 'cliente'">
-      ¿Eres handyman y quieres ofrecer tus servicios?
-      <a (click)="seleccionarRol('handyman')">Cambia aquí</a>
-    </p>
+      <button 
+        type="button" 
+        class="btn-google" 
+        (click)="loginGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="icono-google" />
+        <span>Continuar con Google</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="btn-secundario" 
+        (click)="irARegistro()">
+        Crear cuenta nueva
+      </button>
+
+      @if (rolSeleccionado === 'cliente') {
+        <p class="link-handyman">
+          ¿Quieres ofrecer tus servicios? 
+          <a (click)="seleccionarRol('handyman')">Entra como Handyman</a>
+        </p>
+      }
+    </div>
+
   </div>
 </ion-content>

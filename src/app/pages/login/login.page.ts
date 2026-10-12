@@ -4,15 +4,17 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import {
   IonContent,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonItem,
-  IonInput,
-  IonButton,
+  IonIcon,
   ToastController,
   MenuController,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { 
+  personOutline, 
+  constructOutline, 
+  mailOutline, 
+  lockClosedOutline
+} from 'ionicons/icons';
 import { AuthService, UserRole } from '../../services/auth.service';
 
 @Component({
@@ -22,12 +24,7 @@ import { AuthService, UserRole } from '../../services/auth.service';
     CommonModule,
     ReactiveFormsModule,
     IonContent,
-    IonSegment,
-    IonSegmentButton,
-    IonLabel,
-    IonItem,
-    IonInput,
-    IonButton,
+    IonIcon,
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
@@ -47,7 +44,14 @@ export class LoginPage {
     private router: Router,
     private toastCtrl: ToastController,
     private menuCtrl: MenuController
-  ) {}
+  ) {
+    addIcons({
+      personOutline,
+      constructOutline,
+      mailOutline,
+      lockClosedOutline
+    });
+  }
 
   ionViewWillEnter() {
     this.menuCtrl.enable(false);
@@ -77,6 +81,10 @@ export class LoginPage {
     } finally {
       this.cargando = false;
     }
+  }
+
+  async loginGoogle() {
+    console.log('Iniciando proceso de autenticación con Google...');
   }
 
   private redirigirSegunRol(rol: UserRole | undefined) {
