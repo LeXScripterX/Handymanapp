@@ -1,0 +1,632 @@
+// Definición de variables de estilo
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+$fondo: #f6f3ee;
+$borde: #e4ded7;
+$borde-fuerte: #d5cfc6;
+$muted: #7b848c;
+$verde: #2f9e58;
+$naranja: #f59e0b;
+$fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+
+// Configuración de la barra superior
+ion-toolbar {
+  --background: #{$azul};
+  --color: #ffffff;
+  --border-width: 0;
+  --min-height: 64px;
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $fuente;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $coral;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pill-rol {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campana {
+  display: flex;
+  background: none;
+  border: 0;
+  color: #ffffff;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+ion-content {
+  --background: #{$fondo};
+}
+
+.contenido {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 36px;
+  color: $azul;
+}
+
+/* Cabecera superior */
+.header-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* Card de Saludo */
+.saludo-card-estilo {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 14px rgba(31, 45, 58, 0.04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  .perfil-saludo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+
+    .avatar-usuario {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, $azul 0%, #304456 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      font-weight: 700;
+      font-family: $fuente;
+      box-shadow: 0 3px 8px rgba(31, 45, 58, 0.15);
+      flex-shrink: 0;
+      overflow: visible;
+
+      .foto-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 14px;
+      }
+
+      .inicial-avatar {
+        display: block;
+        line-height: 1;
+      }
+
+      .badge-online {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10b981;
+        border: 2px solid #ffffff;
+        z-index: 2;
+      }
+    }
+
+    .info-saludo {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+
+      .titulo-saludo {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+        font-family: $fuente;
+        color: $azul;
+        line-height: 1.15;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .subtitulo-saludo {
+        margin: 0;
+        font-size: 12.5px;
+        color: $muted;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  /* Micro-tarjetas KPI uniformes */
+  .mini-tarjetas-estados {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+
+    .mini-card {
+      border-radius: 14px;
+      padding: 6px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 90px;
+      height: 54px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+
+      .kpi-cabecera {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        text-align: center;
+
+        .numero-estado {
+          font-size: 18px;
+          font-weight: 800;
+          font-family: $fuente;
+          line-height: 1;
+          text-align: center;
+          display: block;
+          width: 100%;
+        }
+      }
+
+      .texto-estado {
+        font-size: 8.5px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        margin-top: 4px;
+        text-align: center;
+        display: block;
+        width: 100%;
+        white-space: nowrap;
+        line-height: 1;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      /* KPI "En camino" */
+      &.card-camino {
+        background: rgba(47, 158, 88, 0.08);
+        border-color: rgba(47, 158, 88, 0.2);
+
+        .numero-estado, .texto-estado {
+          color: $verde;
+        }
+
+        &.card-activo {
+          background: rgba(47, 158, 88, 0.16);
+          border-color: $verde;
+          box-shadow: 0 4px 10px rgba(47, 158, 88, 0.15);
+        }
+      }
+
+      /* KPI "En curso" */
+      &.card-curso {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.2);
+
+        .numero-estado, .texto-estado {
+          color: #d97706;
+        }
+
+        &.card-activo {
+          background: rgba(245, 158, 11, 0.18);
+          border-color: #d97706;
+          box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
+        }
+      }
+    }
+  }
+}
+
+/* ==========================================================
+   CONTROLES DE FILTRADO ESTANDARIZADOS
+   ========================================================== */
+.controles-filtrado {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 18px;
+  padding: 10px 14px;
+  box-shadow: 0 3px 10px rgba(31, 45, 58, 0.03);
+}
+
+/* Clase base uniforme para TODOS los botones de filtro */
+.btn-filtro {
+  height: 32px;
+  background: #f8fafc;
+  border: 1px solid rgba(213, 207, 198, 0.7);
+  color: #4b5563;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: $azul;
+  }
+
+  &.activo {
+    background: $coral;
+    color: #ffffff;
+    border-color: $coral;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgba(239, 106, 90, 0.35);
+  }
+}
+
+/* Chips de Estado */
+.filtros-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 2px 0;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 480px) {
+    justify-content: center;
+  }
+}
+
+/* Filtro de Fecha uniforme */
+.filtro-fecha-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+
+  .input-fecha-box {
+    position: relative;
+    width: 154px;
+    padding: 0;
+    cursor: pointer;
+    user-select: none;
+
+    .texto-fecha {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: inherit;
+      white-space: nowrap;
+      text-align: center;
+      width: 100%;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    /* Input cubriendo el contenedor */
+    input[type="date"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+  }
+
+  .btn-limpiar {
+    color: $coral;
+    background: rgba(239, 106, 90, 0.08);
+    border-color: rgba(239, 106, 90, 0.3);
+    padding: 0 14px;
+
+    &:hover {
+      background: rgba(239, 106, 90, 0.15);
+      border-color: $coral;
+    }
+  }
+}
+
+/* Divisor de Fecha */
+.divisor-fecha-grupo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 18px 0 12px;
+
+  .badge-timeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid $borde-fuerte;
+    padding: 5px 14px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+    span {
+      font-size: 12px;
+      font-weight: 800;
+      color: $azul;
+      font-family: $fuente;
+      letter-spacing: 0.6px;
+      text-align: center;
+      line-height: 1;
+      display: block;
+    }
+  }
+}
+
+.vacio-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 8px;
+
+  ion-icon {
+    font-size: 40px;
+    color: #cbd5e1;
+  }
+
+  .vacio {
+    color: $muted;
+    font-size: 13.5px;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+/* Lista y Tarjetas de Operación */
+.lista-operaciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-operacion {
+  background: #ffffff;
+  border: 1px solid rgba(213, 207, 198, 0.7);
+  border-left: 4px solid $muted;
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  &.badge-camino {
+    border-left-color: $verde;
+  }
+
+  &.badge-curso {
+    border-left-color: $naranja;
+  }
+
+  &.badge-finalizado {
+    border-left-color: $muted;
+  }
+
+  .cabecera-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+
+    .titulo-y-hora {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .servicio-titulo {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: $azul;
+        letter-spacing: -0.2px;
+      }
+
+      .hora-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: $muted;
+
+        ion-icon {
+          font-size: 13px;
+        }
+      }
+    }
+
+    .badge-estado {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      &.badge-camino {
+        background: rgba(47, 158, 88, 0.12);
+        color: $verde;
+      }
+
+      &.badge-curso {
+        background: rgba(245, 158, 11, 0.15);
+        color: #d97706;
+      }
+
+      &.badge-finalizado {
+        background: rgba(123, 132, 140, 0.12);
+        color: $muted;
+      }
+    }
+  }
+
+  .cuerpo-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .dato-fila {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4b5563;
+      font-size: 13.5px;
+      line-height: 1.4;
+
+      ion-icon {
+        font-size: 16px;
+        color: $muted;
+        flex-shrink: 0;
+      }
+
+      .texto-cliente {
+        font-weight: 500;
+      }
+    }
+  }
+
+  .footer-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid rgba(213, 207, 198, 0.4);
+    margin-top: 2px;
+
+    .estado-resumen {
+      display: flex;
+      align-items: center;
+
+      .indicador-tiempo {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: $azul;
+
+        ion-icon {
+          font-size: 13px;
+          color: $coral;
+        }
+      }
+
+      /* Estrellas y calificación destacadas para trabajos finalizados */
+      .calificacion-info {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        .tag-pago {
+          font-size: 12.5px;
+          font-weight: 600;
+          color: $muted;
+        }
+
+        .estrellas {
+          display: inline-flex;
+          align-items: center;
+          gap: 2px;
+
+          ion-icon {
+            font-size: 16px;
+            display: inline-block;
+
+            &.activa {
+              color: #f59e0b !important;
+            }
+
+            &.inactiva {
+              color: #d1d5db !important;
+            }
+          }
+        }
+      }
+    }
+
+    .precio-box {
+      background: rgba(239, 106, 90, 0.08);
+      padding: 4px 10px;
+      border-radius: 8px;
+
+      .valor-precio {
+        font-size: 16px;
+        font-weight: 800;
+        font-family: $fuente;
+        color: $coral;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}

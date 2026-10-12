@@ -1,0 +1,501 @@
+// Definición de variables de estilo
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+$fondo: #f6f3ee;
+$borde: #e4ded7;
+$borde-fuerte: #d5cfc6;
+$muted: #7b848c;
+$verde: #2f9e58;
+$naranja: #f59e0b;
+$fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+
+// Configuración de la barra superior renovada
+ion-toolbar.header-toolbar {
+  --background: #ffffff; 
+  --color: #{$azul};
+  --border-width: 0;
+  --min-height: 70px; 
+  box-shadow: 0 2px 15px rgba(31, 45, 58, 0.05); 
+}
+
+.menu-icono {
+  color: $azul; 
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px 0 0;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+
+  .logo-img {
+    max-height: 42px; 
+    width: auto;
+    object-fit: contain;
+  }
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pill-rol {
+  background: rgba(31, 45, 58, 0.06); 
+  color: $azul;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.campana {
+  position: relative;
+  display: flex;
+  background: none;
+  border: 0;
+  color: $azul;
+  font-size: 26px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  .punto-notificacion {
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    width: 9px;
+    height: 9px;
+    background-color: $coral;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+  }
+}
+
+ion-content {
+  --background: #{$fondo};
+}
+
+.contenido {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 36px;
+  color: $azul;
+}
+
+/* ==========================================================
+   TARJETA DE DISPONIBILIDAD & PERFIL
+   ========================================================== */
+.card-disponibilidad {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(31, 45, 58, 0.04);
+  gap: 12px;
+
+  .perfil-disponibilidad-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+
+    .avatar-usuario {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, $azul 0%, #304456 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      font-weight: 700;
+      font-family: $fuente;
+      box-shadow: 0 3px 8px rgba(31, 45, 58, 0.15);
+      flex-shrink: 0;
+
+      .foto-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 14px;
+      }
+
+      .inicial-avatar {
+        display: block;
+        line-height: 1;
+      }
+
+      .badge-online {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #94a3b8;
+        border: 2px solid #ffffff;
+        z-index: 2;
+        transition: background-color 0.2s ease;
+
+        &.conectado {
+          background: #10b981;
+        }
+      }
+    }
+
+    .texto-disponibilidad {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+
+      .saludo {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+        font-family: $fuente;
+        color: $azul;
+        line-height: 1.15;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .estado-conexion {
+        font-size: 12.5px;
+        color: $muted;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.activo {
+          color: $verde;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+/* Switch */
+.switch {
+  flex-shrink: 0;
+  width: 50px;
+  height: 28px;
+  padding: 3px;
+  background: #cbd5e1;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  outline: none;
+
+  .bolita {
+    display: block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.activo {
+    background: $coral;
+
+    .bolita {
+      transform: translateX(22px);
+    }
+  }
+}
+
+/* ==========================================================
+   RESUMEN / TARJETAS KPI DEL DÍA
+   ========================================================== */
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.tarjeta-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 6px;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(31, 45, 58, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(31, 45, 58, 0.06);
+  }
+
+  .icono-kpi {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    &.caja-ganancias {
+      background: rgba(47, 158, 88, 0.1);
+      color: $verde;
+    }
+
+    &.caja-completados {
+      background: rgba(31, 45, 58, 0.08);
+      color: $azul;
+    }
+
+    &.caja-calificacion {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+    }
+  }
+
+  .valor-kpi {
+    font-size: 17px;
+    font-weight: 800;
+    font-family: $fuente;
+    color: $azul;
+    line-height: 1.1;
+  }
+
+  .etiqueta-kpi {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+}
+
+/* ==========================================================
+   TÍTULOS DE SECCIÓN
+   ========================================================== */
+.seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 12px;
+
+  .seccion-titulo {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    font-family: $fuente;
+    color: $azul;
+    letter-spacing: 0.4px;
+  }
+
+  .conteo-badge {
+    background: #e2e8f0;
+    color: $azul;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+}
+
+.vacio-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 16px;
+  gap: 6px;
+  margin-bottom: 20px;
+
+  ion-icon {
+    font-size: 36px;
+    color: #cbd5e1;
+  }
+
+  .vacio {
+    margin: 0;
+    color: $muted;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* ==========================================================
+   TARJETAS DE SOLICITUDES NUEVAS
+   ========================================================== */
+.solicitud {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .datos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .fila-superior {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+
+      .servicio-titulo {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: $azul;
+        line-height: 1.25;
+      }
+
+      .precio-box {
+        background: rgba(239, 106, 90, 0.08);
+        padding: 4px 10px;
+        border-radius: 8px;
+        flex-shrink: 0;
+
+        .valor-precio {
+          font-size: 16px;
+          font-weight: 800;
+          font-family: $fuente;
+          color: $coral;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    .info-cliente {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #4b5563;
+      font-weight: 500;
+
+      ion-icon {
+        font-size: 15px;
+        color: $muted;
+      }
+    }
+
+    .badges-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+
+      .meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #f8fafc;
+        border: 1px solid rgba(213, 207, 198, 0.6);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        color: $muted;
+        font-weight: 600;
+
+        ion-icon {
+          font-size: 12px;
+          color: $azul;
+        }
+      }
+    }
+  }
+
+  .botones {
+    display: flex;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(213, 207, 198, 0.4);
+
+    .btn-accion {
+      flex: 1;
+      height: 38px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+
+      ion-icon {
+        font-size: 16px;
+      }
+
+      &.aceptar {
+        background: $coral;
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 3px 8px rgba(239, 106, 90, 0.25);
+
+        &:hover {
+          filter: brightness(0.95);
+        }
+      }
+
+      &.rechazar {
+        background: #f8fafc;
+        color: #64748b;
+        border: 1px solid rgba(213, 207, 198, 0.8);
+
+        &:hover {
+          background: #f1f5f9;
+          color: $azul;
+        }
+      }
+    }
+  }
+}

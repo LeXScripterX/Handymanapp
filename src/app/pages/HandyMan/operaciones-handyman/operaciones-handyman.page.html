@@ -1,0 +1,157 @@
+<!-- Llamamos al componente reutilizable del Header -->
+<app-header-handyman></app-header-handyman>
+
+<!-- Contenido principal -->
+<ion-content>
+  <div class="contenido">
+    
+    <!-- Cabecera superior con saludo, avatar y tarjetas de estado -->
+    <div class="header-seccion">
+      <div class="saludo-card-estilo">
+        <div class="perfil-saludo-wrapper">
+          <div class="avatar-usuario">
+            @if (fotoPerfil()) {
+              <img [src]="fotoPerfil()" alt="Perfil" class="foto-img" />
+            } @else {
+              <span class="inicial-avatar">{{ nombreTrabajador().charAt(0) }}</span>
+            }
+            <span class="badge-online"></span>
+          </div>
+          <div class="info-saludo">
+            <h1 class="titulo-saludo">Hola, {{ nombreTrabajador() }}</h1>
+            <p class="subtitulo-saludo">Panel de trabajos activos</p>
+          </div>
+        </div>
+        
+        <!-- Tarjetas de estado simétricas -->
+        <div class="mini-tarjetas-estados">
+          <div class="mini-card card-camino" (click)="cambiarFiltro('En camino')" [class.card-activo]="filtroEstado() === 'En camino'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalEnCamino() }}</span>
+            </div>
+            <span class="texto-estado">En camino</span>
+          </div>
+
+          <div class="mini-card card-curso" (click)="cambiarFiltro('En curso')" [class.card-activo]="filtroEstado() === 'En curso'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalEnCurso() }}</span>
+            </div>
+            <span class="texto-estado">En curso</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros estandarizados y modernos -->
+      <div class="controles-filtrado">
+        
+        <!-- Chips de Estado -->
+        <div class="filtros-chips">
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'todos'" (click)="cambiarFiltro('todos')">Todos</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En camino'" (click)="cambiarFiltro('En camino')">En camino</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En curso'" (click)="cambiarFiltro('En curso')">En curso</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'Finalizado'" (click)="cambiarFiltro('Finalizado')">Finalizados</button>
+        </div>
+
+        <!-- Filtro de Fecha: Clic en toda el área abre el selector en PC y Móvil -->
+        <div class="filtro-fecha-wrapper">
+          <div 
+            class="input-fecha-box btn-filtro" 
+            [class.activo]="filtroFecha()" 
+            (click)="abrirSelectorFecha(inputFecha)">
+            
+            <span class="texto-fecha">{{ filtroFecha() ? filtroFechaLegible() : 'Fecha' }}</span>
+            
+            <input 
+              #inputFecha
+              type="date" 
+              [value]="filtroFecha()" 
+              (change)="filtrarPorFecha($event)" 
+              (input)="filtrarPorFecha($event)" 
+            />
+          </div>
+
+          @if (filtroFecha()) {
+            <button type="button" class="btn-filtro btn-limpiar" (click)="limpiarFecha()">
+              <span>Limpiar</span>
+            </button>
+          }
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Verificación de listado -->
+    @if (trabajosAgrupadosPorFecha().length === 0) {
+      <div class="vacio-box">
+        <ion-icon name="file-tray-outline"></ion-icon>
+        <p class="vacio">No se encontraron trabajos con los filtros seleccionados.</p>
+      </div>
+    } @else {
+      <!-- Iteración agrupada por fecha -->
+      <div class="lista-operaciones">
+        @for (grupo of trabajosAgrupadosPorFecha(); track grupo.fechaOriginal) {
+          
+          <div class="divisor-fecha-grupo">
+            <div class="badge-timeline">
+              <span>{{ grupo.fechaFormateada }}</span>
+            </div>
+          </div>
+
+          @for (t of grupo.trabajos; track t.id) {
+            <div class="card-operacion" [ngClass]="obtenerClaseEstado(t.estado)">
+              
+              <div class="cabecera-card">
+                <div class="titulo-y-hora">
+                  <h3 class="servicio-titulo">{{ t.servicio }}</h3>
+                  <div class="hora-badge">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ t.horaCreacion }}</span>
+                  </div>
+                </div>
+                <span class="badge-estado" [ngClass]="obtenerClaseEstado(t.estado)">
+                  {{ t.estado }}
+                </span>
+              </div>
+              
+              <div class="cuerpo-card">
+                <div class="dato-fila">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span class="texto-cliente">{{ t.cliente }}</span>
+                </div>
+              </div>
+
+              <div class="footer-card">
+                <div class="estado-resumen">
+                  @if (t.estado === 'Finalizado' || t.estrellas) {
+                    <div class="calificacion-info">
+                      <span class="tag-pago">{{ t.infoExtra }}</span>
+                      <div class="estrellas">
+                        @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
+                          <ion-icon 
+                            name="star" 
+                            [class.activa]="estrella <= (t.estrellas ?? 5)" 
+                            [class.inactiva]="estrella > (t.estrellas ?? 5)">
+                          </ion-icon>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="indicador-tiempo">
+                      <ion-icon name="radio-button-on-outline"></ion-icon>
+                      <span>{{ t.infoExtra }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="precio-box">
+                  <span class="valor-precio">{{ t.precio }}</span>
+                </div>
+              </div>
+
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</ion-content>

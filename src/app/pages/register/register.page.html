@@ -1,68 +1,125 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login" text=""></ion-back-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="register-page">
+  <div class="contenedor-centrado">
+    
+    <div class="logo-cabecera">
+      <img src="assets/Logo_HandyMan.jpg" alt="Handyman Logo" class="logo-img" />
+    </div>
 
-<ion-content class="ion-padding">
-  <div class="register-container">
-    <h1 class="titulo">Crea tu cuenta</h1>
-    <p class="subtitulo">Únete a HandymanApp</p>
+    <div class="login-card">
+      
+      <div class="header-card">
+        <ion-buttons class="btn-volver-container">
+          <ion-back-button defaultHref="/login" text="" icon="arrow-back-outline" class="btn-volver"></ion-back-button>
+        </ion-buttons>
+        <h1 class="titulo">Crea tu cuenta</h1>
+        <p class="subtitulo">
+          @if (rolSeleccionado === 'handyman') {
+            Únete a la red de profesionales
+          } @else {
+            Encuentra expertos para tu hogar
+          }
+        </p>
+      </div>
 
-    <ion-segment
-      [value]="rolSeleccionado"
-      (ionChange)="seleccionarRol($event.detail.value)"
-      class="segmento-rol"
-    >
-      <ion-segment-button value="cliente">
-        <ion-label>Cliente</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="handyman">
-        <ion-label>Handyman</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+      <form [formGroup]="form" (ngSubmit)="registrar()">
+        
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Nombre completo</label>
+          <div class="input-caja" [class.campo-invalido]="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <!-- input con sanitización en tiempo real -->
+            <input 
+              formControlName="nombre" 
+              type="text" 
+              placeholder="Tu nombre" 
+              autocomplete="name"
+              (input)="sanitizarNombre($event)"
+            />
+          </div>
+          @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
+            <span class="mensaje-error">Ingresa un nombre válido (solo letras).</span>
+          }
+        </div>
 
-    <form [formGroup]="form" (ngSubmit)="registrar()">
-      <ion-item class="campo" lines="none">
-        <ion-label position="stacked">Nombre completo</ion-label>
-        <ion-input formControlName="nombre" placeholder="Tu nombre"></ion-input>
-      </ion-item>
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Correo electrónico</label>
+          <div class="input-caja" [class.campo-invalido]="form.get('email')?.invalid && form.get('email')?.touched">
+            <ion-icon name="mail-outline"></ion-icon>
+            <input formControlName="email" type="email" placeholder="tu@correo.com" inputmode="email" autocomplete="email" />
+          </div>
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <span class="mensaje-error">Ingresa un correo electrónico válido.</span>
+          }
+        </div>
 
-      <ion-item class="campo" lines="none">
-        <ion-label position="stacked">Correo electrónico</ion-label>
-        <ion-input
-          formControlName="email"
-          type="email"
-          placeholder="tu@correo.com"
-          inputmode="email"
-        ></ion-input>
-      </ion-item>
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Celular (WhatsApp)</label>
+          <div class="input-caja" [class.campo-invalido]="form.get('celular')?.invalid && form.get('celular')?.touched">
+            <ion-icon name="call-outline"></ion-icon>
+            <!-- inputmode=numeric fuerza el teclado numérico en móviles y maxlength restringe a 10 -->
+            <input 
+              formControlName="celular" 
+              type="tel" 
+              inputmode="numeric" 
+              maxlength="10" 
+              placeholder="300 000 0000" 
+              autocomplete="tel"
+              (input)="sanitizarCelular($event)"
+            />
+          </div>
+          @if (form.get('celular')?.invalid && form.get('celular')?.touched) {
+            <span class="mensaje-error">El celular debe tener exactamente 10 números.</span>
+          }
+        </div>
 
-      <ion-item class="campo" lines="none">
-        <ion-label position="stacked">Contraseña</ion-label>
-        <ion-input formControlName="password" type="password" placeholder="••••••••"></ion-input>
-      </ion-item>
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Contraseña</label>
+          <div class="input-caja" [class.campo-invalido]="form.get('password')?.invalid && form.get('password')?.touched">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <input formControlName="password" type="password" placeholder="••••••••" autocomplete="new-password" />
+          </div>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <span class="mensaje-error">La contraseña debe tener al menos 6 caracteres.</span>
+          }
+        </div>
 
-      <ion-item class="campo" lines="none">
-        <ion-label position="stacked">Confirmar contraseña</ion-label>
-        <ion-input
-          formControlName="confirmarPassword"
-          type="password"
-          placeholder="••••••••"
-        ></ion-input>
-      </ion-item>
+        <div class="grupo-campo">
+          <label class="etiqueta-campo">Confirmar contraseña</label>
+          <div class="input-caja" [class.campo-invalido]="form.hasError('mismatch') && form.get('confirmarPassword')?.touched">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <input formControlName="confirmarPassword" type="password" placeholder="••••••••" autocomplete="new-password" />
+          </div>
+          @if (form.hasError('mismatch') && form.get('confirmarPassword')?.touched) {
+            <span class="mensaje-error">Las contraseñas no coinciden.</span>
+          }
+        </div>
 
-      <ion-button
-        expand="block"
-        type="submit"
-        shape="round"
-        class="boton-registrar"
-        [disabled]="cargando"
-      >
-        {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
-      </ion-button>
-    </form>
+        <div class="grupo-terminos" [class.alerta-handyman]="rolSeleccionado === 'handyman'">
+          <label class="checkbox-container">
+            <input type="checkbox" formControlName="terminos">
+            <span class="checkmark"></span>
+            <span class="texto-terminos">
+              @if (rolSeleccionado === 'cliente') {
+                Acepto los términos y condiciones de HandymanApp.
+              } @else {
+                Autorizo la validación de identidad y revisión de antecedentes para ofrecer servicios.
+              }
+            </span>
+          </label>
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn-primario" 
+          [disabled]="form.invalid || cargando">
+          @if (cargando) {
+            <span>Creando...</span>
+          } @else {
+            <span>Crear cuenta</span>
+          }
+        </button>
+      </form>
+
+    </div>
   </div>
 </ion-content>

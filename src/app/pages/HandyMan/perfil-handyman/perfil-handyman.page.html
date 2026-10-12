@@ -1,0 +1,297 @@
+<app-header-handyman></app-header-handyman>
+
+<ion-content class="perfil-page">
+  <div class="contenido-perfil">
+    
+    <!-- Tarjeta Principal (Hero) -->
+    <div class="card-hero">
+      <div class="avatar-wrapper">
+        <div class="avatar-circulo">
+          @if (fotoPerfil()) {
+            <img [src]="fotoPerfil()" alt="Perfil" />
+          } @else {
+            <span class="inicial">{{ nombreTrabajador().charAt(0) }}</span>
+          }
+        </div>
+        <button class="btn-editar-foto" aria-label="Cambiar foto">
+          <ion-icon name="camera"></ion-icon>
+        </button>
+      </div>
+
+      <h2 class="nombre-usuario">{{ nombreTrabajador() }}</h2>
+      <p class="correo-usuario">{{ correoTrabajador() }}</p>
+      
+      <div class="badges-container">
+        <span class="badge-rol">Handyman</span>
+        <span class="badge-verificado">
+          <ion-icon name="checkmark-circle"></ion-icon> Verificado
+        </span>
+      </div>
+
+      <button class="btn-editar-perfil" (click)="abrirModalEdicion()">
+        Editar información personal
+      </button>
+    </div>
+
+    <!-- Panel de Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <ion-icon name="star" class="icono-estrella"></ion-icon>
+        <div class="stat-textos">
+          <span class="stat-valor">4.9</span>
+          <span class="stat-label">Calificación</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <ion-icon name="briefcase" class="icono-trabajo"></ion-icon>
+        <div class="stat-textos">
+          <span class="stat-valor">45</span>
+          <span class="stat-label">Trabajos</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <ion-icon name="time" class="icono-tiempo"></ion-icon>
+        <div class="stat-textos">
+          <span class="stat-valor">1.5</span>
+          <span class="stat-label">Años</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Mis Servicios Configurables -->
+    <div class="seccion-moderna">
+      <div class="seccion-header">
+        <div class="textos-header">
+          <h3 class="titulo-seccion">Servicios que ofreces</h3>
+          <p class="subtitulo-seccion">Ajusta tu tarifa base para cada especialidad</p>
+        </div>
+        <!-- Botón conectado al nuevo modal de catálogo -->
+        <button class="btn-agregar-servicio" (click)="abrirModalServicios()">
+          <ion-icon name="add"></ion-icon>
+        </button>
+      </div>
+      
+      <div class="lista-servicios">
+        @for (servicio of misServicios(); track servicio.id) {
+          <div class="servicio-card" [ngClass]="servicio.claseColor">
+            
+            <div class="serv-header">
+              <div class="icono-box" [ngClass]="servicio.claseColor">
+                <ion-icon [name]="servicio.icono"></ion-icon>
+              </div>
+              <div class="serv-textos">
+                <h4>{{ servicio.nombre }}</h4>
+                <p>{{ servicio.descripcion }}</p>
+              </div>
+            </div>
+            
+            <div class="divisor-tarjeta"></div>
+
+            <div class="serv-footer">
+              <div class="info-estado">
+                <span class="punto-estado" [ngClass]="servicio.claseColor"></span>
+                <span class="texto-estado">Tarifa Base</span>
+              </div>
+              <div class="accion-precio">
+                <strong class="precio-coral">{{ formatearPrecio(servicio.precioBase) }}</strong>
+                <button class="btn-lapiz" (click)="editarPrecio(servicio)" aria-label="Editar tarifa">
+                  <ion-icon name="pencil"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sección: Portafolio de Trabajos Inteligente -->
+    <div class="seccion-moderna">
+      <div class="seccion-header">
+        <div class="textos-header">
+          <h3 class="titulo-seccion">Portafolio visual</h3>
+          <p class="subtitulo-seccion">Evidencia de tus trabajos realizados</p>
+        </div>
+      </div>
+
+      <div class="filtros-portafolio scroll-horizontal">
+        <button 
+          class="chip-filtro" 
+          [class.activo]="filtroPortafolio() === 'todos'" 
+          (click)="setFiltro('todos')">
+          Todos
+        </button>
+        @for (servicio of misServicios(); track servicio.id) {
+          <button 
+            class="chip-filtro" 
+            [class.activo]="filtroPortafolio() === servicio.id" 
+            (click)="setFiltro(servicio.id)">
+            {{ servicio.nombreCorto }}
+          </button>
+        }
+      </div>
+      
+      <div class="grid-portafolio">
+        <button class="foto-item upload-box" (click)="subirFoto()">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          <span>Añadir foto</span>
+        </button>
+        
+        @for (foto of fotosFiltradas(); track foto.id) {
+          <div class="foto-item foto-real">
+            <span class="tag-categoria" [ngClass]="obtenerClaseServicio(foto.servicioId)">
+              <ion-icon [name]="obtenerIconoServicio(foto.servicioId)"></ion-icon>
+            </span>
+            <ion-icon name="image-outline" class="placeholder-img"></ion-icon>
+          </div>
+        }
+      </div>
+    </div>
+
+    <button class="btn-logout" (click)="cerrarSesion()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      <span>Cerrar sesión</span>
+    </button>
+
+  </div>
+</ion-content>
+
+<!-- ==============================================
+     MODAL DE EDICIÓN FLOTANTE (ESTILO REGISTRO) 
+     ============================================== -->
+<ion-modal 
+  [isOpen]="modalEdicionAbierto()" 
+  (didDismiss)="cerrarModalEdicion()" 
+  class="modal-handy-moderno">
+  <ng-template>
+    <div class="modal-wrapper-interno">
+      
+      <div class="modal-header-custom">
+        <button class="btn-cerrar-custom" (click)="cerrarModalEdicion()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="modal-titulos">
+          <h2>Editar Perfil</h2>
+          <p>Actualiza tu información personal</p>
+        </div>
+      </div>
+
+      <div class="modal-body-custom">
+        <form [formGroup]="formEdicion" (ngSubmit)="guardarCambiosPerfil()">
+          
+          <div class="grupo-campo">
+            <label class="etiqueta-campo">Nombre completo</label>
+            <div class="input-caja" [class.campo-invalido]="formEdicion.get('nombre')?.invalid && formEdicion.get('nombre')?.touched">
+              <ion-icon name="person-circle-outline"></ion-icon>
+              <input 
+                formControlName="nombre" 
+                type="text" 
+                placeholder="Tu nombre" 
+                autocomplete="name"
+                (input)="sanitizarNombre($event)"
+              />
+            </div>
+            @if (formEdicion.get('nombre')?.invalid && formEdicion.get('nombre')?.touched) {
+              <span class="mensaje-error">Ingresa un nombre válido (solo letras).</span>
+            }
+          </div>
+
+          <div class="grupo-campo">
+            <label class="etiqueta-campo">Correo electrónico</label>
+            <div class="input-caja" [class.campo-invalido]="formEdicion.get('email')?.invalid && formEdicion.get('email')?.touched">
+              <ion-icon name="mail-outline"></ion-icon>
+              <input formControlName="email" type="email" placeholder="tu@correo.com" inputmode="email" autocomplete="email" />
+            </div>
+            @if (formEdicion.get('email')?.invalid && formEdicion.get('email')?.touched) {
+              <span class="mensaje-error">Ingresa un correo electrónico válido.</span>
+            }
+          </div>
+
+          <div class="grupo-campo">
+            <label class="etiqueta-campo">Celular (WhatsApp)</label>
+            <div class="input-caja" [class.campo-invalido]="formEdicion.get('celular')?.invalid && formEdicion.get('celular')?.touched">
+              <ion-icon name="call-outline"></ion-icon>
+              <input 
+                formControlName="celular" 
+                type="tel" 
+                inputmode="numeric" 
+                maxlength="10" 
+                placeholder="300 000 0000" 
+                autocomplete="tel"
+                (input)="sanitizarCelular($event)"
+              />
+            </div>
+            @if (formEdicion.get('celular')?.invalid && formEdicion.get('celular')?.touched) {
+              <span class="mensaje-error">El celular debe tener exactamente 10 números.</span>
+            }
+          </div>
+
+          <div class="grupo-campo">
+            <label class="etiqueta-campo">Nueva contraseña (Opcional)</label>
+            <div class="input-caja" [class.campo-invalido]="formEdicion.get('password')?.invalid && formEdicion.get('password')?.touched">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              <input formControlName="password" type="password" placeholder="••••••••" autocomplete="new-password" />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn-primario" 
+            [disabled]="formEdicion.invalid || guardandoCambios">
+            @if (guardandoCambios) {
+              <span>Guardando...</span>
+            } @else {
+              <span>Guardar cambios</span>
+            }
+          </button>
+        </form>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ==============================================
+     MODAL DE CATÁLOGO DE SERVICIOS
+     ============================================== -->
+<ion-modal 
+  [isOpen]="modalServiciosAbierto()" 
+  (didDismiss)="cerrarModalServicios()" 
+  class="modal-handy-moderno">
+  <ng-template>
+    <div class="modal-wrapper-interno">
+      
+      <div class="modal-header-custom">
+        <button class="btn-cerrar-custom" (click)="cerrarModalServicios()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="modal-titulos">
+          <h2>Agregar Servicio</h2>
+          <p>Selecciona una especialidad de nuestro catálogo</p>
+        </div>
+      </div>
+
+      <div class="modal-body-custom modal-body-catalogo">
+        @for (servicio of serviciosDisponibles(); track servicio.id) {
+          <div class="servicio-catalogo-item" [ngClass]="servicio.claseColor" (click)="seleccionarServicio(servicio)">
+            <div class="icono-box" [ngClass]="servicio.claseColor">
+              <ion-icon [name]="servicio.icono"></ion-icon>
+            </div>
+            <div class="serv-textos">
+              <h4>{{ servicio.nombre }}</h4>
+              <p>{{ servicio.descripcion }}</p>
+            </div>
+            <ion-icon name="add-circle" class="icono-add"></ion-icon>
+          </div>
+        }
+
+        <!-- Mensaje si ya tiene todos los servicios agregados -->
+        @if (serviciosDisponibles().length === 0) {
+          <div class="estado-vacio">
+            <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+            <p>¡Excelente! Ya ofreces todos los servicios de nuestro catálogo.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

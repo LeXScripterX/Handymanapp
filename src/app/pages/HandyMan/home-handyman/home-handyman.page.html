@@ -1,0 +1,121 @@
+<!-- Llamamos al componente reutilizable del Header -->
+<app-header-handyman></app-header-handyman>
+
+<ion-content>
+  <div class="contenido">
+    
+    <!-- Tarjeta de Disponibilidad y Perfil -->
+    <div class="card-disponibilidad">
+      <div class="perfil-disponibilidad-wrapper">
+        <div class="avatar-usuario">
+          @if (fotoPerfil()) {
+            <img [src]="fotoPerfil()" alt="Perfil" class="foto-img" />
+          } @else {
+            <span class="inicial-avatar">{{ saludoInicial().charAt(0) }}</span>
+          }
+          <span class="badge-online" [class.conectado]="disponible()"></span>
+        </div>
+        <div class="texto-disponibilidad">
+          <strong class="saludo">Hola{{ saludoInicial() ? ', ' + saludoInicial() : '' }}</strong>
+          <span class="estado-conexion" [class.activo]="disponible()">
+            {{ disponible() ? 'Disponible para trabajos' : 'Desconectado de solicitudes' }}
+          </span>
+        </div>
+      </div>
+
+      <button 
+        type="button" 
+        class="switch" 
+        [class.activo]="disponible()" 
+        (click)="alternarDisponibilidad()"
+        aria-label="Alternar disponibilidad">
+        <span class="bolita"></span>
+      </button>
+    </div>
+
+    <!-- Panel de Métricas correspondientes al día actual -->
+    <div class="resumen">
+      <div class="tarjeta-kpi">
+        <div class="icono-kpi caja-ganancias">
+          <ion-icon name="cash-outline"></ion-icon>
+        </div>
+        <strong class="valor-kpi">${{ gananciasHoy() | number }}</strong>
+        <span class="etiqueta-kpi">Ganancias Hoy</span>
+      </div>
+
+      <div class="tarjeta-kpi">
+        <div class="icono-kpi caja-completados">
+          <ion-icon name="construct-outline"></ion-icon>
+        </div>
+        <strong class="valor-kpi">{{ trabajosCompletadosHoy() }}</strong>
+        <span class="etiqueta-kpi">Completados Hoy</span>
+      </div>
+
+      <div class="tarjeta-kpi">
+        <div class="icono-kpi caja-calificacion">
+          <ion-icon name="star"></ion-icon>
+        </div>
+        <strong class="valor-kpi">{{ calificacionPromedioHoy() }}</strong>
+        <span class="etiqueta-kpi">Promedio Hoy</span>
+      </div>
+    </div>
+
+    <!-- Solicitudes nuevas -->
+    <div class="seccion-header">
+      <h2 class="seccion-titulo">Solicitudes nuevas</h2>
+      @if (solicitudes().length > 0) {
+        <span class="conteo-badge">{{ solicitudes().length }}</span>
+      }
+    </div>
+
+    @if (solicitudes().length === 0) {
+      <div class="vacio-box">
+        <ion-icon name="file-tray-outline"></ion-icon>
+        <p class="vacio">No tienes nuevas solicitudes en este momento.</p>
+      </div>
+    } @else {
+      <div class="lista">
+        @for (s of solicitudes(); track s.cliente) {
+          <div class="solicitud">
+            <div class="datos">
+              <div class="fila-superior">
+                <h3 class="servicio-titulo">{{ s.servicio }}</h3>
+                <div class="precio-box">
+                  <span class="valor-precio">{{ s.precio }}</span>
+                </div>
+              </div>
+
+              <div class="info-cliente">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>{{ s.cliente }}</span>
+              </div>
+
+              <div class="badges-meta">
+                <span class="meta-pill">
+                  <ion-icon name="location-outline"></ion-icon>
+                  {{ s.categoriaZona }} ({{ s.distancia }})
+                </span>
+                <span class="meta-pill">
+                  <ion-icon name="time-outline"></ion-icon>
+                  {{ s.hace }}
+                </span>
+              </div>
+            </div>
+
+            <div class="botones">
+              <button type="button" class="btn-accion aceptar" (click)="aceptar(s)">
+                <ion-icon name="checkmark-outline"></ion-icon>
+                <span>Aceptar</span>
+              </button>
+              <button type="button" class="btn-accion rechazar" (click)="rechazar(s)">
+                <ion-icon name="close-outline"></ion-icon>
+                <span>Rechazar</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</ion-content>
