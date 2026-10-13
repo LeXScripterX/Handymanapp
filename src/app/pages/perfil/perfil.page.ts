@@ -16,27 +16,7 @@ import { AuthService, UserRole } from '../../services/auth.service';
   selector: 'app-perfil',
   standalone: true,
   imports: [IonButtons, IonContent, IonHeader, IonMenuButton, IonTitle, IonToolbar],
-  template: `
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-menu-button color="light"></ion-menu-button>
-        </ion-buttons>
-        <ion-title>Perfil</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content>
-      <div class="contenido">
-        <div class="avatar">{{ inicial() }}</div>
-        <h2>{{ nombre() }}</h2>
-        <p class="correo">{{ email() }}</p>
-        <span class="pill">{{ etiquetaRol() }}</span>
-
-        <button type="button" class="salir" (click)="cerrarSesion()">Cerrar sesión</button>
-      </div>
-    </ion-content>
-  `,
+  templateUrl:'./perfil.page.html',
   styles: [
     `
       ion-toolbar {

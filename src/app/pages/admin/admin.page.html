@@ -1,13 +1,114 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="barra">
     <ion-title>Panel de administrador</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">Cerrar sesión</ion-button>
+      <ion-button class="btn-salir" (click)="cerrarSesion()">Cerrar sesión</ion-button>
     </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="barra-segmento">
+    <ion-segment mode="ios" class="segmento" [value]="vista()" (ionChange)="cambiarVista($event)">
+      <ion-segment-button value="resumen"><ion-label>Resumen</ion-label></ion-segment-button>
+      <ion-segment-button value="usuarios"><ion-label>Usuarios</ion-label></ion-segment-button>
+      <ion-segment-button value="servicios"><ion-label>Servicios</ion-label></ion-segment-button>
+      <ion-segment-button value="resenas"><ion-label>Reseñas</ion-label></ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <h2>Hola, admin</h2>
-  <p>Aquí irá la gestión de usuarios y servicios.</p>
+<ion-content class="admin-page">
+  <div class="contenedor">
+    <h2 class="saludo">Hola, admin</h2>
+
+    @switch (vista()) {
+
+      @case ('resumen') {
+        <div class="stats">
+          <div class="stat-card">
+            <span class="stat-etiqueta">Trabajadores</span>
+            <span class="stat-numero">{{ stats().trabajadores }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-etiqueta">Clientes</span>
+            <span class="stat-numero">{{ stats().clientes }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-etiqueta">Sin verificar</span>
+            <span class="stat-numero">{{ stats().sinVerificar }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-etiqueta">Reseñas pendientes</span>
+            <span class="stat-numero">{{ stats().resenasPendientes }}</span>
+          </div>
+        </div>
+      }
+
+      @case ('usuarios') {
+        <ion-searchbar class="buscador" placeholder="Buscar por nombre o correo"
+          (ionInput)="busqueda.set($any($event).target.value ?? '')"></ion-searchbar>
+        <ion-list class="lista-card">
+          @for (u of usuariosFiltrados(); track u.id) {
+            <ion-item lines="full">
+              <ion-label>
+                <h3>{{ u.nombre }}</h3>
+                <p>{{ u.email }}</p>
+                <div class="chips">
+                  <ion-chip>{{ u.rol }}</ion-chip>
+                  @if (u.verificado) { <ion-chip class="chip-ok">Verificado</ion-chip> }
+                  @if (!u.activo) { <ion-chip class="chip-peligro">Bloqueado</ion-chip> }
+                </div>
+              </ion-label>
+              <div class="acciones-item" slot="end">
+                @if (u.rol === 'trabajador') {
+                  <ion-button class="btn-secundario" size="small" (click)="admin.alternarVerificado(u.id)">
+                    {{ u.verificado ? 'Quitar verif.' : 'Verificar' }}
+                  </ion-button>
+                }
+                <ion-button class="btn-peligro" size="small" (click)="admin.alternarActivo(u.id)">
+                  {{ u.activo ? 'Bloquear' : 'Activar' }}
+                </ion-button>
+              </div>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      @case ('servicios') {
+        <ion-button class="btn-primario" expand="block" (click)="nuevoServicio()">
+          Agregar servicio
+        </ion-button>
+        <ion-list class="lista-card">
+          @for (s of admin.servicios(); track s.id) {
+            <ion-item lines="full">
+              <ion-toggle [checked]="s.activo" (ionChange)="admin.alternarServicio(s.id)">
+                {{ s.nombre }}
+              </ion-toggle>
+              <ion-button slot="end" class="btn-peligro" size="small"
+                (click)="confirmarEliminar(s.id, s.nombre)">Eliminar</ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      @case ('resenas') {
+        @if (resenasPendientes().length === 0) {
+          <p class="vacio">No hay reseñas pendientes.</p>
+        }
+        @for (r of resenasPendientes(); track r.id) {
+          <ion-card class="tarjeta">
+            <ion-card-header>
+              <ion-card-title>{{ r.estrellas }} ★ para {{ r.trabajador }}</ion-card-title>
+              <ion-card-subtitle>por {{ r.autor }}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content>
+              {{ r.comentario }}
+              <div class="acciones">
+                <ion-button class="btn-primario" size="small" (click)="admin.moderarResena(r.id, 'aprobada')">Aprobar</ion-button>
+                <ion-button class="btn-peligro" size="small" (click)="admin.moderarResena(r.id, 'rechazada')">Rechazar</ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
+      }
+    }
+  </div>
 </ion-content>
