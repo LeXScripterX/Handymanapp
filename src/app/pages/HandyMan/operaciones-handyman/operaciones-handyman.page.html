@@ -1,4 +1,3 @@
-<!-- Llamamos al componente reutilizable del Header -->
 <app-header-handyman></app-header-handyman>
 
 <!-- Contenido principal -->
@@ -25,6 +24,14 @@
         
         <!-- Tarjetas de estado simétricas -->
         <div class="mini-tarjetas-estados">
+          <!-- AGREGADO: Tarjeta de estado NUEVO -->
+          <div class="mini-card card-nuevo" (click)="cambiarFiltro('NUEVO')" [class.card-activo]="filtroEstado() === 'NUEVO'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalNuevos() }}</span>
+            </div>
+            <span class="texto-estado">Nuevos</span>
+          </div>
+
           <div class="mini-card card-camino" (click)="cambiarFiltro('En camino')" [class.card-activo]="filtroEstado() === 'En camino'">
             <div class="kpi-cabecera">
               <span class="numero-estado">{{ totalEnCamino() }}</span>
@@ -47,6 +54,8 @@
         <!-- Chips de Estado -->
         <div class="filtros-chips">
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'todos'" (click)="cambiarFiltro('todos')">Todos</button>
+          <!-- AGREGADO: Botón de filtro para Nuevos -->
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'NUEVO'" (click)="cambiarFiltro('NUEVO')">Nuevos</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En camino'" (click)="cambiarFiltro('En camino')">En camino</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En curso'" (click)="cambiarFiltro('En curso')">En curso</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'Finalizado'" (click)="cambiarFiltro('Finalizado')">Finalizados</button>

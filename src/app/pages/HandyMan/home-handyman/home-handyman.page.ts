@@ -24,8 +24,9 @@ import {
 import { AuthService } from '../../../services/auth.service';
 import { DecimalPipe } from '@angular/common';
 
-// 1. IMPORTAMOS EL NUEVO COMPONENTE COMPARTIDO
 import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
+// AGREGADO: Importamos el servicio
+import { OperacionesHandymanService } from '../../../services/operaciones-handyman.service';
 
 interface Solicitud {
   cliente: string;
@@ -53,25 +54,25 @@ interface TrabajoCompletadoHoy {
     IonIcon,
     DecimalPipe,
     RouterModule,
-    HeaderHandymanComponent // 2. LO AGREGAMOS A LOS IMPORTS DEL COMPONENTE
+    HeaderHandymanComponent 
   ]
 })
 export class HomeHandymanPage {
   private authService = inject(AuthService);
   private menuCtrl = inject(MenuController);
   private router = inject(Router);
+  // AGREGADO: Inyectamos el servicio
+  private operacionesService = inject(OperacionesHandymanService);
 
   nombre = signal('Daniel');
   fotoPerfil = signal('');
   disponible = signal(true);
 
-  // Trabajos finalizados del día actual (listos para mapear a Firebase)
   trabajosFinalizadosHoy = signal<TrabajoCompletadoHoy[]>([
     { id: 1, servicio: 'Instalación de tomacorrientes', monto: 50000, calificacion: 5 },
     { id: 2, servicio: 'Reparación de grifo', monto: 35000, calificacion: 4.8 },
   ]);
 
-  // Cálculos automáticos del día actual
   gananciasHoy = computed(() => {
     return this.trabajosFinalizadosHoy().reduce((acc, t) => acc + t.monto, 0);
   });
@@ -147,8 +148,9 @@ export class HomeHandymanPage {
   }
 
   aceptar(solicitud: Solicitud) {
+    // AGREGADO: Envía los datos al servicio de operaciones
+    this.operacionesService.aceptarSolicitud(solicitud);
     this.solicitudes.update((lista) => lista.filter((s) => s !== solicitud));
-    // Al aceptar la solicitud navega directamente a la pestaña de operaciones
     this.router.navigate(['/operaciones-handyman']);
   }
 

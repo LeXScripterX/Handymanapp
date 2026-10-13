@@ -2,8 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { 
-  IonContent, IonIcon, IonModal, IonHeader, 
-  IonToolbar, IonTitle, IonButtons, IonButton, 
+  IonContent, IonIcon, IonModal, 
   AlertController 
 } from '@ionic/angular/standalone';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -46,11 +45,6 @@ interface FotoPortafolio {
     IonContent, 
     IonIcon, 
     IonModal, 
-    IonHeader, 
-    IonToolbar, 
-    IonTitle, 
-    IonButtons, 
-    IonButton,
     HeaderHandymanComponent
   ]
 })
@@ -60,7 +54,6 @@ export class PerfilHandymanPage implements OnInit {
   private alertCtrl = inject(AlertController);
   private formBuilder = inject(FormBuilder);
 
-  // Estados de Modales
   modalEdicionAbierto = signal<boolean>(false);
   modalServiciosAbierto = signal<boolean>(false);
   guardandoCambios = false;
@@ -72,7 +65,6 @@ export class PerfilHandymanPage implements OnInit {
   celularTrabajador = signal<string>('');
   fotoPerfil = signal<string>('');
 
-  // Servicios actuales del usuario
   misServicios = signal<ServicioHandyman[]>([
     {
       id: 'plom_basica',
@@ -85,7 +77,6 @@ export class PerfilHandymanPage implements OnInit {
     }
   ]);
 
-  // Catálogo maestro predeterminado de la App
   catalogoServicios: ServicioHandyman[] = [
     { id: 'plom_basica', nombre: 'Plomería Básica', nombreCorto: 'Plomería', descripcion: 'Reparación de fugas, grifos y tuberías', icono: 'water', claseColor: 'bg-plomeria', precioBase: 50000 },
     { id: 'plom_calentador', nombre: 'Revisión Calentadores', nombreCorto: 'Calentadores', descripcion: 'Mantenimiento de calentadores a gas y eléctricos', icono: 'water', claseColor: 'bg-plomeria', precioBase: 80000 },
@@ -96,7 +87,6 @@ export class PerfilHandymanPage implements OnInit {
     { id: 'gen_tv', nombre: 'Instalación Soporte TV', nombreCorto: 'Soportes TV', descripcion: 'Fijación segura de bases para televisores', icono: 'tv', claseColor: 'bg-general', precioBase: 55000 }
   ];
 
-  // Filtramos el catálogo para mostrar solo los que el usuario AÚN NO tiene
   serviciosDisponibles = computed(() => {
     const misIds = this.misServicios().map(s => s.id);
     return this.catalogoServicios.filter(s => !misIds.includes(s.id));
@@ -158,7 +148,6 @@ export class PerfilHandymanPage implements OnInit {
     }
   }
 
-  /* --- LÓGICA MODAL EDICIÓN PERFIL --- */
   abrirModalEdicion() {
     this.formEdicion.patchValue({
       nombre: this.nombreTrabajador(),
@@ -173,7 +162,6 @@ export class PerfilHandymanPage implements OnInit {
     this.modalEdicionAbierto.set(false);
   }
 
-  /* --- LÓGICA MODAL AGREGAR SERVICIOS --- */
   abrirModalServicios() {
     this.modalServiciosAbierto.set(true);
   }
@@ -183,16 +171,13 @@ export class PerfilHandymanPage implements OnInit {
   }
 
   seleccionarServicio(servicio: ServicioHandyman) {
-    // Lo agregamos a la lista local
     this.misServicios.update(actuales => [...actuales, servicio]);
     this.cerrarModalServicios();
-    // Abrimos el popup inmediatamente para que establezca su precio real
     setTimeout(() => {
       this.editarPrecio(servicio);
-    }, 300); // Pequeño delay visual para que cierre el modal anterior
+    }, 300); 
   }
 
-  /* --- UTILIDADES Y SANITIZACIÓN --- */
   sanitizarNombre(event: Event) {
     const input = event.target as HTMLInputElement;
     const valorLimpio = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');

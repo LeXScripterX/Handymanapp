@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -14,21 +14,9 @@ import {
   fileTrayOutline
 } from 'ionicons/icons';
 
-// 1. IMPORTAMOS NUESTRO COMPONENTE DE HEADER REUTILIZABLE
 import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
-
-interface TrabajoOperacion {
-  id: number;
-  servicio: string;
-  cliente: string;
-  direccion: string;
-  precio: string;
-  estado: 'En camino' | 'En curso' | 'Finalizado';
-  fecha: string;
-  horaCreacion: string;
-  infoExtra: string;
-  estrellas?: number;
-}
+// AGREGADO: Importamos el servicio
+import { OperacionesHandymanService, TrabajoOperacion } from '../../../services/operaciones-handyman.service';
 
 interface GrupoTrabajosPorFecha {
   fechaOriginal: string;
@@ -45,91 +33,35 @@ interface GrupoTrabajosPorFecha {
     CommonModule, 
     IonicModule, 
     RouterModule,
-    HeaderHandymanComponent // 2. LO AGREGAMOS A LOS IMPORTS
+    HeaderHandymanComponent
   ]
 })
 export class OperacionesHandymanPage {
-  
-  // Nombre y foto del trabajador
+  // AGREGADO: Inyección del servicio
+  private operacionesService = inject(OperacionesHandymanService);
+
   nombreTrabajador = signal<string>('Daniel');
-  fotoPerfil = signal<string>(''); // Si está vacío se genera el avatar con la inicial 'D'
+  fotoPerfil = signal<string>(''); 
 
-  constructor() {
-    // Registro obligatorio de iconos en Ionic Standalone
-    addIcons({
-      star,
-      timeOutline,
-      personOutline,
-      notificationsOutline,
-      homeOutline,
-      clipboardOutline,
-      radioButtonOnOutline,
-      fileTrayOutline
-    });
-  }
-
-  listaTrabajos = signal<TrabajoOperacion[]>([
-    {
-      id: 1,
-      servicio: 'Instalación de lámparas',
-      cliente: 'Camila Muñoz · Cra 15 #85-20',
-      direccion: 'Cra 15 #85-20',
-      precio: '$60.000',
-      estado: 'En camino',
-      fecha: '2026-10-07',
-      horaCreacion: '08:30 am',
-      infoExtra: 'Llegada estimada en 10 min'
-    },
-    {
-      id: 2,
-      servicio: 'Pintura sala principal',
-      cliente: 'Marta T. (cliente) · Calle 127 #45-10',
-      direccion: 'Calle 127 #45-10',
-      precio: '$180.000',
-      estado: 'En curso',
-      fecha: '2026-10-07',
-      horaCreacion: '09:15 am',
-      infoExtra: 'En ejecución'
-    },
-    {
-      id: 3,
-      servicio: 'Reparación de cerradura',
-      cliente: 'Andrés G. · Av. Chile #72-40',
-      direccion: 'Av. Chile #72-40',
-      precio: '$95.000',
-      estado: 'Finalizado',
-      fecha: '2026-10-06',
-      horaCreacion: '02:00 pm',
-      infoExtra: 'Pagado · Calificado',
-      estrellas: 5
-    },
-    {
-      id: 4,
-      servicio: 'Mantenimiento de tuberías',
-      cliente: 'Carlos Pérez · Calle 100 #15-30',
-      direccion: 'Calle 100 #15-30',
-      precio: '$120.000',
-      estado: 'Finalizado',
-      fecha: '2026-09-28',
-      horaCreacion: '10:45 am',
-      infoExtra: 'Pagado · Calificado',
-      estrellas: 4
-    }
-  ]);
+  // MODIFICADO: Ahora lee los trabajos del servicio compartido
+  listaTrabajos = this.operacionesService.listaTrabajos;
 
   filtroEstado = signal<string>('todos');
   filtroFecha = signal<string>('');
 
-  // Contadores computados
+  // AGREGADO: Contador para el nuevo estado
+  totalNuevos = computed(() => {
+    return this.listaTrabajos().filter((t: TrabajoOperacion) => t.estado === 'NUEVO').length;
+  });
+
   totalEnCamino = computed(() => {
-    return this.listaTrabajos().filter(t => t.estado === 'En camino').length;
+    return this.listaTrabajos().filter((t: TrabajoOperacion) => t.estado === 'En camino').length;
   });
 
   totalEnCurso = computed(() => {
-    return this.listaTrabajos().filter(t => t.estado === 'En curso').length;
+    return this.listaTrabajos().filter((t: TrabajoOperacion) => t.estado === 'En curso').length;
   });
 
-  // Fecha en formato dd/mm/aaaa para el botón
   filtroFechaLegible = computed(() => {
     const val = this.filtroFecha();
     if (!val) return 'Fecha';
@@ -140,6 +72,13 @@ export class OperacionesHandymanPage {
     }
     return val;
   });
+
+  constructor() {
+    addIcons({
+      star, timeOutline, personOutline, notificationsOutline, 
+      homeOutline, clipboardOutline, radioButtonOnOutline, fileTrayOutline
+    });
+  }
 
   private obtenerFechaFormateada(fechaStr: string): string {
     const optionsTime: Intl.DateTimeFormatOptions = { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -168,11 +107,11 @@ export class OperacionesHandymanPage {
     const fechaFiltro = this.filtroFecha();
 
     if (estado !== 'todos') {
-      trabajos = trabajos.filter(t => t.estado === estado);
+      trabajos = trabajos.filter((t: TrabajoOperacion) => t.estado === estado);
     }
 
     if (fechaFiltro) {
-      trabajos = trabajos.filter(t => t.fecha === fechaFiltro);
+      trabajos = trabajos.filter((t: TrabajoOperacion) => t.fecha === fechaFiltro);
     }
 
     const mapaGrupos = new Map<string, TrabajoOperacion[]>();
@@ -206,7 +145,6 @@ export class OperacionesHandymanPage {
     this.filtroFecha.set(valor);
   }
 
-  // Abre el selector de fecha con compatibilidad total en PC y móviles
   abrirSelectorFecha(input: HTMLInputElement) {
     if (!input) return;
     try {
@@ -228,6 +166,7 @@ export class OperacionesHandymanPage {
 
   obtenerClaseEstado(estado: string): string {
     switch (estado) {
+      case 'NUEVO': return 'badge-nuevo'; // AGREGADO
       case 'En camino': return 'badge-camino';
       case 'En curso': return 'badge-curso';
       case 'Finalizado': return 'badge-finalizado';
