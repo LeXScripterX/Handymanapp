@@ -73,7 +73,7 @@ private router = inject(Router);
  items = computed<ItemMenu[]>(() => {
     const base: ItemMenu[] = [
       { ruta: RUTAS_INICIO[this.rol()], etiqueta: 'Inicio', icono: 'home-outline' },
-      { ruta: '/operaciones', etiqueta: 'Operaciones', icono: 'clipboard-outline' },
+      { ruta: '/operaciones-handyman', etiqueta: 'Operaciones', icono: 'clipboard-outline' },
       { ruta: '/perfil', etiqueta: 'Perfil', icono: 'person-outline' },
     ];
     if (this.rol() === 'admin') {
