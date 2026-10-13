@@ -1,0 +1,762 @@
+// Misma paleta y tokens que login.page.scss
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+$coral-hover: #e55a49;
+$fondo: #f6f3ee;
+$borde: #e4ded7;
+$borde-fuerte: #d5cfc6;
+$muted: #7b848c;
+$rojo: #ef4444;
+$fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+
+.admin-page {
+  --background: #{$fondo};
+}
+
+// ───────── Cabecera ─────────
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+
+  &__marca .logo-img {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    display: block;
+  }
+
+  &__saludo {
+    flex: 1;
+    min-width: 160px;
+
+    .titulo {
+      margin: 6px 0 0;
+      font-family: $fuente;
+      font-size: 24px;
+      font-weight: 800;
+      color: $azul;
+      letter-spacing: 0.3px;
+    }
+  }
+}
+
+.btn-salir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: $coral;
+  border: 1.5px solid $coral;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    background: rgba(239, 106, 90, 0.05);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(239, 106, 90, 0.4);
+    outline-offset: 2px;
+  }
+}
+
+// ───────── Contenedor ─────────
+.contenedor {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// ───────── Navegación (mismo patrón del selector de rol del login) ─────────
+.selector-rol {
+  display: flex;
+  background: #f1f5f9;
+  border: 1px solid rgba(213, 207, 198, 0.6);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .btn-rol {
+    flex: 1;
+    min-width: max-content;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 38px;
+    padding: 0 14px;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    ion-icon {
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover:not(.activo) {
+      color: $azul;
+      background: #ffffff;
+      box-shadow: 0 4px 10px rgba(31, 45, 58, 0.1);
+    }
+
+    &:active {
+      transform: scale(0.94);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(239, 106, 90, 0.4);
+      outline-offset: 1px;
+    }
+
+    &.activo {
+      background: $azul;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(31, 45, 58, 0.25);
+
+      ion-icon {
+        transform: scale(1.15);
+      }
+    }
+  }
+
+  &.selector-compacto {
+    overflow: visible;
+
+    .btn-rol {
+      padding: 0 8px;
+      min-width: 0;
+    }
+  }
+}
+
+.contador {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $coral;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+// ───────── Tarjetas ─────────
+.card,
+.login-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 24px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 24px rgba(31, 45, 58, 0.05);
+}
+
+.header-card {
+  margin-bottom: 18px;
+
+  .titulo-seccion {
+    margin: 0 0 4px;
+    font-family: $fuente;
+    font-size: 20px;
+    font-weight: 800;
+    color: $azul;
+    letter-spacing: 0.3px;
+  }
+
+  .subtitulo {
+    margin: 0;
+    font-size: 13.5px;
+    color: $muted;
+    font-weight: 500;
+  }
+}
+
+// ───────── Estadísticas ─────────
+.rejilla-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 8px 24px rgba(31, 45, 58, 0.05);
+
+  .stat-valor {
+    font-family: $fuente;
+    font-size: 34px;
+    font-weight: 800;
+    color: $azul;
+    line-height: 1.1;
+  }
+
+  .stat-etiqueta {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $muted;
+  }
+
+  // La tarjeta de pendientes es la única que pide acción: es el punto de énfasis
+  &.stat-destacada {
+    background: $azul;
+    border-color: $azul;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    .stat-valor {
+      color: $coral;
+    }
+
+    .stat-etiqueta {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+}
+
+// ───────── Barras de servicios ─────────
+.barra-fila {
+  margin-bottom: 14px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .barra-texto {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: $azul;
+    margin-bottom: 6px;
+    text-transform: capitalize;
+  }
+
+  .barra-pista {
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .barra-relleno {
+    height: 100%;
+    background: $coral;
+    border-radius: 999px;
+    transition: width 0.5s ease;
+  }
+}
+
+// ───────── Campos (mismos que login) ─────────
+.grupo-campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+
+  .etiqueta-campo {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: $azul;
+    margin-bottom: 6px;
+  }
+
+  .input-caja {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid $borde-fuerte;
+    border-radius: 12px;
+    padding: 0 14px;
+    height: 46px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    ion-icon {
+      font-size: 18px;
+      color: $muted;
+      flex-shrink: 0;
+      transition: color 0.3s ease;
+    }
+
+    input {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: $azul;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+    }
+
+    &:focus-within {
+      background: #ffffff;
+      border-color: $coral;
+      box-shadow: 0 0 0 4px rgba(239, 106, 90, 0.15);
+
+      ion-icon {
+        color: $coral;
+      }
+    }
+
+    &.campo-invalido {
+      border-color: $rojo;
+      background: #fef2f2;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+
+      ion-icon {
+        color: $rojo;
+      }
+    }
+  }
+
+  .mensaje-error {
+    font-size: 11.5px;
+    color: $rojo;
+    font-weight: 600;
+    margin-top: 4px;
+    margin-left: 4px;
+  }
+}
+
+// ───────── Filtros ─────────
+.filtros {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+
+  .filtro {
+    height: 34px;
+    padding: 0 14px;
+    background: #ffffff;
+    color: #64748b;
+    border: 1px solid $borde-fuerte;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover:not(.activo) {
+      color: $azul;
+      border-color: $azul;
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(239, 106, 90, 0.4);
+      outline-offset: 1px;
+    }
+
+    &.activo {
+      background: $azul;
+      border-color: $azul;
+      color: #ffffff;
+    }
+  }
+}
+
+// ───────── Listas ─────────
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.fila-usuario {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid $borde;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &.fila-inactiva .fila-datos,
+  &.fila-inactiva .avatar {
+    opacity: 0.55;
+  }
+
+  @media (max-width: 520px) {
+    flex-wrap: wrap;
+
+    .fila-acciones {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $azul;
+  color: #ffffff;
+  border-radius: 50%;
+  font-family: $fuente;
+  font-size: 18px;
+  font-weight: 700;
+
+  &.avatar-servicio {
+    background: rgba(239, 106, 90, 0.12);
+    color: $coral;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+.fila-datos {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .fila-nombre {
+    font-size: 15px;
+    font-weight: 700;
+    color: $azul;
+  }
+
+  .fila-correo {
+    font-size: 12.5px;
+    color: $muted;
+    overflow-wrap: anywhere;
+  }
+}
+
+.fila-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.fila-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// ───────── Chips ─────────
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: capitalize;
+
+  &.chip-azul {
+    background: $azul;
+    color: #ffffff;
+  }
+
+  &.chip-coral {
+    background: rgba(239, 106, 90, 0.14);
+    color: $coral-hover;
+  }
+
+  &.chip-rojo {
+    background: #fef2f2;
+    color: $rojo;
+  }
+}
+
+// ───────── Botones ─────────
+.btn-icono {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: $azul;
+  border: 1px solid $borde-fuerte;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  ion-icon {
+    font-size: 18px;
+  }
+
+  &:hover {
+    border-color: $coral;
+    color: $coral;
+    background: #ffffff;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(239, 106, 90, 0.4);
+    outline-offset: 2px;
+  }
+
+  &.btn-peligro:hover {
+    border-color: $rojo;
+    color: $rojo;
+    background: #fef2f2;
+  }
+}
+
+.btn-pildora {
+  height: 36px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: $azul;
+  border: 1px solid $borde-fuerte;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    border-color: $azul;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(239, 106, 90, 0.4);
+    outline-offset: 2px;
+  }
+
+  &.btn-pildora-primario {
+    background: $coral;
+    border-color: $coral;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 106, 90, 0.28);
+
+    &:hover {
+      background: $coral-hover;
+    }
+  }
+}
+
+.btn-primario {
+  width: 100%;
+  height: 46px;
+  border: none;
+  background: $coral;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(239, 106, 90, 0.28);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover:not(:disabled) {
+    background: $coral-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(239, 106, 90, 0.45);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(239, 106, 90, 0.4);
+    outline-offset: 2px;
+  }
+}
+
+.btn-secundario {
+  width: 100%;
+  height: 44px;
+  background: #ffffff;
+  color: $coral;
+  border: 1.5px solid $coral;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    background: rgba(239, 106, 90, 0.05);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.btn-cancelar {
+    margin-top: 10px;
+  }
+}
+
+// ───────── Estados vacíos y avisos ─────────
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 12px;
+  text-align: center;
+  color: $muted;
+
+  ion-icon {
+    font-size: 36px;
+    color: $borde-fuerte;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 500;
+    max-width: 38ch;
+    line-height: 1.5;
+  }
+}
+
+.aviso {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+
+  &.aviso-error {
+    background: #fef2f2;
+    color: $rojo;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+}
+
+// ───────── Modal de edición ─────────
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(31, 45, 58, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: aparecer 0.2s ease;
+}
+
+.modal-card {
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: subir 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-fondo,
+  .modal-card {
+    animation: none;
+  }
+
+  .barra-relleno,
+  .btn-rol,
+  .btn-primario,
+  .btn-secundario,
+  .btn-salir,
+  .stat-card {
+    transition: none;
+  }
+}

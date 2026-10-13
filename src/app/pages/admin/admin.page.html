@@ -1,13 +1,304 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Panel de administrador</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">Cerrar sesión</ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="admin-page">
+  @if (esAdmin()) {
+    <header class="admin-header">
+      <div class="admin-header__marca">
+        <img src="assets/Logo_Header-HandyMan.jpg" alt="Handyman" class="logo-img" />
+      </div>
+      <div class="admin-header__saludo">
+        <span class="chip chip-azul">Administrador</span>
+        <h1 class="titulo">Hola, {{ nombreAdmin() }}</h1>
+      </div>
+      <button type="button" class="btn-salir" (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </header>
 
-<ion-content class="ion-padding">
-  <h2>Hola, admin</h2>
-  <p>Aquí irá la gestión de usuarios y servicios.</p>
+    <main class="contenedor">
+      <!-- Navegación entre secciones -->
+      <nav class="selector-rol" aria-label="Secciones del panel">
+        @for (s of secciones; track s.id) {
+          <button
+            type="button"
+            class="btn-rol"
+            [class.activo]="seccion() === s.id"
+            (click)="cambiarSeccion(s.id)">
+            <ion-icon [name]="s.icono"></ion-icon>
+            <span>{{ s.etiqueta }}</span>
+            @if (s.id === 'aprobaciones' && pendientes().length > 0) {
+              <span class="contador">{{ pendientes().length }}</span>
+            }
+          </button>
+        }
+      </nav>
+
+      @if (errorCarga()) {
+        <div class="aviso aviso-error">{{ errorCarga() }}</div>
+      }
+
+      @if (cargando()) {
+        <div class="estado-vacio"><p>Cargando información…</p></div>
+      } @else {
+        @switch (seccion()) {
+
+          <!-- ───────── RESUMEN ───────── -->
+          @case ('resumen') {
+            <section class="rejilla-stats">
+              <article class="stat-card">
+                <span class="stat-valor">{{ estadisticas().total }}</span>
+                <span class="stat-etiqueta">Usuarios registrados</span>
+              </article>
+              <article class="stat-card">
+                <span class="stat-valor">{{ estadisticas().clientes }}</span>
+                <span class="stat-etiqueta">Clientes</span>
+              </article>
+              <article class="stat-card">
+                <span class="stat-valor">{{ estadisticas().handymans }}</span>
+                <span class="stat-etiqueta">Handymans</span>
+              </article>
+              <article class="stat-card stat-destacada" (click)="cambiarSeccion('aprobaciones')">
+                <span class="stat-valor">{{ estadisticas().pendientes }}</span>
+                <span class="stat-etiqueta">Handymans por aprobar</span>
+              </article>
+              <article class="stat-card">
+                <span class="stat-valor">{{ estadisticas().deshabilitados }}</span>
+                <span class="stat-etiqueta">Usuarios deshabilitados</span>
+              </article>
+              <article class="stat-card">
+                <span class="stat-valor">{{ estadisticas().servicios }}</span>
+                <span class="stat-etiqueta">Servicios registrados</span>
+              </article>
+            </section>
+
+            <section class="card">
+              <div class="header-card">
+                <h2 class="titulo-seccion">Servicios por estado</h2>
+                <p class="subtitulo">Cómo se reparten los servicios registrados</p>
+              </div>
+              @if (serviciosPorEstado().length === 0) {
+                <div class="estado-vacio"><p>Todavía no hay servicios registrados.</p></div>
+              } @else {
+                @for (e of serviciosPorEstado(); track e.estado) {
+                  <div class="barra-fila">
+                    <div class="barra-texto">
+                      <span class="barra-nombre">{{ e.estado }}</span>
+                      <span class="barra-cantidad">{{ e.cantidad }}</span>
+                    </div>
+                    <div class="barra-pista">
+                      <div class="barra-relleno" [style.width.%]="e.porcentaje"></div>
+                    </div>
+                  </div>
+                }
+              }
+            </section>
+          }
+
+          <!-- ───────── USUARIOS ───────── -->
+          @case ('usuarios') {
+            <section class="card">
+              <div class="header-card">
+                <h2 class="titulo-seccion">Usuarios</h2>
+                <p class="subtitulo">Edita datos, cambia roles o deshabilita cuentas</p>
+              </div>
+
+              <div class="grupo-campo">
+                <div class="input-caja">
+                  <ion-icon name="search-outline"></ion-icon>
+                  <input
+                    type="search"
+                    placeholder="Buscar por nombre o correo"
+                    [value]="busqueda()"
+                    (input)="alBuscar($event)"
+                    aria-label="Buscar usuarios" />
+                </div>
+              </div>
+
+              <div class="filtros">
+                @for (f of filtros; track f.id) {
+                  <button
+                    type="button"
+                    class="filtro"
+                    [class.activo]="filtroRol() === f.id"
+                    (click)="filtroRol.set(f.id)">
+                    {{ f.etiqueta }}
+                  </button>
+                }
+              </div>
+
+              @if (usuariosFiltrados().length === 0) {
+                <div class="estado-vacio">
+                  <p>No hay usuarios que coincidan. Prueba con otra búsqueda o cambia el filtro.</p>
+                </div>
+              } @else {
+                <ul class="lista">
+                  @for (u of usuariosFiltrados(); track u.uid) {
+                    <li class="fila-usuario" [class.fila-inactiva]="!esHabilitado(u)">
+                      <div class="avatar">{{ inicial(u) }}</div>
+                      <div class="fila-datos">
+                        <span class="fila-nombre">{{ u.nombre }}</span>
+                        <span class="fila-correo">{{ u.email }}</span>
+                        <div class="fila-chips">
+                          <span class="chip" [class.chip-azul]="u.rol === 'admin'">{{ u.rol }}</span>
+                          @if (!esHabilitado(u)) {
+                            <span class="chip chip-rojo">Deshabilitado</span>
+                          }
+                          @if (estadoAprob(u) === 'pendiente') {
+                            <span class="chip chip-coral">Por aprobar</span>
+                          }
+                          @if (estadoAprob(u) === 'rechazado') {
+                            <span class="chip chip-rojo">Rechazado</span>
+                          }
+                        </div>
+                      </div>
+                      <div class="fila-acciones">
+                        <button type="button" class="btn-icono" (click)="abrirEdicion(u)" [attr.aria-label]="'Editar a ' + u.nombre">
+                          <ion-icon name="create-outline"></ion-icon>
+                        </button>
+                        @if (!esUnoMismo(u)) {
+                          <button
+                            type="button"
+                            class="btn-icono"
+                            [class.btn-peligro]="esHabilitado(u)"
+                            (click)="alternarHabilitado(u)"
+                            [attr.aria-label]="(esHabilitado(u) ? 'Deshabilitar a ' : 'Habilitar a ') + u.nombre">
+                            <ion-icon [name]="esHabilitado(u) ? 'ban-outline' : 'checkmark-circle-outline'"></ion-icon>
+                          </button>
+                        }
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+
+          <!-- ───────── APROBACIONES ───────── -->
+          @case ('aprobaciones') {
+            <section class="card">
+              <div class="header-card">
+                <h2 class="titulo-seccion">Handymans por aprobar</h2>
+                <p class="subtitulo">Revisa las solicitudes antes de que ofrezcan servicios</p>
+              </div>
+
+              @if (pendientes().length === 0) {
+                <div class="estado-vacio">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  <p>No hay solicitudes pendientes. Cuando un handyman se registre, aparecerá aquí.</p>
+                </div>
+              } @else {
+                <ul class="lista">
+                  @for (u of pendientes(); track u.uid) {
+                    <li class="fila-usuario">
+                      <div class="avatar">{{ inicial(u) }}</div>
+                      <div class="fila-datos">
+                        <span class="fila-nombre">{{ u.nombre }}</span>
+                        <span class="fila-correo">{{ u.email }}</span>
+                      </div>
+                      <div class="fila-acciones">
+                        <button type="button" class="btn-pildora btn-pildora-primario" (click)="aprobar(u)">
+                          Aprobar
+                        </button>
+                        <button type="button" class="btn-pildora" (click)="rechazar(u)">
+                          Rechazar
+                        </button>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+
+          <!-- ───────── SERVICIOS ───────── -->
+          @case ('servicios') {
+            <section class="card">
+              <div class="header-card">
+                <h2 class="titulo-seccion">Servicios y operaciones</h2>
+                <p class="subtitulo">Todos los servicios registrados en la plataforma</p>
+              </div>
+
+              @if (servicios().length === 0) {
+                <div class="estado-vacio">
+                  <ion-icon name="hammer-outline"></ion-icon>
+                  <p>Aún no hay servicios. Aparecerán aquí cuando los clientes y handymans empiecen a crearlos.</p>
+                </div>
+              } @else {
+                <ul class="lista">
+                  @for (s of servicios(); track s.id) {
+                    <li class="fila-usuario">
+                      <div class="avatar avatar-servicio"><ion-icon name="hammer-outline"></ion-icon></div>
+                      <div class="fila-datos">
+                        <span class="fila-nombre">{{ s.titulo || 'Servicio sin título' }}</span>
+                        <span class="fila-correo">
+                          Cliente: {{ s.cliente || '—' }} · Handyman: {{ s.handyman || 'sin asignar' }}
+                        </span>
+                        <div class="fila-chips">
+                          <span class="chip">{{ s.estado || 'sin estado' }}</span>
+                          @if (s.precio) {
+                            <span class="chip">$ {{ s.precio }}</span>
+                          }
+                          @if (formatearFecha(s.fecha)) {
+                            <span class="chip">{{ formatearFecha(s.fecha) }}</span>
+                          }
+                        </div>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+        }
+      }
+    </main>
+
+    <!-- ───────── FORMULARIO DE EDICIÓN ───────── -->
+    @if (editando(); as u) {
+      <div class="modal-fondo" (click)="cerrarEdicion()">
+        <div class="login-card modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Editar usuario">
+          <div class="header-card">
+            <h2 class="titulo-seccion">Editar usuario</h2>
+            <p class="subtitulo">{{ u.email }}</p>
+          </div>
+
+          <form [formGroup]="formEdicion" (ngSubmit)="guardarEdicion()">
+            <div class="grupo-campo">
+              <label class="etiqueta-campo" for="nombre-admin">Nombre completo</label>
+              <div class="input-caja"
+                   [class.campo-invalido]="formEdicion.controls.nombre.invalid && formEdicion.controls.nombre.touched">
+                <ion-icon name="person-outline"></ion-icon>
+                <input id="nombre-admin" formControlName="nombre" type="text" placeholder="Nombre y apellido" />
+              </div>
+              @if (formEdicion.controls.nombre.invalid && formEdicion.controls.nombre.touched) {
+                <span class="mensaje-error">Escribe un nombre de al menos 3 caracteres</span>
+              }
+            </div>
+
+            <div class="grupo-campo">
+              <span class="etiqueta-campo">Rol</span>
+              <div class="selector-rol selector-compacto">
+                @for (r of roles; track r.id) {
+                  <button
+                    type="button"
+                    class="btn-rol"
+                    [class.activo]="formEdicion.controls.rol.value === r.id"
+                    (click)="elegirRol(r.id)">
+                    <ion-icon [name]="r.icono"></ion-icon>
+                    <span>{{ r.etiqueta }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primario" [disabled]="guardando()">
+              @if (guardando()) { <span>Guardando…</span> } @else { <span>Guardar cambios</span> }
+            </button>
+            <button type="button" class="btn-secundario btn-cancelar" (click)="cerrarEdicion()">
+              Cancelar
+            </button>
+          </form>
+        </div>
+      </div>
+    }
+  }
 </ion-content>
