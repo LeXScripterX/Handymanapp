@@ -125,6 +125,25 @@ $fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
       align-items: center;
       gap: 4px;
     }
+
+    .badge-no-verificado {
+      background: rgba(239, 106, 90, 0.12);
+      color: $coral;
+      border: 1px dashed $coral;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
   }
 
   .btn-editar-perfil {
@@ -874,5 +893,213 @@ ion-modal.modal-handy-moderno {
     color: #ffffff;
     background: #ef6a5a;
     box-shadow: 0 4px 12px rgba(239, 106, 90, 0.25);
+  }
+}
+
+/* ========================================================
+   MODAL DE VERIFICACIÓN FACIAL (DEEPFACE)
+   ======================================================== */
+.modal-verificacion {
+  .alerta-error-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 12px 16px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    ion-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+  }
+
+  .paso-verificacion-card {
+    background: #ffffff;
+    border: 1px solid $borde;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 16px;
+
+    .paso-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+
+      .paso-numero {
+        width: 28px;
+        height: 28px;
+        background: $coral;
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+
+      .paso-info {
+        h4 {
+          margin: 0;
+          font-size: 15px;
+          font-weight: 700;
+          color: $azul;
+        }
+
+        p {
+          margin: 2px 0 0;
+          font-size: 12px;
+          color: $muted;
+        }
+      }
+    }
+
+    .preview-area {
+      position: relative;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: $coral;
+        background: rgba(239, 106, 90, 0.04);
+      }
+
+      .preview-img {
+        width: 100%;
+        max-height: 180px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .btn-retomar {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(31, 45, 58, 0.85);
+        color: #ffffff;
+        border: none;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        backdrop-filter: blur(4px);
+      }
+
+      .placeholder-captura {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: $muted;
+
+        ion-icon {
+          font-size: 36px;
+          color: $coral;
+        }
+
+        span {
+          font-size: 13px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .consentimiento-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid $borde;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    cursor: pointer;
+
+    .checkbox-custom {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: #ffffff;
+      transition: all 0.2s;
+
+      &.checked {
+        background: $coral;
+        border-color: $coral;
+        color: #ffffff;
+
+        ion-icon {
+          font-size: 16px;
+          font-weight: 800;
+        }
+      }
+    }
+
+    label {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+
+  .btn-confirmar-verificacion {
+    width: 100%;
+    height: 52px;
+    background: $coral;
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(239, 106, 90, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    &:not(:disabled):active {
+      transform: scale(0.98);
+    }
+
+    ion-spinner {
+      --color: #ffffff;
+      width: 22px;
+      height: 22px;
+    }
   }
 }

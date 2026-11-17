@@ -23,9 +23,15 @@
       
       <div class="badges-container">
         <span class="badge-rol">Handyman</span>
-        <span class="badge-verificado">
-          <ion-icon name="checkmark-circle"></ion-icon> Verificado
-        </span>
+        @if (identidadVerificada()) {
+          <span class="badge-verificado">
+            <ion-icon name="checkmark-circle"></ion-icon> Verificado
+          </span>
+        } @else {
+          <button class="badge-no-verificado" (click)="abrirModalVerificacion()" type="button">
+            <ion-icon name="shield-checkmark-outline"></ion-icon> Verificar Identidad
+          </button>
+        }
       </div>
 
       <button class="btn-editar-perfil" (click)="abrirModalEdicion()">
@@ -38,21 +44,21 @@
       <div class="stat-card">
         <ion-icon name="star" class="icono-estrella"></ion-icon>
         <div class="stat-textos">
-          <span class="stat-valor">4.9</span>
+          <span class="stat-valor">{{ calificacion() }}</span>
           <span class="stat-label">Calificación</span>
         </div>
       </div>
       <div class="stat-card">
         <ion-icon name="briefcase" class="icono-trabajo"></ion-icon>
         <div class="stat-textos">
-          <span class="stat-valor">45</span>
+          <span class="stat-valor">{{ trabajosCompletados() }}</span>
           <span class="stat-label">Trabajos</span>
         </div>
       </div>
       <div class="stat-card">
         <ion-icon name="time" class="icono-tiempo"></ion-icon>
         <div class="stat-textos">
-          <span class="stat-valor">1.5</span>
+          <span class="stat-valor">{{ experienciaAnos() }}</span>
           <span class="stat-label">Años</span>
         </div>
       </div>
@@ -291,6 +297,117 @@
             <p>¡Excelente! Ya ofreces todos los servicios de nuestro catálogo.</p>
           </div>
         }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ==============================================
+     MODAL DE VERIFICACIÓN FACIAL CON DEEPFACE
+     ============================================== -->
+<ion-modal 
+  [isOpen]="modalVerificacionAbierto()" 
+  (didDismiss)="cerrarModalVerificacion()" 
+  class="modal-handy-moderno modal-verificacion">
+  <ng-template>
+    <div class="modal-wrapper-interno">
+      
+      <div class="modal-header-custom">
+        <button class="btn-cerrar-custom" (click)="cerrarModalVerificacion()" [disabled]="cargandoVerificacion()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="modal-titulos">
+          <h2>Verificación de Identidad</h2>
+          <p>Valida tu rostro para activar tu insignia de confianza</p>
+        </div>
+      </div>
+
+      <div class="modal-body-custom">
+        
+        <!-- Alerta de Error si la hay -->
+        @if (mensajeErrorVerificacion()) {
+          <div class="alerta-error-box">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ mensajeErrorVerificacion() }}</span>
+          </div>
+        }
+
+        <!-- Paso 1: Selfie -->
+        <div class="paso-verificacion-card">
+          <div class="paso-header">
+            <div class="paso-numero">1</div>
+            <div class="paso-info">
+              <h4>Selfie de tu rostro</h4>
+              <p>Mírate de frente con buena iluminación</p>
+            </div>
+          </div>
+
+          <div class="preview-area" (click)="capturarSelfie()">
+            @if (selfiePreview()) {
+              <img [src]="selfiePreview()" alt="Selfie" class="preview-img" />
+              <button class="btn-retomar" type="button">
+                <ion-icon name="refresh-outline"></ion-icon> Cambiar
+              </button>
+            } @else {
+              <div class="placeholder-captura">
+                <ion-icon name="camera-outline"></ion-icon>
+                <span>Tomar Selfie (Frontal)</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Paso 2: Documento de identidad -->
+        <div class="paso-verificacion-card">
+          <div class="paso-header">
+            <div class="paso-numero">2</div>
+            <div class="paso-info">
+              <h4>Foto de tu documento</h4>
+              <p>Cédula o DNI donde tu foto sea legible</p>
+            </div>
+          </div>
+
+          <div class="preview-area" (click)="capturarDocumento()">
+            @if (documentoPreview()) {
+              <img [src]="documentoPreview()" alt="Documento" class="preview-img" />
+              <button class="btn-retomar" type="button">
+                <ion-icon name="refresh-outline"></ion-icon> Cambiar
+              </button>
+            } @else {
+              <div class="placeholder-captura">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>Tomar Foto de Documento</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Paso 3: Consentimiento Biométrico -->
+        <div class="consentimiento-box" (click)="toggleConsentimiento()">
+          <div class="checkbox-custom" [class.checked]="consentimientoBiometrico()">
+            @if (consentimientoBiometrico()) {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            }
+          </div>
+          <label>
+            Autorizo el procesamiento de mis datos biométricos faciales exclusivamente para validar mi identidad como profesional en HandymanApp.
+          </label>
+        </div>
+
+        <!-- Botón de Envío -->
+        <button 
+          class="btn-confirmar-verificacion" 
+          (click)="enviarVerificacionFacial()" 
+          [disabled]="cargandoVerificacion() || !selfiePreview() || !documentoPreview() || !consentimientoBiometrico()">
+          @if (cargandoVerificacion()) {
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>Verificando con DeepFace...</span>
+          } @else {
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Confirmar y Verificar Rostro</span>
+          }
+        </button>
+
       </div>
     </div>
   </ng-template>

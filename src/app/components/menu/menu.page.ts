@@ -83,7 +83,7 @@ private router = inject(Router);
   });
 
      constructor() {
-      addIcons({ clipboardOutline, homeOutline, logInOutline, personOutline, shieldCheckmarkOutline });
+      addIcons({ clipboardOutline, homeOutline, logInOutline, logOutOutline, personOutline, shieldCheckmarkOutline });
       this.cargarPerfil();
      }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,13 +7,15 @@ import {
   IonIcon,
   ToastController,
   MenuController,
+  AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, 
   constructOutline, 
   mailOutline, 
-  lockClosedOutline
+  lockClosedOutline,
+  logoFacebook
 } from 'ionicons/icons';
 import { AuthService, UserRole } from '../../services/auth.service';
 
@@ -31,7 +33,7 @@ import { AuthService, UserRole } from '../../services/auth.service';
 })
 export class LoginPage {
   rolSeleccionado: UserRole = 'cliente';
-  cargando = false;
+  cargando = signal(false);
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -43,13 +45,15 @@ export class LoginPage {
     private authService: AuthService,
     private router: Router,
     private toastCtrl: ToastController,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private alertCtrl: AlertController
   ) {
     addIcons({
       personOutline,
       constructOutline,
       mailOutline,
-      lockClosedOutline
+      lockClosedOutline,
+      logoFacebook
     });
   }
 
@@ -69,7 +73,7 @@ export class LoginPage {
       return;
     }
 
-    this.cargando = true;
+    this.cargando.set(true);
     const { email, password } = this.form.value;
 
     try {
@@ -79,12 +83,38 @@ export class LoginPage {
     } catch (error: any) {
       await this.mostrarError(this.traducirError(error?.code));
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
   }
 
   async loginGoogle() {
-    console.log('Iniciando proceso de autenticación con Google...');
+    this.cargando.set(true);
+    try {
+      const perfil = await this.authService.loginConGoogle(this.rolSeleccionado);
+      this.redirigirSegunRol(perfil?.rol);
+    } catch (error: any) {
+      console.error('Error login Google:', error);
+      if (error?.code !== 'auth/popup-closed-by-user') {
+        await this.mostrarError(this.traducirError(error?.code));
+      }
+    } finally {
+      this.cargando.set(false);
+    }
+  }
+
+  async loginFacebook() {
+    this.cargando.set(true);
+    try {
+      const perfil = await this.authService.loginConFacebook(this.rolSeleccionado);
+      this.redirigirSegunRol(perfil?.rol);
+    } catch (error: any) {
+      console.error('Error login Facebook:', error);
+      if (error?.code !== 'auth/popup-closed-by-user') {
+        await this.mostrarError(this.traducirError(error?.code));
+      }
+    } finally {
+      this.cargando.set(false);
+    }
   }
 
   private redirigirSegunRol(rol: UserRole | undefined) {
@@ -102,11 +132,67 @@ export class LoginPage {
     });
   }
 
+  async olvideContrasena() {
+    const emailActual = (this.form.get('email')?.value || '').trim();
+
+    const alert = await this.alertCtrl.create({
+      header: 'Recuperar contraseña',
+      subHeader: 'Ingresa tu correo y te enviaremos un enlace para restablecerla.',
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'tu@correo.com',
+          value: emailActual,
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Enviar enlace',
+          handler: async (data) => {
+            const correo = (data?.email || '').trim();
+            if (!correo) {
+              await this.mostrarError('Por favor ingresa un correo electrónico.');
+              return false;
+            }
+            try {
+              await this.authService.restablecerContrasena(correo);
+              await this.mostrarExito('¡Correo enviado! Revisa tu bandeja de entrada o spam para restablecer tu contraseña.');
+              return true;
+            } catch (error: any) {
+              const msg = error?.code === 'auth/user-not-found'
+                ? 'No encontramos ninguna cuenta con ese correo.'
+                : this.traducirError(error?.code);
+              await this.mostrarError(msg);
+              return false;
+            }
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
   private async mostrarError(mensaje: string) {
     const toast = await this.toastCtrl.create({
       message: mensaje,
-      duration: 2500,
+      duration: 3000,
       color: 'danger',
+      position: 'top',
+    });
+    await toast.present();
+  }
+
+  private async mostrarExito(mensaje: string) {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: 4000,
+      color: 'success',
       position: 'top',
     });
     await toast.present();
@@ -120,6 +206,16 @@ export class LoginPage {
         return 'Correo o contraseña incorrectos.';
       case 'auth/invalid-email':
         return 'El correo no es válido.';
+      case 'auth/account-exists-with-different-credential':
+        return 'Ya existe una cuenta con este correo vinculada a otro método de acceso.';
+      case 'auth/popup-blocked':
+        return 'El navegador bloqueó la ventana emergente. Por favor habilítala.';
+      case 'auth/operation-not-allowed':
+        return 'Este método de acceso aún no está habilitado en Firebase Console.';
+      case 'auth/unauthorized-domain':
+        return 'Dominio no autorizado. Agrega este dominio en Firebase Console > Authentication > Settings > Dominios autorizados.';
+      case 'auth/cancelled-popup-request':
+        return 'Inicio de sesión cancelado.';
       default:
         return 'Ocurrió un error al iniciar sesión. Intenta de nuevo.';
     }

@@ -2,8 +2,8 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { 
-  IonContent, IonIcon, IonModal, 
-  AlertController 
+  IonContent, IonIcon, IonModal, IonSpinner,
+  AlertController, ToastController 
 } from '@ionic/angular/standalone';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { addIcons } from 'ionicons';
@@ -12,9 +12,12 @@ import {
   water, flash, add, imageOutline, cloudUploadOutline, 
   logOutOutline, pencil, build, personCircleOutline, 
   mailOutline, callOutline, lockClosedOutline, closeOutline,
-  key, hammer, tv, addCircle, checkmarkDoneCircleOutline
+  key, hammer, tv, addCircle, checkmarkDoneCircleOutline,
+  shieldCheckmarkOutline, alertCircleOutline, cameraOutline,
+  documentTextOutline, checkmarkOutline, refreshOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
+import { IdentidadService } from '../../../services/identidad.services';
 import { firstValueFrom } from 'rxjs';
 import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
 
@@ -45,13 +48,16 @@ interface FotoPortafolio {
     IonContent, 
     IonIcon, 
     IonModal, 
+    IonSpinner,
     HeaderHandymanComponent
   ]
 })
 export class PerfilHandymanPage implements OnInit {
   private authService = inject(AuthService);
+  private identidadService = inject(IdentidadService);
   private router = inject(Router);
   private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
   private formBuilder = inject(FormBuilder);
 
   modalEdicionAbierto = signal<boolean>(false);
@@ -64,6 +70,21 @@ export class PerfilHandymanPage implements OnInit {
   correoTrabajador = signal<string>('');
   celularTrabajador = signal<string>('');
   fotoPerfil = signal<string>('');
+  identidadVerificada = signal<boolean>(false);
+  calificacion = signal<number>(4.9);
+  trabajosCompletados = signal<number>(45);
+  experienciaAnos = signal<number>(1.5);
+
+  // Estados de verificación facial
+  modalVerificacionAbierto = signal<boolean>(false);
+  selfiePreview = signal<string | null>(null);
+  documentoPreview = signal<string | null>(null);
+  consentimientoBiometrico = signal<boolean>(false);
+  cargandoVerificacion = signal<boolean>(false);
+  mensajeErrorVerificacion = signal<string | null>(null);
+
+  private selfieBlob: Blob | null = null;
+  private documentoBlob: Blob | null = null;
 
   misServicios = signal<ServicioHandyman[]>([
     {
@@ -112,7 +133,9 @@ export class PerfilHandymanPage implements OnInit {
       water, flash, add, imageOutline, cloudUploadOutline, 
       logOutOutline, pencil, build, personCircleOutline, 
       mailOutline, callOutline, lockClosedOutline, closeOutline,
-      key, hammer, tv, addCircle, checkmarkDoneCircleOutline
+      key, hammer, tv, addCircle, checkmarkDoneCircleOutline,
+      shieldCheckmarkOutline, alertCircleOutline, cameraOutline,
+      documentTextOutline, checkmarkOutline, refreshOutline
     });
 
     this.formEdicion = this.formBuilder.group({
@@ -137,8 +160,12 @@ export class PerfilHandymanPage implements OnInit {
       if (perfil) {
         if (perfil.nombre) this.nombreTrabajador.set(perfil.nombre);
         if (perfil.email) this.correoTrabajador.set(perfil.email);
-        if (perfil.celular) this.celularTrabajador.set(perfil.celular);
-        if (perfil.fotoPerfil) this.fotoPerfil.set(perfil.fotoPerfil);
+        if (perfil.telefono || perfil.celular) this.celularTrabajador.set(perfil.telefono || perfil.celular);
+        if (perfil.fotoUrl || perfil.fotoPerfil) this.fotoPerfil.set(perfil.fotoUrl || perfil.fotoPerfil);
+        this.identidadVerificada.set(Boolean(perfil.identidadVerificada));
+        if (perfil.calificacion !== undefined) this.calificacion.set(perfil.calificacion);
+        if (perfil.trabajosCompletados !== undefined) this.trabajosCompletados.set(perfil.trabajosCompletados);
+        if (perfil.experienciaAnos !== undefined) this.experienciaAnos.set(perfil.experienciaAnos);
       } else {
         this.nombreTrabajador.set(usuario.displayName || 'Handyman');
       }
@@ -204,16 +231,95 @@ export class PerfilHandymanPage implements OnInit {
     this.guardandoCambios = true;
     const { nombre, email, celular } = this.formEdicion.value;
     try {
+      await this.authService.actualizarPerfilApi({
+        nombre,
+        telefono: celular,
+      });
+
       this.nombreTrabajador.set(nombre);
       this.correoTrabajador.set(email);
       this.celularTrabajador.set(celular);
       this.cerrarModalEdicion();
+      this.mostrarToast('Perfil actualizado correctamente', 'success');
     } catch (error) {
-      console.error('Error simulando actualización:', error);
+      console.error('Error al actualizar perfil en API:', error);
+      this.mostrarToast('Se guardó localmente. Verifica la conexión con el servidor.', 'warning');
+      this.cerrarModalEdicion();
     } finally {
       this.guardandoCambios = false;
     }
   }
+
+  // --- MÉTODOS DE VERIFICACIÓN FACIAL ---
+
+  abrirModalVerificacion() {
+    this.mensajeErrorVerificacion.set(null);
+    this.modalVerificacionAbierto.set(true);
+  }
+
+  cerrarModalVerificacion() {
+    this.modalVerificacionAbierto.set(false);
+  }
+
+  async capturarSelfie() {
+    try {
+      this.mensajeErrorVerificacion.set(null);
+      const res = await this.identidadService.tomarFoto(true); // frontal
+      this.selfieBlob = res.blob;
+      this.selfiePreview.set(res.webPath);
+    } catch (error: any) {
+      console.warn('Captura cancelada o error:', error);
+    }
+  }
+
+  async capturarDocumento() {
+    try {
+      this.mensajeErrorVerificacion.set(null);
+      const res = await this.identidadService.tomarFoto(false); // trasera
+      this.documentoBlob = res.blob;
+      this.documentoPreview.set(res.webPath);
+    } catch (error: any) {
+      console.warn('Captura cancelada o error:', error);
+    }
+  }
+
+  toggleConsentimiento() {
+    this.consentimientoBiometrico.update(v => !v);
+  }
+
+  async enviarVerificacionFacial() {
+    if (!this.selfieBlob || !this.documentoBlob) {
+      this.mensajeErrorVerificacion.set('Debes capturar tanto tu selfie como tu documento.');
+      return;
+    }
+
+    if (!this.consentimientoBiometrico()) {
+      this.mensajeErrorVerificacion.set('Debes autorizar el procesamiento de tus datos biométricos.');
+      return;
+    }
+
+    this.cargandoVerificacion.set(true);
+    this.mensajeErrorVerificacion.set(null);
+
+    try {
+      const token = await this.authService.getIdToken();
+      await firstValueFrom(
+        this.identidadService.registrarRostro(this.selfieBlob, this.documentoBlob, token)
+      );
+
+      this.identidadVerificada.set(true);
+      this.cerrarModalVerificacion();
+      await this.mostrarToast('¡Identidad verificada exitosamente! Tu cuenta ahora tiene el sello de confianza.', 'success');
+    } catch (error: any) {
+      console.error('Error en verificación facial:', error);
+      const msg = error?.error?.detail || 'No se pudo verificar la identidad. Asegúrate de que las fotos sean claras y del mismo rostro.';
+      this.mensajeErrorVerificacion.set(msg);
+    } finally {
+      this.cargandoVerificacion.set(false);
+    }
+  }
+
+  // ------------------------------------
 
   formatearPrecio(precio: number): string {
     return new Intl.NumberFormat('es-CO', {
@@ -286,5 +392,15 @@ export class PerfilHandymanPage implements OnInit {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
+  }
+
+  private async mostrarToast(mensaje: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: 3500,
+      color,
+      position: 'top',
+    });
+    await toast.present();
   }
 }

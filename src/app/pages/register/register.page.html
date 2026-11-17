@@ -120,6 +120,30 @@
         </button>
       </form>
 
+      <div class="divisor">
+        <span class="linea"></span>
+        <span class="texto-o">o</span>
+        <span class="linea"></span>
+      </div>
+
+      <button 
+        type="button" 
+        class="btn-google" 
+        [disabled]="cargando"
+        (click)="registrarGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="icono-google" />
+        <span>Registrarse con Google</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="btn-facebook" 
+        [disabled]="cargando"
+        (click)="registrarFacebook()">
+        <ion-icon name="logo-facebook" class="icono-facebook"></ion-icon>
+        <span>Registrarse con Facebook</span>
+      </button>
+
     </div>
   </div>
 </ion-content>

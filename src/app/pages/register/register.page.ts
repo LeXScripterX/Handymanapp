@@ -18,7 +18,8 @@ import {
   personCircleOutline,
   callOutline,
   shieldCheckmarkOutline,
-  arrowBackOutline
+  arrowBackOutline,
+  logoFacebook
 } from 'ionicons/icons';
 import { AuthService, UserRole } from '../../services/auth.service';
 
@@ -56,7 +57,8 @@ export class RegisterPage implements OnInit {
       personCircleOutline,
       callOutline,
       shieldCheckmarkOutline,
-      arrowBackOutline
+      arrowBackOutline,
+      logoFacebook
     });
 
     this.form = this.fb.group({
@@ -127,12 +129,44 @@ export class RegisterPage implements OnInit {
     const { email, password, nombre, celular } = this.form.value;
 
     try {
-      await this.authService.registrar(email, password, nombre, this.rolSeleccionado);
+      await this.authService.registrar(email, password, nombre, this.rolSeleccionado, celular);
       
       const ruta = this.rolSeleccionado === 'handyman' ? '/home-handyman' : '/home-cliente';
       this.router.navigateByUrl(ruta, { replaceUrl: true });
     } catch (error: any) {
       await this.mostrarError(this.traducirError(error?.code));
+    } finally {
+      this.cargando = false;
+    }
+  }
+
+  async registrarGoogle() {
+    this.cargando = true;
+    try {
+      const perfil = await this.authService.loginConGoogle(this.rolSeleccionado);
+      const ruta = perfil?.rol === 'handyman' ? '/home-handyman' : perfil?.rol === 'admin' ? '/admin' : '/home-cliente';
+      this.router.navigateByUrl(ruta, { replaceUrl: true });
+    } catch (error: any) {
+      console.error('Error registro Google:', error);
+      if (error?.code !== 'auth/popup-closed-by-user') {
+        await this.mostrarError(this.traducirError(error?.code));
+      }
+    } finally {
+      this.cargando = false;
+    }
+  }
+
+  async registrarFacebook() {
+    this.cargando = true;
+    try {
+      const perfil = await this.authService.loginConFacebook(this.rolSeleccionado);
+      const ruta = perfil?.rol === 'handyman' ? '/home-handyman' : perfil?.rol === 'admin' ? '/admin' : '/home-cliente';
+      this.router.navigateByUrl(ruta, { replaceUrl: true });
+    } catch (error: any) {
+      console.error('Error registro Facebook:', error);
+      if (error?.code !== 'auth/popup-closed-by-user') {
+        await this.mostrarError(this.traducirError(error?.code));
+      }
     } finally {
       this.cargando = false;
     }
@@ -156,6 +190,16 @@ export class RegisterPage implements OnInit {
         return 'El correo no es válido.';
       case 'auth/weak-password':
         return 'La contraseña es muy débil (mínimo 6 caracteres).';
+      case 'auth/account-exists-with-different-credential':
+        return 'Ya existe una cuenta con este correo vinculada a otro método de acceso.';
+      case 'auth/popup-blocked':
+        return 'El navegador bloqueó la ventana emergente. Por favor habilítala.';
+      case 'auth/operation-not-allowed':
+        return 'Este método de acceso aún no está habilitado en Firebase Console.';
+      case 'auth/unauthorized-domain':
+        return 'Dominio no autorizado. Agrega este dominio en Firebase Console > Authentication > Settings > Dominios autorizados.';
+      case 'auth/cancelled-popup-request':
+        return 'Registro cancelado.';
       default:
         return 'Ocurrió un error al crear la cuenta. Intenta de nuevo.';
     }
