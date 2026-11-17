@@ -28,6 +28,9 @@ import {
   saveOutline
 } from 'ionicons/icons';
 
+// 1. Importación del componente reutilizable del Header
+import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
+
 export type EstadoTrabajo = 'En camino' | 'En curso' | 'Finalizado';
 
 interface TrabajoOperacion {
@@ -57,7 +60,8 @@ interface GrupoTrabajosPorFecha {
   templateUrl: './operaciones-handyman.page.html',
   styleUrls: ['./operaciones-handyman.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
+  // 2. Se agrega HeaderHandymanComponent al arreglo de imports
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule, HeaderHandymanComponent]
 })
 export class OperacionesHandymanPage {
   private toastCtrl = inject(ToastController);
