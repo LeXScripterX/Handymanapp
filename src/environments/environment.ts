@@ -1,9 +1,9 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+import { Capacitor } from '@capacitor/core';
 
 export const environment = {
   production: false,
+  // Si detecta Android usa 10.0.2.2, si detecta Web usa localhost
+  apiUrl: Capacitor.getPlatform() === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000',
   firebaseConfig: {
     apiKey: 'AIzaSyCRfqV0mLMAgYTV7dWBegDagvoKfZwStT4',
     authDomain: 'handyman-a3204.firebaseapp.com',

@@ -21,57 +21,104 @@
 
     @switch (vista()) {
 
-      @case ('resumen') {
-        <div class="stats">
-          <div class="stat-card">
-            <span class="stat-etiqueta">Trabajadores</span>
-            <span class="stat-numero">{{ stats().trabajadores }}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-etiqueta">Clientes</span>
-            <span class="stat-numero">{{ stats().clientes }}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-etiqueta">Sin verificar</span>
-            <span class="stat-numero">{{ stats().sinVerificar }}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-etiqueta">Reseñas pendientes</span>
-            <span class="stat-numero">{{ stats().resenasPendientes }}</span>
-          </div>
-        </div>
-      }
+  @case ('resumen') {
+  @if (errorEstadisticas()) {
+    <div class="error-box">
+      <p>{{ errorEstadisticas() }}</p>
+      <ion-button class="btn-secundario" size="small" (click)="reintentar()">Reintentar</ion-button>
+    </div>
+  } @else if (!estadisticas()) {
+    <p class="vacio">Cargando estadísticas…</p>
+  } @else {
+    <div class="stats">
+      <div class="stat-card">
+        <span class="stat-etiqueta">Total usuarios</span>
+        <span class="stat-numero">{{ stats().totalUsuarios }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Trabajadores</span>
+        <span class="stat-numero">{{ stats().trabajadores }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Clientes</span>
+        <span class="stat-numero">{{ stats().clientes }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Verificados</span>
+        <span class="stat-numero">{{ stats().verificados }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Sin verificar</span>
+        <span class="stat-numero">{{ stats().sinVerificar }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Nuevos (7 días)</span>
+        <span class="stat-numero">{{ stats().nuevos7dias }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Activos</span>
+        <span class="stat-numero">{{ stats().activos }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-etiqueta">Reseñas pendientes</span>
+        <span class="stat-numero">{{ stats().resenasPendientes }}</span>
+      </div>
+    </div>
+
+    @if (porCategoria().length) {
+      <h3 class="subtitulo">Por categoría</h3>
+      <ion-list class="lista-card">
+        @for (c of porCategoria(); track c.categoria) {
+          <ion-item lines="full">
+            <ion-label>
+              <h3>{{ c.categoria }}</h3>
+              <p>{{ c.trabajadores }} trabajadores · {{ c.verificados }} verificados · {{ c.sin_verificar }} sin verificar</p>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
+}
 
       @case ('usuarios') {
-        <ion-searchbar class="buscador" placeholder="Buscar por nombre o correo"
-          (ionInput)="busqueda.set($any($event).target.value ?? '')"></ion-searchbar>
-        <ion-list class="lista-card">
-          @for (u of usuariosFiltrados(); track u.id) {
-            <ion-item lines="full">
-              <ion-label>
-                <h3>{{ u.nombre }}</h3>
-                <p>{{ u.email }}</p>
-                <div class="chips">
-                  <ion-chip>{{ u.rol }}</ion-chip>
-                  @if (u.verificado) { <ion-chip class="chip-ok">Verificado</ion-chip> }
-                  @if (!u.activo) { <ion-chip class="chip-peligro">Bloqueado</ion-chip> }
-                </div>
-              </ion-label>
-              <div class="acciones-item" slot="end">
-                @if (u.rol === 'trabajador') {
-                  <ion-button class="btn-secundario" size="small" (click)="admin.alternarVerificado(u.id)">
-                    {{ u.verificado ? 'Quitar verif.' : 'Verificar' }}
-                  </ion-button>
-                }
-                <ion-button class="btn-peligro" size="small" (click)="admin.alternarActivo(u.id)">
-                  {{ u.activo ? 'Bloquear' : 'Activar' }}
-                </ion-button>
-              </div>
-            </ion-item>
-          }
-        </ion-list>
-      }
+  <ion-searchbar class="buscador" placeholder="Buscar por nombre o correo"
+    (ionInput)="busqueda.set($any($event).target.value ?? '')"></ion-searchbar>
 
+  @if (admin.errorUsuarios()) {
+    <p class="vacio">{{ admin.errorUsuarios() }}</p>
+  } @else if (admin.cargandoUsuarios()) {
+    <p class="vacio">Cargando usuarios…</p>
+  } @else if (usuariosFiltrados().length === 0) {
+    <p class="vacio">No hay usuarios.</p>
+  }
+
+  <ion-list class="lista-card">
+    @for (u of usuariosFiltrados(); track u.id) {
+      <ion-item lines="full">
+        <ion-label>
+          <h3>{{ u.nombre }}</h3>
+          <p>{{ u.email }}</p>
+          <div class="chips">
+            <ion-chip>{{ u.rol }}</ion-chip>
+            @if (u.verificado) { <ion-chip class="chip-ok">Verificado</ion-chip> }
+            @if (!u.activo) { <ion-chip class="chip-peligro">Bloqueado</ion-chip> }
+          </div>
+        </ion-label>
+        <div class="acciones-item" slot="end">
+          @if (u.rol === 'trabajador') {
+            <ion-button class="btn-secundario" size="small" (click)="admin.alternarVerificado(u.id)">
+              {{ u.verificado ? 'Quitar verif.' : 'Verificar' }}
+            </ion-button>
+          }
+          <ion-button class="btn-peligro" size="small" (click)="admin.alternarActivo(u.id)">
+            {{ u.activo ? 'Bloquear' : 'Activar' }}
+          </ion-button>
+        </div>
+      </ion-item>
+    }
+  </ion-list>
+}
       @case ('servicios') {
         <ion-button class="btn-primario" expand="block" (click)="nuevoServicio()">
           Agregar servicio

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   AlertController,
@@ -39,8 +39,10 @@ type Vista = 'resumen' | 'usuarios' | 'servicios' | 'resenas';
     IonSearchbar, IonList, IonItem, IonChip, IonToggle,
   ],
 })
-export class AdminPage {
+export class AdminPage implements OnInit {
   private alertCtrl = inject(AlertController);
+  private authService = inject(AuthService);
+  private router = inject(Router);
   admin = inject(AdminService);
 
   vista = signal<Vista>('resumen');
@@ -53,22 +55,44 @@ export class AdminPage {
     );
   });
 
-  stats = computed(() => ({
-    trabajadores: this.admin.usuarios().filter((u) => u.rol === 'trabajador').length,
-    clientes: this.admin.usuarios().filter((u) => u.rol === 'cliente').length,
-    sinVerificar: this.admin.usuarios().filter((u) => u.rol === 'trabajador' && !u.verificado).length,
-    resenasPendientes: this.admin.resenas().filter((r) => r.estado === 'pendiente').length,
-  }));
+ // Estadísticas reales del backend
+estadisticas = this.admin.estadisticas;
+errorEstadisticas = this.admin.errorEstadisticas;
+
+stats = computed(() => {
+  const r = this.admin.estadisticas()?.resumen;
+  return {
+    trabajadores: r?.trabajadores ?? 0,
+    clientes: r?.clientes ?? 0,
+    sinVerificar: r?.trabajadores_sin_verificar ?? 0,
+    verificados: r?.trabajadores_verificados ?? 0,
+    activos: r?.activos ?? 0,
+    inactivos: r?.inactivos ?? 0,
+    nuevos7dias: r?.registrados_ultimos_7_dias ?? 0,
+    totalUsuarios: r?.total_usuarios ?? 0,
+    resenasPendientes: this.admin.resenas().filter((x) => x.estado === 'pendiente').length,
+  };
+});
+
+porCategoria = computed(() => this.admin.estadisticas()?.por_categoria ?? []);
 
   resenasPendientes = computed(() =>
     this.admin.resenas().filter((r) => r.estado === 'pendiente')
   );
 
-  constructor(private authService: AuthService, private router: Router) {}
+
+  ngOnInit() {
+  this.admin.cargarEstadisticas();
+  this.admin.cargarUsuarios();
+  }
 
   cambiarVista(ev: any) {
     this.vista.set(ev.detail.value);
   }
+
+  reintentar() {
+  this.admin.cargarEstadisticas();
+}
 
   async nuevoServicio() {
     const alert = await this.alertCtrl.create({
@@ -100,8 +124,8 @@ export class AdminPage {
     await alert.present();
   }
 
-  async cerrarSesion() {
-    await this.authService.cerrarSesion();
-    this.router.navigateByUrl('/login', { replaceUrl: true });
-  }
+async cerrarSesion() {
+  await this.authService.cerrarSesion();
+  this.router.navigateByUrl('/login', { replaceUrl: true });
+}
 }

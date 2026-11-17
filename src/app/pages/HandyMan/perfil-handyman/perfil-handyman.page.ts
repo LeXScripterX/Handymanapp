@@ -1,9 +1,9 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { 
-  IonContent, IonIcon, IonModal, 
-  AlertController 
+  IonContent, IonIcon, IonModal, IonSpinner,
+  AlertController, ToastController, ActionSheetController 
 } from '@ionic/angular/standalone';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { addIcons } from 'ionicons';
@@ -12,9 +12,13 @@ import {
   water, flash, add, imageOutline, cloudUploadOutline, 
   logOutOutline, pencil, build, personCircleOutline, 
   mailOutline, callOutline, lockClosedOutline, closeOutline,
-  key, hammer, tv, addCircle, checkmarkDoneCircleOutline
+  key, hammer, tv, addCircle, checkmarkDoneCircleOutline,
+  shieldCheckmarkOutline, alertCircleOutline, cameraOutline,
+  documentTextOutline, checkmarkOutline, refreshOutline,
+  imagesOutline, trashOutline, cameraReverseOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
+import { IdentidadService } from '../../../services/identidad.services';
 import { firstValueFrom } from 'rxjs';
 import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
 
@@ -45,14 +49,21 @@ interface FotoPortafolio {
     IonContent, 
     IonIcon, 
     IonModal, 
+    IonSpinner,
     HeaderHandymanComponent
   ]
 })
-export class PerfilHandymanPage implements OnInit {
+export class PerfilHandymanPage implements OnInit, OnDestroy {
   private authService = inject(AuthService);
+  private identidadService = inject(IdentidadService);
   private router = inject(Router);
   private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
+  private actionSheetCtrl = inject(ActionSheetController);
   private formBuilder = inject(FormBuilder);
+
+  @ViewChild('videoCamaraElement') videoCamaraElement?: ElementRef<HTMLVideoElement>;
+  @ViewChild('inputArchivoGaleria') inputArchivoGaleria?: ElementRef<HTMLInputElement>;
 
   modalEdicionAbierto = signal<boolean>(false);
   modalServiciosAbierto = signal<boolean>(false);
@@ -64,6 +75,27 @@ export class PerfilHandymanPage implements OnInit {
   correoTrabajador = signal<string>('');
   celularTrabajador = signal<string>('');
   fotoPerfil = signal<string>('');
+  identidadVerificada = signal<boolean>(false);
+  calificacion = signal<number>(4.9);
+  trabajosCompletados = signal<number>(45);
+  experienciaAnos = signal<number>(1.5);
+
+  // Estados de verificación facial
+  modalVerificacionAbierto = signal<boolean>(false);
+  selfiePreview = signal<string | null>(null);
+  documentoPreview = signal<string | null>(null);
+  consentimientoBiometrico = signal<boolean>(false);
+  cargandoVerificacion = signal<boolean>(false);
+  mensajeErrorVerificacion = signal<string | null>(null);
+
+  private selfieBlob: Blob | null = null;
+  private documentoBlob: Blob | null = null;
+
+  // Estados de cámara integrada en la app y carga de evidencias
+  modalCamaraAppAbierto = signal<boolean>(false);
+  usandoCamaraFrontal = signal<boolean>(false);
+  destinoCapturaActual: 'portafolio' | 'avatar' = 'portafolio';
+  private streamCamara: MediaStream | null = null;
 
   misServicios = signal<ServicioHandyman[]>([
     {
@@ -112,7 +144,10 @@ export class PerfilHandymanPage implements OnInit {
       water, flash, add, imageOutline, cloudUploadOutline, 
       logOutOutline, pencil, build, personCircleOutline, 
       mailOutline, callOutline, lockClosedOutline, closeOutline,
-      key, hammer, tv, addCircle, checkmarkDoneCircleOutline
+      key, hammer, tv, addCircle, checkmarkDoneCircleOutline,
+      shieldCheckmarkOutline, alertCircleOutline, cameraOutline,
+      documentTextOutline, checkmarkOutline, refreshOutline,
+      imagesOutline, trashOutline, cameraReverseOutline
     });
 
     this.formEdicion = this.formBuilder.group({
@@ -127,6 +162,10 @@ export class PerfilHandymanPage implements OnInit {
     await this.cargarDatosUsuario();
   }
 
+  ngOnDestroy() {
+    this.detenerStreamCamara();
+  }
+
   async cargarDatosUsuario() {
     try {
       const usuario = await firstValueFrom(this.authService.currentUser$) as any;
@@ -137,8 +176,12 @@ export class PerfilHandymanPage implements OnInit {
       if (perfil) {
         if (perfil.nombre) this.nombreTrabajador.set(perfil.nombre);
         if (perfil.email) this.correoTrabajador.set(perfil.email);
-        if (perfil.celular) this.celularTrabajador.set(perfil.celular);
-        if (perfil.fotoPerfil) this.fotoPerfil.set(perfil.fotoPerfil);
+        if (perfil.telefono || perfil.celular) this.celularTrabajador.set(perfil.telefono || perfil.celular);
+        if (perfil.fotoUrl || perfil.fotoPerfil) this.fotoPerfil.set(perfil.fotoUrl || perfil.fotoPerfil);
+        this.identidadVerificada.set(Boolean(perfil.identidadVerificada));
+        if (perfil.calificacion !== undefined) this.calificacion.set(perfil.calificacion);
+        if (perfil.trabajosCompletados !== undefined) this.trabajosCompletados.set(perfil.trabajosCompletados);
+        if (perfil.experienciaAnos !== undefined) this.experienciaAnos.set(perfil.experienciaAnos);
       } else {
         this.nombreTrabajador.set(usuario.displayName || 'Handyman');
       }
@@ -204,16 +247,95 @@ export class PerfilHandymanPage implements OnInit {
     this.guardandoCambios = true;
     const { nombre, email, celular } = this.formEdicion.value;
     try {
+      await this.authService.actualizarPerfilApi({
+        nombre,
+        telefono: celular,
+      });
+
       this.nombreTrabajador.set(nombre);
       this.correoTrabajador.set(email);
       this.celularTrabajador.set(celular);
       this.cerrarModalEdicion();
+      this.mostrarToast('Perfil actualizado correctamente', 'success');
     } catch (error) {
-      console.error('Error simulando actualización:', error);
+      console.error('Error al actualizar perfil en API:', error);
+      this.mostrarToast('Se guardó localmente. Verifica la conexión con el servidor.', 'warning');
+      this.cerrarModalEdicion();
     } finally {
       this.guardandoCambios = false;
     }
   }
+
+  // --- MÉTODOS DE VERIFICACIÓN FACIAL ---
+
+  abrirModalVerificacion() {
+    this.mensajeErrorVerificacion.set(null);
+    this.modalVerificacionAbierto.set(true);
+  }
+
+  cerrarModalVerificacion() {
+    this.modalVerificacionAbierto.set(false);
+  }
+
+  async capturarSelfie() {
+    try {
+      this.mensajeErrorVerificacion.set(null);
+      const res = await this.identidadService.tomarFoto(true); // frontal
+      this.selfieBlob = res.blob;
+      this.selfiePreview.set(res.webPath);
+    } catch (error: any) {
+      console.warn('Captura cancelada o error:', error);
+    }
+  }
+
+  async capturarDocumento() {
+    try {
+      this.mensajeErrorVerificacion.set(null);
+      const res = await this.identidadService.tomarFoto(false); // trasera
+      this.documentoBlob = res.blob;
+      this.documentoPreview.set(res.webPath);
+    } catch (error: any) {
+      console.warn('Captura cancelada o error:', error);
+    }
+  }
+
+  toggleConsentimiento() {
+    this.consentimientoBiometrico.update(v => !v);
+  }
+
+  async enviarVerificacionFacial() {
+    if (!this.selfieBlob || !this.documentoBlob) {
+      this.mensajeErrorVerificacion.set('Debes capturar tanto tu selfie como tu documento.');
+      return;
+    }
+
+    if (!this.consentimientoBiometrico()) {
+      this.mensajeErrorVerificacion.set('Debes autorizar el procesamiento de tus datos biométricos.');
+      return;
+    }
+
+    this.cargandoVerificacion.set(true);
+    this.mensajeErrorVerificacion.set(null);
+
+    try {
+      const token = await this.authService.getIdToken();
+      await firstValueFrom(
+        this.identidadService.registrarRostro(this.selfieBlob, this.documentoBlob, token)
+      );
+
+      this.identidadVerificada.set(true);
+      this.cerrarModalVerificacion();
+      await this.mostrarToast('¡Identidad verificada exitosamente! Tu cuenta ahora tiene el sello de confianza.', 'success');
+    } catch (error: any) {
+      console.error('Error en verificación facial:', error);
+      const msg = error?.error?.detail || 'No se pudo verificar la identidad. Asegúrate de que las fotos sean claras y del mismo rostro.';
+      this.mensajeErrorVerificacion.set(msg);
+    } finally {
+      this.cargandoVerificacion.set(false);
+    }
+  }
+
+  // ------------------------------------
 
   formatearPrecio(precio: number): string {
     return new Intl.NumberFormat('es-CO', {
@@ -265,17 +387,180 @@ export class PerfilHandymanPage implements OnInit {
     this.filtroPortafolio.set(filtroId);
   }
 
-  subirFoto() {
-    console.log('Abrir selector de imágenes o cámara');
+  // --- MÉTODOS DE SUBIDA DE EVIDENCIAS Y CÁMARA INTEGRADA ---
+
+  async cambiarFotoAvatar() {
+    this.destinoCapturaActual = 'avatar';
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Foto de perfil',
+      buttons: [
+        {
+          text: 'Tomar foto con la cámara',
+          icon: 'camera-outline',
+          handler: () => {
+            this.abrirVisorCamara(true);
+          }
+        },
+        {
+          text: 'Subir desde galería / dispositivo',
+          icon: 'images-outline',
+          handler: () => {
+            this.inputArchivoGaleria?.nativeElement.click();
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ]
+    });
+    await sheet.present();
+  }
+
+  async subirFoto() {
+    this.destinoCapturaActual = 'portafolio';
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Añadir evidencia de trabajo realizado',
+      buttons: [
+        {
+          text: 'Tomar foto con la cámara',
+          icon: 'camera-outline',
+          handler: () => {
+            this.abrirVisorCamara(false);
+          }
+        },
+        {
+          text: 'Subir desde galería / almacenamiento',
+          icon: 'images-outline',
+          handler: () => {
+            this.inputArchivoGaleria?.nativeElement.click();
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ]
+    });
+    await sheet.present();
+  }
+
+  async abrirVisorCamara(frontal: boolean) {
+    this.usandoCamaraFrontal.set(frontal);
+    this.modalCamaraAppAbierto.set(true);
+    await this.iniciarStreamVideo();
+  }
+
+  private async iniciarStreamVideo() {
+    this.detenerStreamCamara();
+    try {
+      const modo = this.usandoCamaraFrontal() ? 'user' : 'environment';
+      this.streamCamara = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: modo }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+
+      setTimeout(() => {
+        if (this.videoCamaraElement?.nativeElement) {
+          this.videoCamaraElement.nativeElement.srcObject = this.streamCamara;
+          this.videoCamaraElement.nativeElement.play();
+        }
+      }, 80);
+    } catch (error) {
+      console.error('Error al acceder a la cámara:', error);
+      this.modalCamaraAppAbierto.set(false);
+      this.mostrarToast('No se pudo abrir la cámara. Revisa los permisos o sube la imagen desde tu galería.', 'warning');
+    }
+  }
+
+  async alternarLenteCamara() {
+    this.usandoCamaraFrontal.update(v => !v);
+    await this.iniciarStreamVideo();
+  }
+
+  capturarFotoDesdeVisor() {
+    const video = this.videoCamaraElement?.nativeElement;
+    if (!video) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 800;
+    canvas.height = video.videoHeight || 800;
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      this.guardarImagenCapturada(dataUrl);
+    }
+
+    this.cerrarVisorCamara();
+  }
+
+  cerrarVisorCamara() {
+    this.detenerStreamCamara();
+    this.modalCamaraAppAbierto.set(false);
+  }
+
+  private detenerStreamCamara() {
+    if (this.streamCamara) {
+      this.streamCamara.getTracks().forEach(track => track.stop());
+      this.streamCamara = null;
+    }
+  }
+
+  onArchivoSeleccionado(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.guardarImagenCapturada(reader.result);
+      }
+    };
+    reader.readAsDataURL(archivo);
+    input.value = '';
+  }
+
+  private guardarImagenCapturada(dataUrl: string) {
+    if (this.destinoCapturaActual === 'avatar') {
+      this.fotoPerfil.set(dataUrl);
+      this.mostrarToast('Foto de perfil actualizada', 'success');
+      return;
+    }
+
+    const filtroActual = this.filtroPortafolio();
+    const servicioAsignado = filtroActual !== 'todos'
+      ? filtroActual
+      : (this.misServicios()[0]?.id || 'plom_basica');
+
+    const nuevaFoto: FotoPortafolio = {
+      id: Date.now(),
+      servicioId: servicioAsignado,
+      url: dataUrl
+    };
+
+    // Si hay tarjetas placeholder vacías iniciales, reemplazamos o agregamos al inicio
+    this.galeriaTotal.update(actuales => [nuevaFoto, ...actuales.filter(f => f.url !== '')]);
+    this.mostrarToast('Evidencia añadida a tu portafolio', 'success');
+  }
+
+  eliminarFotoPortafolio(id: number, event: Event) {
+    event.stopPropagation();
+    this.galeriaTotal.update(actuales => actuales.filter(f => f.id !== id));
+    this.mostrarToast('Evidencia eliminada', 'warning');
   }
 
   obtenerClaseServicio(id: string): string {
-    const serv = this.misServicios().find(s => s.id === id);
-    return serv ? serv.claseColor : 'bg-default';
+    const serv = this.misServicios().find(s => s.id === id) || this.catalogoServicios.find(s => s.id === id);
+    return serv ? serv.claseColor : 'bg-general';
   }
 
   obtenerIconoServicio(id: string): string {
-    const serv = this.misServicios().find(s => s.id === id);
+    const serv = this.misServicios().find(s => s.id === id) || this.catalogoServicios.find(s => s.id === id);
     return serv ? serv.icono : 'build';
   }
 
@@ -286,5 +571,15 @@ export class PerfilHandymanPage implements OnInit {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
+  }
+
+  private async mostrarToast(mensaje: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: 3500,
+      color,
+      position: 'top',
+    });
+    await toast.present();
   }
 }

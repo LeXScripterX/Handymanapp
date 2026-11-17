@@ -1,4 +1,4 @@
-// Definición de variables de estilo
+// Variables de paleta y tipografía de marca
 $azul: #1f2d3a;
 $coral: #ef6a5a;
 $fondo: #f6f3ee;
@@ -9,7 +9,6 @@ $verde: #2f9e58;
 $naranja: #f59e0b;
 $fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
 
-// Configuración de la barra superior
 ion-toolbar {
   --background: #{$azul};
   --color: #ffffff;
@@ -73,7 +72,7 @@ ion-content {
 .contenido {
   max-width: 760px;
   margin: 0 auto;
-  padding: 20px 16px 36px;
+  padding: 20px 16px 40px;
   color: $azul;
 }
 
@@ -118,7 +117,6 @@ ion-content {
       font-family: $fuente;
       box-shadow: 0 3px 8px rgba(31, 45, 58, 0.15);
       flex-shrink: 0;
-      overflow: visible;
 
       .foto-img {
         width: 100%;
@@ -175,7 +173,6 @@ ion-content {
     }
   }
 
-  /* Micro-tarjetas KPI uniformes */
   .mini-tarjetas-estados {
     display: flex;
     gap: 8px;
@@ -189,7 +186,7 @@ ion-content {
       align-items: center;
       justify-content: center;
       text-align: center;
-      min-width: 72px; /* Reducido un poco para que quepan 3 */
+      width: 90px;
       height: 54px;
       box-sizing: border-box;
       flex-shrink: 0;
@@ -202,16 +199,12 @@ ion-content {
         align-items: center;
         justify-content: center;
         width: 100%;
-        text-align: center;
 
         .numero-estado {
           font-size: 18px;
           font-weight: 800;
           font-family: $fuente;
           line-height: 1;
-          text-align: center;
-          display: block;
-          width: 100%;
         }
       }
 
@@ -221,9 +214,6 @@ ion-content {
         letter-spacing: 0.3px;
         text-transform: uppercase;
         margin-top: 4px;
-        text-align: center;
-        display: block;
-        width: 100%;
         white-space: nowrap;
         line-height: 1;
       }
@@ -232,31 +222,10 @@ ion-content {
         transform: translateY(-2px);
       }
 
-      /* AGREGADO: KPI "NUEVO" */
-      &.card-nuevo {
-        background: rgba(59, 130, 246, 0.08);
-        border-color: rgba(59, 130, 246, 0.2);
-
-        .numero-estado, .texto-estado {
-          color: #3b82f6;
-        }
-
-        &.card-activo {
-          background: rgba(59, 130, 246, 0.16);
-          border-color: #3b82f6;
-          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
-        }
-      }
-
-      /* KPI "En camino" */
       &.card-camino {
         background: rgba(47, 158, 88, 0.08);
         border-color: rgba(47, 158, 88, 0.2);
-
-        .numero-estado, .texto-estado {
-          color: $verde;
-        }
-
+        .numero-estado, .texto-estado { color: $verde; }
         &.card-activo {
           background: rgba(47, 158, 88, 0.16);
           border-color: $verde;
@@ -264,15 +233,10 @@ ion-content {
         }
       }
 
-      /* KPI "En curso" */
       &.card-curso {
         background: rgba(245, 158, 11, 0.08);
         border-color: rgba(245, 158, 11, 0.2);
-
-        .numero-estado, .texto-estado {
-          color: #d97706;
-        }
-
+        .numero-estado, .texto-estado { color: #d97706; }
         &.card-activo {
           background: rgba(245, 158, 11, 0.18);
           border-color: #d97706;
@@ -284,7 +248,7 @@ ion-content {
 }
 
 /* ==========================================================
-   CONTROLES DE FILTRADO ESTANDARIZADOS
+   CONTROLES DE FILTRADO
    ========================================================== */
 .controles-filtrado {
   display: flex;
@@ -297,7 +261,6 @@ ion-content {
   box-shadow: 0 3px 10px rgba(31, 45, 58, 0.03);
 }
 
-/* Clase base uniforme para TODOS los botones de filtro */
 .btn-filtro {
   height: 32px;
   background: #f8fafc;
@@ -313,7 +276,6 @@ ion-content {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-sizing: border-box;
 
   &:hover {
     background: #f1f5f9;
@@ -330,7 +292,6 @@ ion-content {
   }
 }
 
-/* Chips de Estado */
 .filtros-chips {
   display: flex;
   gap: 6px;
@@ -339,16 +300,13 @@ ion-content {
   justify-content: flex-start;
   padding: 2px 0;
   scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  &::-webkit-scrollbar { display: none; }
 
   @media (min-width: 480px) {
     justify-content: center;
   }
 }
 
-/* Filtro de Fecha uniforme */
 .filtro-fecha-wrapper {
   display: flex;
   align-items: center;
@@ -361,7 +319,6 @@ ion-content {
     width: 154px;
     padding: 0;
     cursor: pointer;
-    user-select: none;
 
     .texto-fecha {
       font-size: 12.5px;
@@ -371,10 +328,8 @@ ion-content {
       text-align: center;
       width: 100%;
       pointer-events: none;
-      line-height: 1;
     }
 
-    /* Input cubriendo el contenedor */
     input[type="date"] {
       position: absolute;
       top: 0;
@@ -383,7 +338,6 @@ ion-content {
       height: 100%;
       opacity: 0;
       cursor: pointer;
-      pointer-events: auto;
     }
   }
 
@@ -392,11 +346,6 @@ ion-content {
     background: rgba(239, 106, 90, 0.08);
     border-color: rgba(239, 106, 90, 0.3);
     padding: 0 14px;
-
-    &:hover {
-      background: rgba(239, 106, 90, 0.15);
-      border-color: $coral;
-    }
   }
 }
 
@@ -408,9 +357,6 @@ ion-content {
   margin: 18px 0 12px;
 
   .badge-timeline {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: #ffffff;
     border: 1px solid $borde-fuerte;
     padding: 5px 14px;
@@ -423,8 +369,6 @@ ion-content {
       color: $azul;
       font-family: $fuente;
       letter-spacing: 0.6px;
-      text-align: center;
-      line-height: 1;
       display: block;
     }
   }
@@ -437,21 +381,13 @@ ion-content {
   justify-content: center;
   padding: 40px 20px;
   gap: 8px;
-
-  ion-icon {
-    font-size: 40px;
-    color: #cbd5e1;
-  }
-
-  .vacio {
-    color: $muted;
-    font-size: 13.5px;
-    margin: 0;
-    text-align: center;
-  }
+  ion-icon { font-size: 40px; color: #cbd5e1; }
+  .vacio { color: $muted; font-size: 13.5px; margin: 0; text-align: center; }
 }
 
-/* Lista y Tarjetas de Operación */
+/* ==========================================================
+   TARJETAS DE OPERACIÓN DESPLEGABLES
+   ========================================================== */
 .lista-operaciones {
   display: flex;
   flex-direction: column;
@@ -462,35 +398,32 @@ ion-content {
   background: #ffffff;
   border: 1px solid rgba(213, 207, 198, 0.7);
   border-left: 4px solid $muted;
-  border-radius: 16px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  border-radius: 18px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  &.expandida {
+    box-shadow: 0 10px 26px rgba(31, 45, 58, 0.09);
+    border-color: $borde-fuerte;
   }
 
-  /* AGREGADO: Borde azul para el estado NUEVO */
-  &.badge-nuevo {
-    border-left-color: #3b82f6;
-  }
+  &.badge-camino { border-left-color: $verde; }
+  &.badge-curso { border-left-color: $naranja; }
+  &.badge-finalizado { border-left-color: $muted; }
 
-  &.badge-camino {
-    border-left-color: $verde;
-  }
+  .zona-resumen-clicable {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
 
-  &.badge-curso {
-    border-left-color: $naranja;
-  }
-
-  &.badge-finalizado {
-    border-left-color: $muted;
+    &:hover {
+      background: rgba(248, 250, 252, 0.6);
+    }
   }
 
   .cabecera-card {
@@ -502,27 +435,57 @@ ion-content {
     .titulo-y-hora {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
 
       .servicio-titulo {
         margin: 0;
         font-size: 16px;
         font-weight: 700;
         color: $azul;
-        letter-spacing: -0.2px;
       }
 
       .hora-badge {
-        display: inline-flex;
+        display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         font-size: 12px;
         font-weight: 600;
         color: $muted;
 
-        ion-icon {
-          font-size: 13px;
+        .pill-indicador {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          background: #f1f5f9;
+          color: $azul;
+          padding: 2px 7px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 700;
         }
+      }
+    }
+
+    .estado-y-chevron {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .btn-chevron {
+        background: #f8fafc;
+        border: 1px solid $borde;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $azul;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        ion-icon { font-size: 15px; }
       }
     }
 
@@ -531,55 +494,25 @@ ion-content {
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.3px;
       text-transform: uppercase;
       white-space: nowrap;
 
-      /* AGREGADO: Fondo azul para el badge NUEVO */
-      &.badge-nuevo {
-        background: rgba(59, 130, 246, 0.12);
-        color: #3b82f6;
-      }
-
-      &.badge-camino {
-        background: rgba(47, 158, 88, 0.12);
-        color: $verde;
-      }
-
-      &.badge-curso {
-        background: rgba(245, 158, 11, 0.15);
-        color: #d97706;
-      }
-
-      &.badge-finalizado {
-        background: rgba(123, 132, 140, 0.12);
-        color: $muted;
-      }
+      &.badge-camino { background: rgba(47, 158, 88, 0.12); color: $verde; }
+      &.badge-curso { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+      &.badge-finalizado { background: rgba(123, 132, 140, 0.12); color: $muted; }
     }
   }
 
   .cuerpo-card {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
     .dato-fila {
       display: flex;
       align-items: center;
       gap: 8px;
       color: #4b5563;
       font-size: 13.5px;
-      line-height: 1.4;
 
-      ion-icon {
-        font-size: 16px;
-        color: $muted;
-        flex-shrink: 0;
-      }
-
-      .texto-cliente {
-        font-weight: 500;
-      }
+      ion-icon { font-size: 16px; color: $muted; flex-shrink: 0; }
+      .texto-cliente { font-weight: 500; }
     }
   }
 
@@ -589,12 +522,8 @@ ion-content {
     align-items: center;
     padding-top: 10px;
     border-top: 1px solid rgba(213, 207, 198, 0.4);
-    margin-top: 2px;
 
     .estado-resumen {
-      display: flex;
-      align-items: center;
-
       .indicador-tiempo {
         display: flex;
         align-items: center;
@@ -602,41 +531,21 @@ ion-content {
         font-size: 12.5px;
         font-weight: 600;
         color: $azul;
-
-        ion-icon {
-          font-size: 13px;
-          color: $coral;
-        }
+        ion-icon { font-size: 13px; color: $coral; }
       }
 
-      /* Estrellas y calificación destacadas para trabajos finalizados */
       .calificacion-info {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-
-        .tag-pago {
-          font-size: 12.5px;
-          font-weight: 600;
-          color: $muted;
-        }
-
+        .tag-pago { font-size: 12.5px; font-weight: 600; color: $muted; }
         .estrellas {
           display: inline-flex;
-          align-items: center;
           gap: 2px;
-
           ion-icon {
             font-size: 16px;
-            display: inline-block;
-
-            &.activa {
-              color: #f59e0b !important;
-            }
-
-            &.inactiva {
-              color: #d1d5db !important;
-            }
+            &.activa { color: #f59e0b !important; }
+            &.inactiva { color: #d1d5db !important; }
           }
         }
       }
@@ -652,8 +561,283 @@ ion-content {
         font-weight: 800;
         font-family: $fuente;
         color: $coral;
-        letter-spacing: 0.5px;
       }
+    }
+  }
+}
+
+/* ==========================================================
+   ESTILOS DEL PANEL INTERACTIVO DESPLEGABLE
+   ========================================================== */
+.panel-desplegable {
+  background: #faf9f6;
+  border-top: 1px dashed $borde-fuerte;
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeSlideDown 0.22s ease-out;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botones de llamada y navegación GPS */
+.acciones-cliente-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  .btn-contacto {
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid $borde-fuerte;
+    background: #ffffff;
+    color: $azul;
+    font-size: 12.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 15px;
+      color: $coral;
+    }
+
+    &:hover {
+      background: #f1f5f9;
+      border-color: $azul;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.bloque-gestion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .cabecera-bloque {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .label-gestion {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: $azul;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    ion-icon {
+      font-size: 15px;
+      color: $coral;
+    }
+  }
+}
+
+/* Selector rápido de 3 estados */
+.selector-estados-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  .btn-estado-item {
+    height: 40px;
+    border-radius: 12px;
+    border: 1.5px solid $borde-fuerte;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    ion-icon { font-size: 16px; }
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &.st-camino.seleccionado {
+      background: $verde;
+      color: #ffffff;
+      border-color: $verde;
+      box-shadow: 0 4px 10px rgba(47, 158, 88, 0.25);
+    }
+
+    &.st-curso.seleccionado {
+      background: $naranja;
+      color: #ffffff;
+      border-color: $naranja;
+      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+    }
+
+    &.st-finalizado.seleccionado {
+      background: $azul;
+      color: #ffffff;
+      border-color: $azul;
+      box-shadow: 0 4px 10px rgba(31, 45, 58, 0.25);
+    }
+  }
+}
+
+/* Área de Notas Técnicas */
+.textarea-notas {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid $borde-fuerte;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: $azul;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: $coral;
+    box-shadow: 0 0 0 3px rgba(239, 106, 90, 0.12);
+  }
+}
+
+.btn-guardar-nota {
+  background: rgba(239, 106, 90, 0.12);
+  color: $coral;
+  border: 1px solid rgba(239, 106, 90, 0.3);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $coral;
+    color: #ffffff;
+  }
+}
+
+/* Evidencia Fotográfica */
+.acciones-foto-botones {
+  display: flex;
+  gap: 6px;
+
+  .btn-subir-foto {
+    background: $azul;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.secundario {
+      background: #ffffff;
+      color: $azul;
+      border: 1px solid $borde-fuerte;
+    }
+
+    &:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.galeria-vacia {
+  border: 1.5px dashed $borde-fuerte;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: $muted;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  ion-icon {
+    font-size: 26px;
+    color: $coral;
+  }
+
+  &:hover {
+    border-color: $coral;
+    background: rgba(239, 106, 90, 0.03);
+  }
+}
+
+.galeria-fotos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+
+  .item-foto {
+    position: relative;
+    height: 84px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid $borde-fuerte;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-borrar-foto {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.9);
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+
+      ion-icon { font-size: 13px; }
     }
   }
 }

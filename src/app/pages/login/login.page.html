@@ -65,11 +65,15 @@
           }
         </div>
 
+        <div class="olvido-contrasena">
+          <a (click)="olvideContrasena()">¿Olvidaste tu contraseña?</a>
+        </div>
+
         <button 
           type="submit" 
           class="btn-primario" 
-          [disabled]="cargando">
-          @if (cargando) {
+          [disabled]="cargando()">
+          @if (cargando()) {
             <span>Ingresando...</span>
           } @else {
             <span>Ingresar</span>
@@ -86,9 +90,19 @@
       <button 
         type="button" 
         class="btn-google" 
+        [disabled]="cargando()"
         (click)="loginGoogle()">
         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" class="icono-google" />
         <span>Continuar con Google</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="btn-facebook" 
+        [disabled]="cargando()"
+        (click)="loginFacebook()">
+        <ion-icon name="logo-facebook" class="icono-facebook"></ion-icon>
+        <span>Continuar con Facebook</span>
       </button>
 
       <button 

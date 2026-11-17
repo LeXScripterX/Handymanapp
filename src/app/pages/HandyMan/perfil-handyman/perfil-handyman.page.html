@@ -3,6 +3,15 @@
 <ion-content class="perfil-page">
   <div class="contenido-perfil">
     
+    <!-- Input oculto para subir fotos desde galería o almacenamiento móvil -->
+    <input 
+      #inputArchivoGaleria 
+      type="file" 
+      accept="image/*" 
+      hidden 
+      (change)="onArchivoSeleccionado($event)" 
+    />
+
     <!-- Tarjeta Principal (Hero) -->
     <div class="card-hero">
       <div class="avatar-wrapper">
@@ -13,7 +22,7 @@
             <span class="inicial">{{ nombreTrabajador().charAt(0) }}</span>
           }
         </div>
-        <button class="btn-editar-foto" aria-label="Cambiar foto">
+        <button class="btn-editar-foto" type="button" (click)="cambiarFotoAvatar()" aria-label="Cambiar foto">
           <ion-icon name="camera"></ion-icon>
         </button>
       </div>
@@ -23,9 +32,15 @@
       
       <div class="badges-container">
         <span class="badge-rol">Handyman</span>
-        <span class="badge-verificado">
-          <ion-icon name="checkmark-circle"></ion-icon> Verificado
-        </span>
+        @if (identidadVerificada()) {
+          <span class="badge-verificado">
+            <ion-icon name="checkmark-circle"></ion-icon> Verificado
+          </span>
+        } @else {
+          <button class="badge-no-verificado" (click)="abrirModalVerificacion()" type="button">
+            <ion-icon name="shield-checkmark-outline"></ion-icon> Verificar Identidad
+          </button>
+        }
       </div>
 
       <button class="btn-editar-perfil" (click)="abrirModalEdicion()">
@@ -38,21 +53,21 @@
       <div class="stat-card">
         <ion-icon name="star" class="icono-estrella"></ion-icon>
         <div class="stat-textos">
-          <span class="stat-valor">4.9</span>
+          <span class="stat-valor">{{ calificacion() }}</span>
           <span class="stat-label">Calificación</span>
         </div>
       </div>
       <div class="stat-card">
         <ion-icon name="briefcase" class="icono-trabajo"></ion-icon>
         <div class="stat-textos">
-          <span class="stat-valor">45</span>
+          <span class="stat-valor">{{ trabajosCompletados() }}</span>
           <span class="stat-label">Trabajos</span>
         </div>
       </div>
       <div class="stat-card">
         <ion-icon name="time" class="icono-tiempo"></ion-icon>
         <div class="stat-textos">
-          <span class="stat-valor">1.5</span>
+          <span class="stat-valor">{{ experienciaAnos() }}</span>
           <span class="stat-label">Años</span>
         </div>
       </div>
@@ -132,7 +147,7 @@
       </div>
       
       <div class="grid-portafolio">
-        <button class="foto-item upload-box" (click)="subirFoto()">
+        <button class="foto-item upload-box" type="button" (click)="subirFoto()">
           <ion-icon name="cloud-upload-outline"></ion-icon>
           <span>Añadir foto</span>
         </button>
@@ -142,7 +157,19 @@
             <span class="tag-categoria" [ngClass]="obtenerClaseServicio(foto.servicioId)">
               <ion-icon [name]="obtenerIconoServicio(foto.servicioId)"></ion-icon>
             </span>
-            <ion-icon name="image-outline" class="placeholder-img"></ion-icon>
+
+            @if (foto.url) {
+              <img [src]="foto.url" alt="Evidencia de trabajo" class="img-evidencia-cargada" />
+              <button 
+                type="button" 
+                class="btn-borrar-evidencia" 
+                (click)="eliminarFotoPortafolio(foto.id, $event)" 
+                aria-label="Eliminar evidencia">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            } @else {
+              <ion-icon name="image-outline" class="placeholder-img"></ion-icon>
+            }
           </div>
         }
       </div>
@@ -155,6 +182,48 @@
 
   </div>
 </ion-content>
+
+<!-- ==============================================
+     MODAL DE CÁMARA INTEGRADA EN LA APP
+     ============================================== -->
+<ion-modal 
+  [isOpen]="modalCamaraAppAbierto()" 
+  (didDismiss)="cerrarVisorCamara()" 
+  class="modal-handy-moderno">
+  <ng-template>
+    <div class="modal-wrapper-interno modal-camara-live">
+      <div class="modal-header-custom">
+        <button class="btn-cerrar-custom" type="button" (click)="cerrarVisorCamara()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="modal-titulos">
+          <h2>{{ destinoCapturaActual === 'avatar' ? 'Foto de Perfil' : 'Capturar Evidencia' }}</h2>
+          <p>Toma la fotografía directamente desde la aplicación</p>
+        </div>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="visor-camara-box">
+          <video #videoCamaraElement autoplay playsinline muted class="video-preview-live"></video>
+        </div>
+
+        <div class="controles-captura-live">
+          <button type="button" class="btn-accion-secundario" (click)="alternarLenteCamara()" aria-label="Cambiar cámara">
+            <ion-icon name="camera-reverse-outline"></ion-icon>
+          </button>
+
+          <button type="button" class="btn-disparador-coral" (click)="capturarFotoDesdeVisor()" aria-label="Tomar foto">
+            <ion-icon name="camera"></ion-icon>
+          </button>
+
+          <button type="button" class="btn-accion-secundario" (click)="cerrarVisorCamara(); inputArchivoGaleria.click()" aria-label="Abrir galería">
+            <ion-icon name="images-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
 
 <!-- ==============================================
      MODAL DE EDICIÓN FLOTANTE (ESTILO REGISTRO) 
@@ -291,6 +360,117 @@
             <p>¡Excelente! Ya ofreces todos los servicios de nuestro catálogo.</p>
           </div>
         }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ==============================================
+     MODAL DE VERIFICACIÓN FACIAL CON DEEPFACE
+     ============================================== -->
+<ion-modal 
+  [isOpen]="modalVerificacionAbierto()" 
+  (didDismiss)="cerrarModalVerificacion()" 
+  class="modal-handy-moderno modal-verificacion">
+  <ng-template>
+    <div class="modal-wrapper-interno">
+      
+      <div class="modal-header-custom">
+        <button class="btn-cerrar-custom" (click)="cerrarModalVerificacion()" [disabled]="cargandoVerificacion()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="modal-titulos">
+          <h2>Verificación de Identidad</h2>
+          <p>Valida tu rostro para activar tu insignia de confianza</p>
+        </div>
+      </div>
+
+      <div class="modal-body-custom">
+        
+        <!-- Alerta de Error si la hay -->
+        @if (mensajeErrorVerificacion()) {
+          <div class="alerta-error-box">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ mensajeErrorVerificacion() }}</span>
+          </div>
+        }
+
+        <!-- Paso 1: Selfie -->
+        <div class="paso-verificacion-card">
+          <div class="paso-header">
+            <div class="paso-numero">1</div>
+            <div class="paso-info">
+              <h4>Selfie de tu rostro</h4>
+              <p>Mírate de frente con buena iluminación</p>
+            </div>
+          </div>
+
+          <div class="preview-area" (click)="capturarSelfie()">
+            @if (selfiePreview()) {
+              <img [src]="selfiePreview()" alt="Selfie" class="preview-img" />
+              <button class="btn-retomar" type="button">
+                <ion-icon name="refresh-outline"></ion-icon> Cambiar
+              </button>
+            } @else {
+              <div class="placeholder-captura">
+                <ion-icon name="camera-outline"></ion-icon>
+                <span>Tomar Selfie (Frontal)</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Paso 2: Documento de identidad -->
+        <div class="paso-verificacion-card">
+          <div class="paso-header">
+            <div class="paso-numero">2</div>
+            <div class="paso-info">
+              <h4>Foto de tu documento</h4>
+              <p>Cédula o DNI donde tu foto sea legible</p>
+            </div>
+          </div>
+
+          <div class="preview-area" (click)="capturarDocumento()">
+            @if (documentoPreview()) {
+              <img [src]="documentoPreview()" alt="Documento" class="preview-img" />
+              <button class="btn-retomar" type="button">
+                <ion-icon name="refresh-outline"></ion-icon> Cambiar
+              </button>
+            } @else {
+              <div class="placeholder-captura">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>Tomar Foto de Documento</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Paso 3: Consentimiento Biométrico -->
+        <div class="consentimiento-box" (click)="toggleConsentimiento()">
+          <div class="checkbox-custom" [class.checked]="consentimientoBiometrico()">
+            @if (consentimientoBiometrico()) {
+              <ion-icon name="checkmark-outline"></ion-icon>
+            }
+          </div>
+          <label>
+            Autorizo el procesamiento de mis datos biométricos faciales exclusivamente para validar mi identidad como profesional en HandymanApp.
+          </label>
+        </div>
+
+        <!-- Botón de Envío -->
+        <button 
+          class="btn-confirmar-verificacion" 
+          (click)="enviarVerificacionFacial()" 
+          [disabled]="cargandoVerificacion() || !selfiePreview() || !documentoPreview() || !consentimientoBiometrico()">
+          @if (cargandoVerificacion()) {
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>Verificando con DeepFace...</span>
+          } @else {
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Confirmar y Verificar Rostro</span>
+          }
+        </button>
+
       </div>
     </div>
   </ng-template>
