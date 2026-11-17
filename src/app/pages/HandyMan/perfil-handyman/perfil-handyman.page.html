@@ -3,6 +3,15 @@
 <ion-content class="perfil-page">
   <div class="contenido-perfil">
     
+    <!-- Input oculto para subir fotos desde galería o almacenamiento móvil -->
+    <input 
+      #inputArchivoGaleria 
+      type="file" 
+      accept="image/*" 
+      hidden 
+      (change)="onArchivoSeleccionado($event)" 
+    />
+
     <!-- Tarjeta Principal (Hero) -->
     <div class="card-hero">
       <div class="avatar-wrapper">
@@ -13,7 +22,7 @@
             <span class="inicial">{{ nombreTrabajador().charAt(0) }}</span>
           }
         </div>
-        <button class="btn-editar-foto" aria-label="Cambiar foto">
+        <button class="btn-editar-foto" type="button" (click)="cambiarFotoAvatar()" aria-label="Cambiar foto">
           <ion-icon name="camera"></ion-icon>
         </button>
       </div>
@@ -138,7 +147,7 @@
       </div>
       
       <div class="grid-portafolio">
-        <button class="foto-item upload-box" (click)="subirFoto()">
+        <button class="foto-item upload-box" type="button" (click)="subirFoto()">
           <ion-icon name="cloud-upload-outline"></ion-icon>
           <span>Añadir foto</span>
         </button>
@@ -148,7 +157,19 @@
             <span class="tag-categoria" [ngClass]="obtenerClaseServicio(foto.servicioId)">
               <ion-icon [name]="obtenerIconoServicio(foto.servicioId)"></ion-icon>
             </span>
-            <ion-icon name="image-outline" class="placeholder-img"></ion-icon>
+
+            @if (foto.url) {
+              <img [src]="foto.url" alt="Evidencia de trabajo" class="img-evidencia-cargada" />
+              <button 
+                type="button" 
+                class="btn-borrar-evidencia" 
+                (click)="eliminarFotoPortafolio(foto.id, $event)" 
+                aria-label="Eliminar evidencia">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            } @else {
+              <ion-icon name="image-outline" class="placeholder-img"></ion-icon>
+            }
           </div>
         }
       </div>
@@ -161,6 +182,48 @@
 
   </div>
 </ion-content>
+
+<!-- ==============================================
+     MODAL DE CÁMARA INTEGRADA EN LA APP
+     ============================================== -->
+<ion-modal 
+  [isOpen]="modalCamaraAppAbierto()" 
+  (didDismiss)="cerrarVisorCamara()" 
+  class="modal-handy-moderno">
+  <ng-template>
+    <div class="modal-wrapper-interno modal-camara-live">
+      <div class="modal-header-custom">
+        <button class="btn-cerrar-custom" type="button" (click)="cerrarVisorCamara()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="modal-titulos">
+          <h2>{{ destinoCapturaActual === 'avatar' ? 'Foto de Perfil' : 'Capturar Evidencia' }}</h2>
+          <p>Toma la fotografía directamente desde la aplicación</p>
+        </div>
+      </div>
+
+      <div class="modal-body-custom">
+        <div class="visor-camara-box">
+          <video #videoCamaraElement autoplay playsinline muted class="video-preview-live"></video>
+        </div>
+
+        <div class="controles-captura-live">
+          <button type="button" class="btn-accion-secundario" (click)="alternarLenteCamara()" aria-label="Cambiar cámara">
+            <ion-icon name="camera-reverse-outline"></ion-icon>
+          </button>
+
+          <button type="button" class="btn-disparador-coral" (click)="capturarFotoDesdeVisor()" aria-label="Tomar foto">
+            <ion-icon name="camera"></ion-icon>
+          </button>
+
+          <button type="button" class="btn-accion-secundario" (click)="cerrarVisorCamara(); inputArchivoGaleria.click()" aria-label="Abrir galería">
+            <ion-icon name="images-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
 
 <!-- ==============================================
      MODAL DE EDICIÓN FLOTANTE (ESTILO REGISTRO) 

@@ -1,6 +1,8 @@
+import { Capacitor } from '@capacitor/core';
+
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000',
+  apiUrl: Capacitor.getPlatform() === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000',
   firebaseConfig: {
     apiKey: 'AIzaSyCRfqV0mLMAgYTV7dWBegDagvoKfZwStT4',
     authDomain: 'handyman-a3204.firebaseapp.com',

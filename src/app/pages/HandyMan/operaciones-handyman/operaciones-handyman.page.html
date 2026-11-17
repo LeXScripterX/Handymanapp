@@ -1,4 +1,21 @@
-<app-header-handyman></app-header-handyman>
+<!-- Cabecera de la aplicación -->
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button color="light"></ion-menu-button>
+    </ion-buttons>
+
+    <div class="barra">
+      <div class="logo"><span class="punto"></span>handyman</div>
+      <div class="acciones">
+        <span class="pill-rol">Handyman</span>
+        <button type="button" class="campana" aria-label="Notificaciones">
+          <ion-icon name="notifications-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
 
 <!-- Contenido principal -->
 <ion-content>
@@ -18,20 +35,12 @@
           </div>
           <div class="info-saludo">
             <h1 class="titulo-saludo">Hola, {{ nombreTrabajador() }}</h1>
-            <p class="subtitulo-saludo">Panel de trabajos activos</p>
+            <p class="subtitulo-saludo">Toca un trabajo para gestionar avances</p>
           </div>
         </div>
         
         <!-- Tarjetas de estado simétricas -->
         <div class="mini-tarjetas-estados">
-          <!-- AGREGADO: Tarjeta de estado NUEVO -->
-          <div class="mini-card card-nuevo" (click)="cambiarFiltro('NUEVO')" [class.card-activo]="filtroEstado() === 'NUEVO'">
-            <div class="kpi-cabecera">
-              <span class="numero-estado">{{ totalNuevos() }}</span>
-            </div>
-            <span class="texto-estado">Nuevos</span>
-          </div>
-
           <div class="mini-card card-camino" (click)="cambiarFiltro('En camino')" [class.card-activo]="filtroEstado() === 'En camino'">
             <div class="kpi-cabecera">
               <span class="numero-estado">{{ totalEnCamino() }}</span>
@@ -48,28 +57,21 @@
         </div>
       </div>
 
-      <!-- Filtros estandarizados y modernos -->
+      <!-- Filtros estandarizados -->
       <div class="controles-filtrado">
-        
-        <!-- Chips de Estado -->
         <div class="filtros-chips">
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'todos'" (click)="cambiarFiltro('todos')">Todos</button>
-          <!-- AGREGADO: Botón de filtro para Nuevos -->
-          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'NUEVO'" (click)="cambiarFiltro('NUEVO')">Nuevos</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En camino'" (click)="cambiarFiltro('En camino')">En camino</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En curso'" (click)="cambiarFiltro('En curso')">En curso</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'Finalizado'" (click)="cambiarFiltro('Finalizado')">Finalizados</button>
         </div>
 
-        <!-- Filtro de Fecha: Clic en toda el área abre el selector en PC y Móvil -->
         <div class="filtro-fecha-wrapper">
           <div 
             class="input-fecha-box btn-filtro" 
             [class.activo]="filtroFecha()" 
             (click)="abrirSelectorFecha(inputFecha)">
-            
             <span class="texto-fecha">{{ filtroFecha() ? filtroFechaLegible() : 'Fecha' }}</span>
-            
             <input 
               #inputFecha
               type="date" 
@@ -85,7 +87,6 @@
             </button>
           }
         </div>
-
       </div>
     </div>
 
@@ -107,55 +108,205 @@
           </div>
 
           @for (t of grupo.trabajos; track t.id) {
-            <div class="card-operacion" [ngClass]="obtenerClaseEstado(t.estado)">
+            <div 
+              class="card-operacion" 
+              [ngClass]="obtenerClaseEstado(t.estado)"
+              [class.expandida]="trabajoExpandidoId() === t.id">
               
-              <div class="cabecera-card">
-                <div class="titulo-y-hora">
-                  <h3 class="servicio-titulo">{{ t.servicio }}</h3>
-                  <div class="hora-badge">
-                    <ion-icon name="time-outline"></ion-icon>
-                    <span>{{ t.horaCreacion }}</span>
+              <!-- ZONA CLICABLE PARA DESPLEGAR / CONTRAER -->
+              <div class="zona-resumen-clicable" (click)="alternarExpansion(t.id)">
+                
+                <div class="cabecera-card">
+                  <div class="titulo-y-hora">
+                    <h3 class="servicio-titulo">{{ t.servicio }}</h3>
+                    <div class="hora-badge">
+                      <ion-icon name="time-outline"></ion-icon>
+                      <span>{{ t.horaCreacion }}</span>
+                      @if (t.fotos.length > 0) {
+                        <span class="pill-indicador">
+                          <ion-icon name="camera-outline"></ion-icon>
+                          {{ t.fotos.length }}
+                        </span>
+                      }
+                      @if (t.notas) {
+                        <span class="pill-indicador">
+                          <ion-icon name="document-text-outline"></ion-icon>
+                          Nota
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="estado-y-chevron">
+                    <span class="badge-estado" [ngClass]="obtenerClaseEstado(t.estado)">
+                      {{ t.estado }}
+                    </span>
+                    <button type="button" class="btn-chevron" aria-label="Desplegar opciones">
+                      <ion-icon [name]="trabajoExpandidoId() === t.id ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+                    </button>
                   </div>
                 </div>
-                <span class="badge-estado" [ngClass]="obtenerClaseEstado(t.estado)">
-                  {{ t.estado }}
-                </span>
-              </div>
-              
-              <div class="cuerpo-card">
-                <div class="dato-fila">
-                  <ion-icon name="person-outline"></ion-icon>
-                  <span class="texto-cliente">{{ t.cliente }}</span>
+                
+                <div class="cuerpo-card">
+                  <div class="dato-fila">
+                    <ion-icon name="person-outline"></ion-icon>
+                    <span class="texto-cliente">{{ t.cliente }} · {{ t.direccion }}</span>
+                  </div>
                 </div>
+
+                <div class="footer-card">
+                  <div class="estado-resumen">
+                    @if (t.estado === 'Finalizado' || t.estrellas) {
+                      <div class="calificacion-info">
+                        <span class="tag-pago">{{ t.infoExtra }}</span>
+                        <div class="estrellas">
+                          @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
+                            <ion-icon 
+                              name="star" 
+                              [class.activa]="estrella <= (t.estrellas ?? 5)" 
+                              [class.inactiva]="estrella > (t.estrellas ?? 5)">
+                            </ion-icon>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="indicador-tiempo">
+                        <ion-icon name="radio-button-on-outline"></ion-icon>
+                        <span>{{ t.infoExtra }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="precio-box">
+                    <span class="valor-precio">{{ t.precio }}</span>
+                  </div>
+                </div>
+
               </div>
 
-              <div class="footer-card">
-                <div class="estado-resumen">
-                  @if (t.estado === 'Finalizado' || t.estrellas) {
-                    <div class="calificacion-info">
-                      <span class="tag-pago">{{ t.infoExtra }}</span>
-                      <div class="estrellas">
-                        @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
-                          <ion-icon 
-                            name="star" 
-                            [class.activa]="estrella <= (t.estrellas ?? 5)" 
-                            [class.inactiva]="estrella > (t.estrellas ?? 5)">
-                          </ion-icon>
-                        }
+              <!-- =======================================================
+                   PANEL DESPLEGABLE DE GESTIÓN EN CAMPO (ACORDEÓN)
+                   ======================================================= -->
+              @if (trabajoExpandidoId() === t.id) {
+                <div class="panel-desplegable" (click)="$event.stopPropagation()">
+                  
+                  <!-- 1. Acciones rápidas de contacto y ruta -->
+                  <div class="acciones-cliente-bar">
+                    <button type="button" class="btn-contacto" (click)="llamarCliente(t.telefono, $event)">
+                      <ion-icon name="call-outline"></ion-icon>
+                      <span>Llamar a {{ t.cliente }}</span>
+                    </button>
+                    <button type="button" class="btn-contacto" (click)="abrirMapa(t.direccion, $event)">
+                      <ion-icon name="navigate-outline"></ion-icon>
+                      <span>Ver ruta en Mapa</span>
+                    </button>
+                  </div>
+
+                  <!-- 2. Selector de Estado del Servicio -->
+                  <div class="bloque-gestion">
+                    <span class="label-gestion">Actualizar estado del servicio</span>
+                    <div class="selector-estados-grid">
+                      <button 
+                        type="button" 
+                        class="btn-estado-item st-camino" 
+                        [class.seleccionado]="t.estado === 'En camino'"
+                        (click)="cambiarEstadoTrabajo(t.id, 'En camino', $event)">
+                        <ion-icon name="car-outline"></ion-icon>
+                        <span>En camino</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        class="btn-estado-item st-curso" 
+                        [class.seleccionado]="t.estado === 'En curso'"
+                        (click)="cambiarEstadoTrabajo(t.id, 'En curso', $event)">
+                        <ion-icon name="construct-outline"></ion-icon>
+                        <span>En curso</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        class="btn-estado-item st-finalizado" 
+                        [class.seleccionado]="t.estado === 'Finalizado'"
+                        (click)="cambiarEstadoTrabajo(t.id, 'Finalizado', $event)">
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <span>Finalizado</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 3. Bitácora de Notas y Materiales -->
+                  <div class="bloque-gestion">
+                    <div class="cabecera-bloque">
+                      <span class="label-gestion">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                        Bitácora técnica / Materiales
+                      </span>
+                      <button type="button" class="btn-guardar-nota" (click)="guardarNota(t.id, $event)">
+                        <ion-icon name="save-outline"></ion-icon>
+                        <span>Guardar nota</span>
+                      </button>
+                    </div>
+                    <textarea 
+                      class="textarea-notas"
+                      rows="3"
+                      placeholder="Escribe diagnósticos, repuestos utilizados o acuerdos con el cliente..."
+                      [(ngModel)]="notaTemporal[t.id]">
+                    </textarea>
+                  </div>
+
+                  <!-- 4. Evidencia Fotográfica (Antes / Después) -->
+                  <div class="bloque-gestion">
+                    <div class="cabecera-bloque">
+                      <span class="label-gestion">
+                        <ion-icon name="camera-outline"></ion-icon>
+                        Evidencia fotográfica ({{ t.fotos.length }})
+                      </span>
+                      <div class="acciones-foto-botones">
+                        <button type="button" class="btn-subir-foto" (click)="agregarFotoCapacitor(t.id, true, $event)">
+                          <ion-icon name="camera-outline"></ion-icon>
+                          <span>Cámara</span>
+                        </button>
+                        <button type="button" class="btn-subir-foto secundario" (click)="fileInput.click()">
+                          <ion-icon name="image-outline"></ion-icon>
+                          <span>Galería</span>
+                        </button>
+                        <!-- Input oculto de respaldo para subir desde PC o Galería -->
+                        <input 
+                          #fileInput 
+                          type="file" 
+                          accept="image/*" 
+                          hidden 
+                          (change)="cargarFotoDesdeInputWeb(t.id, $event)" 
+                        />
                       </div>
                     </div>
-                  } @else {
-                    <div class="indicador-tiempo">
-                      <ion-icon name="radio-button-on-outline"></ion-icon>
-                      <span>{{ t.infoExtra }}</span>
-                    </div>
-                  }
-                </div>
 
-                <div class="precio-box">
-                  <span class="valor-precio">{{ t.precio }}</span>
+                    @if (t.fotos.length === 0) {
+                      <div class="galeria-vacia" (click)="fileInput.click()">
+                        <ion-icon name="camera-outline"></ion-icon>
+                        <span>Añade fotos del antes y después del servicio</span>
+                      </div>
+                    } @else {
+                      <div class="galeria-fotos">
+                        @for (foto of t.fotos; track $index) {
+                          <div class="item-foto">
+                            <img [src]="foto" alt="Evidencia del trabajo" />
+                            <button 
+                              type="button" 
+                              class="btn-borrar-foto" 
+                              (click)="eliminarFoto(t.id, $index, $event)"
+                              aria-label="Eliminar foto">
+                              <ion-icon name="trash-outline"></ion-icon>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+
                 </div>
-              </div>
+              }
 
             </div>
           }

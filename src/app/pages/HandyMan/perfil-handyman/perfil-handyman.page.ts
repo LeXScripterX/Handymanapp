@@ -1,9 +1,9 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { 
   IonContent, IonIcon, IonModal, IonSpinner,
-  AlertController, ToastController 
+  AlertController, ToastController, ActionSheetController 
 } from '@ionic/angular/standalone';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { addIcons } from 'ionicons';
@@ -14,7 +14,8 @@ import {
   mailOutline, callOutline, lockClosedOutline, closeOutline,
   key, hammer, tv, addCircle, checkmarkDoneCircleOutline,
   shieldCheckmarkOutline, alertCircleOutline, cameraOutline,
-  documentTextOutline, checkmarkOutline, refreshOutline
+  documentTextOutline, checkmarkOutline, refreshOutline,
+  imagesOutline, trashOutline, cameraReverseOutline
 } from 'ionicons/icons';
 import { AuthService } from '../../../services/auth.service';
 import { IdentidadService } from '../../../services/identidad.services';
@@ -52,13 +53,17 @@ interface FotoPortafolio {
     HeaderHandymanComponent
   ]
 })
-export class PerfilHandymanPage implements OnInit {
+export class PerfilHandymanPage implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private identidadService = inject(IdentidadService);
   private router = inject(Router);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private actionSheetCtrl = inject(ActionSheetController);
   private formBuilder = inject(FormBuilder);
+
+  @ViewChild('videoCamaraElement') videoCamaraElement?: ElementRef<HTMLVideoElement>;
+  @ViewChild('inputArchivoGaleria') inputArchivoGaleria?: ElementRef<HTMLInputElement>;
 
   modalEdicionAbierto = signal<boolean>(false);
   modalServiciosAbierto = signal<boolean>(false);
@@ -85,6 +90,12 @@ export class PerfilHandymanPage implements OnInit {
 
   private selfieBlob: Blob | null = null;
   private documentoBlob: Blob | null = null;
+
+  // Estados de cámara integrada en la app y carga de evidencias
+  modalCamaraAppAbierto = signal<boolean>(false);
+  usandoCamaraFrontal = signal<boolean>(false);
+  destinoCapturaActual: 'portafolio' | 'avatar' = 'portafolio';
+  private streamCamara: MediaStream | null = null;
 
   misServicios = signal<ServicioHandyman[]>([
     {
@@ -135,7 +146,8 @@ export class PerfilHandymanPage implements OnInit {
       mailOutline, callOutline, lockClosedOutline, closeOutline,
       key, hammer, tv, addCircle, checkmarkDoneCircleOutline,
       shieldCheckmarkOutline, alertCircleOutline, cameraOutline,
-      documentTextOutline, checkmarkOutline, refreshOutline
+      documentTextOutline, checkmarkOutline, refreshOutline,
+      imagesOutline, trashOutline, cameraReverseOutline
     });
 
     this.formEdicion = this.formBuilder.group({
@@ -148,6 +160,10 @@ export class PerfilHandymanPage implements OnInit {
 
   async ngOnInit() {
     await this.cargarDatosUsuario();
+  }
+
+  ngOnDestroy() {
+    this.detenerStreamCamara();
   }
 
   async cargarDatosUsuario() {
@@ -371,17 +387,180 @@ export class PerfilHandymanPage implements OnInit {
     this.filtroPortafolio.set(filtroId);
   }
 
-  subirFoto() {
-    console.log('Abrir selector de imágenes o cámara');
+  // --- MÉTODOS DE SUBIDA DE EVIDENCIAS Y CÁMARA INTEGRADA ---
+
+  async cambiarFotoAvatar() {
+    this.destinoCapturaActual = 'avatar';
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Foto de perfil',
+      buttons: [
+        {
+          text: 'Tomar foto con la cámara',
+          icon: 'camera-outline',
+          handler: () => {
+            this.abrirVisorCamara(true);
+          }
+        },
+        {
+          text: 'Subir desde galería / dispositivo',
+          icon: 'images-outline',
+          handler: () => {
+            this.inputArchivoGaleria?.nativeElement.click();
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ]
+    });
+    await sheet.present();
+  }
+
+  async subirFoto() {
+    this.destinoCapturaActual = 'portafolio';
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Añadir evidencia de trabajo realizado',
+      buttons: [
+        {
+          text: 'Tomar foto con la cámara',
+          icon: 'camera-outline',
+          handler: () => {
+            this.abrirVisorCamara(false);
+          }
+        },
+        {
+          text: 'Subir desde galería / almacenamiento',
+          icon: 'images-outline',
+          handler: () => {
+            this.inputArchivoGaleria?.nativeElement.click();
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ]
+    });
+    await sheet.present();
+  }
+
+  async abrirVisorCamara(frontal: boolean) {
+    this.usandoCamaraFrontal.set(frontal);
+    this.modalCamaraAppAbierto.set(true);
+    await this.iniciarStreamVideo();
+  }
+
+  private async iniciarStreamVideo() {
+    this.detenerStreamCamara();
+    try {
+      const modo = this.usandoCamaraFrontal() ? 'user' : 'environment';
+      this.streamCamara = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: modo }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+
+      setTimeout(() => {
+        if (this.videoCamaraElement?.nativeElement) {
+          this.videoCamaraElement.nativeElement.srcObject = this.streamCamara;
+          this.videoCamaraElement.nativeElement.play();
+        }
+      }, 80);
+    } catch (error) {
+      console.error('Error al acceder a la cámara:', error);
+      this.modalCamaraAppAbierto.set(false);
+      this.mostrarToast('No se pudo abrir la cámara. Revisa los permisos o sube la imagen desde tu galería.', 'warning');
+    }
+  }
+
+  async alternarLenteCamara() {
+    this.usandoCamaraFrontal.update(v => !v);
+    await this.iniciarStreamVideo();
+  }
+
+  capturarFotoDesdeVisor() {
+    const video = this.videoCamaraElement?.nativeElement;
+    if (!video) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 800;
+    canvas.height = video.videoHeight || 800;
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      this.guardarImagenCapturada(dataUrl);
+    }
+
+    this.cerrarVisorCamara();
+  }
+
+  cerrarVisorCamara() {
+    this.detenerStreamCamara();
+    this.modalCamaraAppAbierto.set(false);
+  }
+
+  private detenerStreamCamara() {
+    if (this.streamCamara) {
+      this.streamCamara.getTracks().forEach(track => track.stop());
+      this.streamCamara = null;
+    }
+  }
+
+  onArchivoSeleccionado(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.guardarImagenCapturada(reader.result);
+      }
+    };
+    reader.readAsDataURL(archivo);
+    input.value = '';
+  }
+
+  private guardarImagenCapturada(dataUrl: string) {
+    if (this.destinoCapturaActual === 'avatar') {
+      this.fotoPerfil.set(dataUrl);
+      this.mostrarToast('Foto de perfil actualizada', 'success');
+      return;
+    }
+
+    const filtroActual = this.filtroPortafolio();
+    const servicioAsignado = filtroActual !== 'todos'
+      ? filtroActual
+      : (this.misServicios()[0]?.id || 'plom_basica');
+
+    const nuevaFoto: FotoPortafolio = {
+      id: Date.now(),
+      servicioId: servicioAsignado,
+      url: dataUrl
+    };
+
+    // Si hay tarjetas placeholder vacías iniciales, reemplazamos o agregamos al inicio
+    this.galeriaTotal.update(actuales => [nuevaFoto, ...actuales.filter(f => f.url !== '')]);
+    this.mostrarToast('Evidencia añadida a tu portafolio', 'success');
+  }
+
+  eliminarFotoPortafolio(id: number, event: Event) {
+    event.stopPropagation();
+    this.galeriaTotal.update(actuales => actuales.filter(f => f.id !== id));
+    this.mostrarToast('Evidencia eliminada', 'warning');
   }
 
   obtenerClaseServicio(id: string): string {
-    const serv = this.misServicios().find(s => s.id === id);
-    return serv ? serv.claseColor : 'bg-default';
+    const serv = this.misServicios().find(s => s.id === id) || this.catalogoServicios.find(s => s.id === id);
+    return serv ? serv.claseColor : 'bg-general';
   }
 
   obtenerIconoServicio(id: string): string {
-    const serv = this.misServicios().find(s => s.id === id);
+    const serv = this.misServicios().find(s => s.id === id) || this.catalogoServicios.find(s => s.id === id);
     return serv ? serv.icono : 'build';
   }
 
