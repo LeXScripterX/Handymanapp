@@ -1,0 +1,233 @@
+<!-- Header idéntico al de Handyman pero para Cliente -->
+<app-header-cliente></app-header-cliente>
+
+<ion-content>
+  <div class="contenido">
+
+    <!-- 1. Tarjeta de Saludo (Mismo estilo que home-handyman) -->
+    <section class="tarjeta-saludo">
+      <div class="info-usuario">
+        <div class="avatar-box">
+          @if (fotoPerfil()) {
+            <img [src]="fotoPerfil()" alt="Avatar" class="avatar-img" />
+          } @else {
+            <span class="avatar-inicial">{{ saludoInicial().charAt(0).toUpperCase() }}</span>
+          }
+          <span class="punto-estado"></span>
+        </div>
+        <div class="textos">
+          <h1 class="hola">Hola, {{ saludoInicial() }}</h1>
+          <p class="subestado">Solicita expertos verificados hoy</p>
+        </div>
+      </div>
+
+      <div class="pill-ubicacion">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>Bogotá</span>
+      </div>
+    </section>
+
+    <!-- 2. Tres Tarjetas KPI Simétricas (Mismo diseño que home-handyman) -->
+    <section class="grid-metricas">
+      <div class="card-metrica" routerLink="/operaciones-cliente">
+        <div class="icono-box verde">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
+        <span class="valor">{{ solicitudesActivasHoy() }}</span>
+        <span class="etiqueta">EN CURSO HOY</span>
+      </div>
+
+      <div class="card-metrica" routerLink="/operaciones-cliente">
+        <div class="icono-box gris">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+        <span class="valor">{{ trabajosCompletadosTotal() }}</span>
+        <span class="etiqueta">COMPLETADOS</span>
+      </div>
+
+      <div class="card-metrica">
+        <div class="icono-box amarillo">
+          <ion-icon name="star"></ion-icon>
+        </div>
+        <span class="valor">{{ profesionalesDisponibles() }}</span>
+        <span class="etiqueta">SERVICIOS</span>
+      </div>
+    </section>
+
+    <!-- 3. Buscador y Chips de Categorías -->
+    <section class="bloque-busqueda">
+      <div class="input-busqueda-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          placeholder="Buscar plomería, electricidad, pintura..."
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)"
+        />
+        @if (busqueda()) {
+          <button type="button" class="btn-clear" (click)="busqueda.set('')">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        }
+      </div>
+
+      <div class="chips-categorias">
+        @for (cat of categorias; track cat.id) {
+          <button
+            type="button"
+            class="chip-cat"
+            [class.activo]="categoriaActiva() === cat.id"
+            (click)="seleccionarCategoria(cat.id)">
+            <ion-icon [name]="cat.icono"></ion-icon>
+            <span>{{ cat.nombre }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- 4. Listado de Servicios para Solicitar -->
+    <section class="seccion-solicitudes">
+      <h2 class="titulo-seccion">Servicios y Handymen disponibles</h2>
+
+      @if (serviciosFiltrados().length === 0) {
+        <div class="caja-vacia">
+          <ion-icon name="file-tray-outline"></ion-icon>
+          <p>No hay servicios disponibles en esta categoría en este momento.</p>
+        </div>
+      } @else {
+        <div class="lista-tarjetas">
+          @for (serv of serviciosFiltrados(); track serv.id) {
+            <article class="tarjeta-servicio">
+              <div class="fila-superior">
+                <div>
+                  <h3 class="nombre-servicio">{{ serv.titulo }}</h3>
+                  <p class="meta-handyman">
+                    {{ serv.handymanNombre || 'Daniel' }} · {{ serv.categoria | uppercase }} · {{ serv.zona || 'Bogotá' }}
+                  </p>
+                </div>
+                <span class="precio-tag">{{ formatearPrecio(serv.precio) }}</span>
+              </div>
+
+              <p class="descripcion-corta">{{ serv.descripcion }}</p>
+
+              <div class="fila-meta-chips">
+                <span class="meta-item">
+                  <ion-icon name="star" class="estrella-icono"></ion-icon>
+                  {{ serv.handymanCalificacion || 4.9 }} Calificación
+                </span>
+                <span class="meta-item">
+                  <ion-icon name="location-outline"></ion-icon>
+                  Atención a domicilio
+                </span>
+              </div>
+
+              <div class="fila-botones">
+                <button type="button" class="btn-aceptar" (click)="abrirModalSolicitar(serv)">
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                  <span>Solicitar servicio</span>
+                </button>
+                <button type="button" class="btn-rechazar" (click)="llamarHandyman(serv.handymanTelefono)">
+                  <ion-icon name="call-outline"></ion-icon>
+                  <span>Contactar</span>
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+  </div>
+
+  <!-- =========================================================================
+       MODAL DE SOLICITUD ESTILO HANDYMAN (LIMPIO, BLANCO Y CON ÍCONOS INTERNOS)
+       ========================================================================= -->
+  @if (modalAbierto() && servicioSeleccionado(); as s) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal-handyman-card" (click)="$event.stopPropagation()">
+        <button type="button" class="btn-cerrar-x" (click)="cerrarModal()" aria-label="Cerrar">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+
+        <div class="modal-encabezado-centro">
+          <h2>Solicitar Servicio</h2>
+          <p>{{ s.titulo }} · {{ s.handymanNombre || 'Handyman' }}</p>
+        </div>
+
+        <div class="modal-formulario-limpio">
+          <div class="campo-clean">
+            <label>Describe lo que necesitas reparar *</label>
+            <div class="input-icono-box textarea-box">
+              <ion-icon name="construct-outline"></ion-icon>
+              <textarea
+                rows="3"
+                placeholder="Ej: Fuga de agua debajo del lavamanos del baño principal..."
+                [(ngModel)]="formMensaje"></textarea>
+            </div>
+          </div>
+
+          <div class="campo-clean">
+            <label>Dirección exacta en Bogotá *</label>
+            <div class="input-icono-box">
+              <ion-icon name="location-outline"></ion-icon>
+              <input
+                type="text"
+                placeholder="Ej: Cra 15 #85-20 Apto 402"
+                [(ngModel)]="formDireccion" />
+            </div>
+          </div>
+
+          <div class="fila-dos-columnas">
+            <div class="campo-clean">
+              <label>Barrio / Zona</label>
+              <div class="input-icono-box">
+                <ion-icon name="home-outline"></ion-icon>
+                <input
+                  type="text"
+                  placeholder="Chapinero"
+                  [(ngModel)]="formBarrio" />
+              </div>
+            </div>
+
+            <div class="campo-clean">
+              <label>Valor ofrecido (COP)</label>
+              <div class="input-icono-box">
+                <ion-icon name="cash-outline"></ion-icon>
+                <input
+                  type="number"
+                  placeholder="45000"
+                  [(ngModel)]="formPrecio" />
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-guardar-modal"
+            [disabled]="enviando()"
+            (click)="enviarSolicitud()">
+            {{ enviando() ? 'Enviando solicitud...' : 'Confirmar solicitud' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Barra de navegación inferior flotante idéntica a la de Handyman -->
+  <div class="nav-flotante-wrapper">
+    <nav class="nav-pildora">
+      <a routerLink="/home-cliente" class="nav-item activo">
+        <ion-icon name="home-outline"></ion-icon>
+        <span>Inicio</span>
+      </a>
+      <a routerLink="/operaciones-cliente" class="nav-item">
+        <ion-icon name="clipboard-outline"></ion-icon>
+        <span>Operaciones</span>
+      </a>
+      <a routerLink="/perfil-cliente" class="nav-item">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Perfil</span>
+      </a>
+    </nav>
+  </div>
+</ion-content>

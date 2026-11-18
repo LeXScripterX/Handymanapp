@@ -1,0 +1,513 @@
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+$fondo: #f6f3ee;
+$borde: #e4ded7;
+$borde-fuerte: #d5cfc6;
+$muted: #7b848c;
+$verde: #2f9e58;
+$fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+
+ion-content {
+  --background: #{$fondo};
+}
+
+.contenido {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: $azul;
+}
+
+/* Tarjeta Flotante Principal */
+.card-perfil-flotante {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(31, 45, 58, 0.06);
+
+  .banner-superior {
+    height: 76px;
+    background: linear-gradient(135deg, $azul 0%, #2f4356 100%);
+  }
+
+  .cuerpo-perfil {
+    padding: 0 20px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .avatar-wrapper {
+      margin-top: -42px;
+      margin-bottom: 10px;
+
+      .avatar-circulo {
+        position: relative;
+        width: 84px;
+        height: 84px;
+        border-radius: 24px;
+        background: $coral;
+        border: 4px solid #ffffff;
+        color: #ffffff;
+        font-family: $fuente;
+        font-size: 34px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 16px rgba(31, 45, 58, 0.15);
+        cursor: pointer;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 20px;
+        }
+
+        .btn-camara-mini {
+          position: absolute;
+          bottom: -4px;
+          right: -4px;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: $azul;
+          color: #ffffff;
+          border: 2px solid #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .nombre-usuario {
+      margin: 0;
+      font-family: $fuente;
+      font-size: 24px;
+      font-weight: 800;
+      color: $azul;
+    }
+
+    .correo-usuario {
+      margin: 3px 0 10px;
+      font-size: 13px;
+      color: $muted;
+    }
+
+    .insignia-verificada {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(47, 158, 88, 0.12);
+      color: $verde;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .btn-editar-principal {
+      width: 100%;
+      max-width: 260px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1.5px solid $coral;
+      background: #ffffff;
+      color: $coral;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(239, 106, 90, 0.08);
+      }
+    }
+
+    .metricas-perfil-grid {
+      width: 100%;
+      background: #faf8f5;
+      border: 1px solid $borde;
+      border-radius: 16px;
+      padding: 12px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+
+      .metrica-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .num {
+          font-family: $fuente;
+          font-size: 19px;
+          font-weight: 800;
+          color: $azul;
+        }
+
+        .lbl {
+          font-size: 10px;
+          font-weight: 700;
+          color: $muted;
+          letter-spacing: 0.4px;
+        }
+      }
+
+      .divisor-v {
+        width: 1px;
+        height: 28px;
+        background: $borde-fuerte;
+      }
+    }
+  }
+}
+
+/* Secciones secundarias */
+.card-seccion {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(31, 45, 58, 0.04);
+
+  .cabecera-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      margin: 0;
+      font-family: $fuente;
+      font-size: 17px;
+      font-weight: 700;
+      color: $azul;
+    }
+
+    span {
+      font-size: 12px;
+      color: $muted;
+    }
+
+    .btn-link-editar {
+      background: rgba(239, 106, 90, 0.1);
+      color: $coral;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+  }
+}
+
+.chips-preferencias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .chip-pref {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid $borde-fuerte;
+    background: #f8fafc;
+    color: #4b5563;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.seleccionado {
+      background: $coral;
+      color: #ffffff;
+      border-color: $coral;
+      font-weight: 700;
+    }
+  }
+}
+
+.lista-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .item-dato {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #faf8f5;
+    border: 1px solid $borde;
+    border-radius: 14px;
+    padding: 10px 14px;
+
+    .icono-dato {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(239, 106, 90, 0.12);
+      color: $coral;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .texto-dato {
+      display: flex;
+      flex-direction: column;
+
+      .etiqueta {
+        font-size: 11px;
+        font-weight: 700;
+        color: $muted;
+        text-transform: uppercase;
+      }
+
+      .valor {
+        font-size: 14px;
+        font-weight: 700;
+        color: $azul;
+      }
+    }
+  }
+}
+
+.btn-cerrar-sesion {
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: #ffffff;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(31, 45, 58, 0.03);
+}
+
+/* ==========================================================
+   MODAL "EDITAR PERFIL" IDÉNTICO AL DE HANDYMAN
+   ========================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 45, 58, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-handyman-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 26px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 20px 50px rgba(31, 45, 58, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: aparecerModal 0.2s ease-out;
+
+  .btn-cerrar-x {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    color: $azul;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .modal-encabezado-centro {
+    text-align: center;
+    padding: 0 16px;
+
+    h2 {
+      margin: 0;
+      font-family: $fuente;
+      font-size: 24px;
+      font-weight: 700;
+      color: $azul;
+    }
+
+    p {
+      margin: 4px 0 0;
+      font-size: 13.5px;
+      color: $muted;
+      font-weight: 500;
+    }
+  }
+}
+
+.modal-formulario-limpio {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .campo-clean {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: $azul;
+    }
+
+    .input-icono-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 0 14px;
+      height: 48px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus-within {
+        border-color: $coral;
+        box-shadow: 0 0 0 3px rgba(239, 106, 90, 0.12);
+      }
+
+      ion-icon {
+        font-size: 19px;
+        color: #94a3b8;
+        flex-shrink: 0;
+      }
+
+      input {
+        flex: 1;
+        width: 100%;
+        border: none;
+        background: #ffffff !important;
+        color: $azul !important;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+
+        &::placeholder {
+          color: #cbd5e1;
+        }
+      }
+    }
+  }
+
+  .btn-guardar-modal {
+    margin-top: 8px;
+    width: 100%;
+    height: 50px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, #f38273 0%, $coral 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(239, 106, 90, 0.3);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+    }
+  }
+}
+
+@keyframes aparecerModal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Barra de Navegación Inferior Flotante (Idéntica a Handyman) */
+.nav-flotante-wrapper {
+  position: fixed;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  z-index: 900;
+  pointer-events: none;
+}
+
+.nav-pildora {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 520px;
+  height: 62px;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(31, 45, 58, 0.08);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px;
+
+  .nav-item {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: $azul;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 20px;
+    border-radius: 999px;
+
+    ion-icon { font-size: 20px; }
+
+    &.activo {
+      color: $coral;
+      font-weight: 700;
+    }
+  }
+}

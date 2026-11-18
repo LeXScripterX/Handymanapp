@@ -17,7 +17,15 @@ export const routes: Routes = [
   },
   {
     path: 'home-cliente',
-    loadComponent: () => import('./pages/home-cliente/home-cliente.page').then((m) => m.HomeCliente),
+    loadComponent: () => import('./pages/Cliente/home-cliente/home-cliente.page').then((m) => m.HomeCliente),
+  },
+  {
+    path: 'operaciones-cliente',
+    loadComponent: () => import('./pages/Cliente/operaciones-cliente/operaciones-cliente.page').then((m) => m.OperacionesClientePage),
+  },
+  {
+    path: 'perfil-cliente',
+    loadComponent: () => import('./pages/Cliente/perfil-cliente/perfil-cliente.page').then((m) => m.PerfilClientePage),
   },
   {
     path: 'home-handyman',

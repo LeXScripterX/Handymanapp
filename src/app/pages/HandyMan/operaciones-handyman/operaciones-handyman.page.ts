@@ -1,8 +1,9 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { addIcons } from 'ionicons';
 import { 
@@ -25,29 +26,16 @@ import {
   navigateOutline,
   constructOutline,
   carOutline,
-  saveOutline
+  saveOutline,
+  sendOutline,
+  chatbubbleEllipsesOutline,
+  sparklesOutline,
+  closeCircleOutline
 } from 'ionicons/icons';
 
-// 1. Importación del componente reutilizable del Header
 import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
-
-export type EstadoTrabajo = 'En camino' | 'En curso' | 'Finalizado';
-
-interface TrabajoOperacion {
-  id: number;
-  servicio: string;
-  cliente: string;
-  telefono: string;
-  direccion: string;
-  precio: string;
-  estado: EstadoTrabajo;
-  fecha: string;
-  horaCreacion: string;
-  infoExtra: string;
-  estrellas?: number;
-  notas: string;
-  fotos: string[];
-}
+import { OperacionesHandymanService, TrabajoOperacion, EstadoTrabajo, EntradaBitacora } from '../../../services/operaciones-handyman.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface GrupoTrabajosPorFecha {
   fechaOriginal: string;
@@ -60,21 +48,21 @@ interface GrupoTrabajosPorFecha {
   templateUrl: './operaciones-handyman.page.html',
   styleUrls: ['./operaciones-handyman.page.scss'],
   standalone: true,
-  // 2. Se agrega HeaderHandymanComponent al arreglo de imports
   imports: [CommonModule, FormsModule, IonicModule, RouterModule, HeaderHandymanComponent]
 })
 export class OperacionesHandymanPage {
   private toastCtrl = inject(ToastController);
+  private operacionesService = inject(OperacionesHandymanService);
+  private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Datos del trabajador
   nombreTrabajador = signal<string>('Daniel');
   fotoPerfil = signal<string>('');
 
-  // Controla qué tarjeta está desplegada actualmente (null = ninguna)
-  trabajoExpandidoId = signal<number | null>(1);
+  trabajoExpandidoId = signal<string | null>(null);
+  notaTemporal: Record<string, string> = {};
 
-  // Borrador temporal de notas mientras edita
-  notaTemporal: Record<number, string> = {};
+  listaTrabajos = this.operacionesService.listaTrabajos;
 
   constructor() {
     addIcons({
@@ -97,80 +85,38 @@ export class OperacionesHandymanPage {
       navigateOutline,
       constructOutline,
       carOutline,
-      saveOutline
-    });
-
-    // Inicializar notas temporales con los datos actuales
-    this.listaTrabajos().forEach(t => {
-      this.notaTemporal[t.id] = t.notas;
+      saveOutline,
+      sendOutline,
+      chatbubbleEllipsesOutline,
+      sparklesOutline,
+      closeCircleOutline
     });
   }
 
-  listaTrabajos = signal<TrabajoOperacion[]>([
-    {
-      id: 1,
-      servicio: 'Instalación de lámparas',
-      cliente: 'Camila Muñoz',
-      telefono: '3104567890',
-      direccion: 'Cra 15 #85-20',
-      precio: '$60.000',
-      estado: 'En camino',
-      fecha: '2026-10-07',
-      horaCreacion: '08:30 am',
-      infoExtra: 'Llegada estimada en 10 min',
-      notas: 'Llevar escalera plegable y chazos para techo en drywall.',
-      fotos: []
-    },
-    {
-      id: 2,
-      servicio: 'Pintura sala principal',
-      cliente: 'Marta T.',
-      telefono: '3159876543',
-      direccion: 'Calle 127 #45-10',
-      precio: '$180.000',
-      estado: 'En curso',
-      fecha: '2026-10-07',
-      horaCreacion: '09:15 am',
-      infoExtra: 'En ejecución · 2da mano de pintura',
-      notas: 'Se aplicó estuco plástico en fisuras de la pared norte. Pintura blanco hueso.',
-      fotos: []
-    },
-    {
-      id: 3,
-      servicio: 'Reparación de cerradura',
-      cliente: 'Andrés G.',
-      telefono: '3001234567',
-      direccion: 'Av. Chile #72-40',
-      precio: '$95.000',
-      estado: 'Finalizado',
-      fecha: '2026-10-06',
-      horaCreacion: '02:00 pm',
-      infoExtra: 'Pagado · Calificado',
-      estrellas: 5,
-      notas: 'Cambio de cilindro de seguridad completado. Se entregaron 3 copias de llaves al cliente.',
-      fotos: []
-    },
-    {
-      id: 4,
-      servicio: 'Mantenimiento de tuberías',
-      cliente: 'Carlos Pérez',
-      telefono: '3207654321',
-      direccion: 'Calle 100 #15-30',
-      precio: '$120.000',
-      estado: 'Finalizado',
-      fecha: '2026-09-28',
-      horaCreacion: '10:45 am',
-      infoExtra: 'Pagado · Calificado',
-      estrellas: 4,
-      notas: 'Se reemplazó sifón flexible y empaque de caucho sin fugas.',
-      fotos: []
+  async ionViewWillEnter() {
+    const usuario = await firstValueFrom(this.authService.currentUser$);
+    if (usuario) {
+      const perfil = await this.authService.obtenerPerfil(usuario.uid);
+      if (perfil) {
+        this.nombreTrabajador.set(perfil.nombre.split(' ')[0]);
+        if (perfil.fotoUrl) this.fotoPerfil.set(perfil.fotoUrl);
+      }
     }
-  ]);
+
+    await this.operacionesService.cargarDatosHandyman();
+    const lista = this.listaTrabajos();
+    if (lista.length > 0 && !this.trabajoExpandidoId()) {
+      this.trabajoExpandidoId.set(lista[0].id);
+    }
+  }
 
   filtroEstado = signal<string>('todos');
   filtroFecha = signal<string>('');
 
-  // Contadores KPI en vivo
+  totalNuevos = computed(() => {
+    return this.listaTrabajos().filter(t => t.estado === 'NUEVO').length;
+  });
+
   totalEnCamino = computed(() => {
     return this.listaTrabajos().filter(t => t.estado === 'En camino').length;
   });
@@ -245,115 +191,237 @@ export class OperacionesHandymanPage {
     return grupos;
   });
 
-  // ==========================================
-  // FUNCIONES INTERACTIVAS DE LA TARJETA
-  // ==========================================
-
-  alternarExpansion(id: number) {
+  alternarExpansion(id: string) {
     if (this.trabajoExpandidoId() === id) {
       this.trabajoExpandidoId.set(null);
     } else {
       this.trabajoExpandidoId.set(id);
-      const trabajo = this.listaTrabajos().find(t => t.id === id);
-      if (trabajo && this.notaTemporal[id] === undefined) {
-        this.notaTemporal[id] = trabajo.notas;
+      if (this.notaTemporal[id] === undefined) {
+        this.notaTemporal[id] = '';
       }
     }
   }
 
-  async cambiarEstadoTrabajo(trabajoId: number, nuevoEstado: EstadoTrabajo, event: Event) {
+  obtenerBitacora(t: TrabajoOperacion): EntradaBitacora[] {
+    if (t.bitacora && t.bitacora.length > 0) {
+      return t.bitacora;
+    }
+    if (t.notas && t.notas.trim().length > 0) {
+      return [{ id: 1, texto: t.notas, hora: t.horaCreacion, tipo: 'nota' }];
+    }
+    return [];
+  }
+
+  private obtenerHoraActual(): string {
+    return new Date().toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  async cambiarEstadoTrabajo(trabajoId: string, nuevoEstado: EstadoTrabajo, event: Event) {
     event.stopPropagation();
 
     const textosResumen: Record<EstadoTrabajo, string> = {
+      'NUEVO': 'Aceptado recientemente · Pendiente de salida',
       'En camino': 'En desplazamiento hacia el cliente',
       'En curso': 'En ejecución en el sitio',
-      'Finalizado': 'Pagado · Pendiente calificación'
+      'Finalizado': 'Pagado · Servicio completado'
     };
+
+    const hora = this.obtenerHoraActual();
+    let trabajoActualizado: TrabajoOperacion | undefined;
 
     this.listaTrabajos.update(lista =>
       lista.map(t => {
         if (t.id === trabajoId) {
-          return {
+          const bitacoraActual = this.obtenerBitacora(t);
+          const nuevoRegistroEstado: EntradaBitacora = {
+            id: Date.now(),
+            texto: `Estado actualizado a "${nuevoEstado}"`,
+            hora,
+            tipo: 'sistema'
+          };
+          trabajoActualizado = {
             ...t,
             estado: nuevoEstado,
             infoExtra: textosResumen[nuevoEstado],
-            estrellas: nuevoEstado === 'Finalizado' ? (t.estrellas ?? 5) : undefined
+            estrellas: nuevoEstado === 'Finalizado' ? (t.estrellas ?? 5) : undefined,
+            bitacora: [...bitacoraActual, nuevoRegistroEstado]
           };
+          return trabajoActualizado;
         }
         return t;
       })
     );
 
-    await this.mostrarNotificacion(`Estado actualizado a "${nuevoEstado}"`);
+    this.cdr.detectChanges();
+    if (trabajoActualizado) {
+      await this.operacionesService.sincronizarTrabajoEnBd(trabajoActualizado);
+    }
+    await this.mostrarNotificacion(`Estado guardado en BD: "${nuevoEstado}"`);
   }
 
-  async guardarNota(trabajoId: number, event: Event) {
-    event.stopPropagation();
+  async guardarNota(trabajoId: string, event?: Event) {
+    if (event) event.stopPropagation();
     const texto = (this.notaTemporal[trabajoId] || '').trim();
+    if (!texto) {
+      await this.mostrarNotificacion('Escribe un avance o material antes de guardar');
+      return;
+    }
+
+    const hora = this.obtenerHoraActual();
+    const nuevaEntrada: EntradaBitacora = {
+      id: Date.now(),
+      texto,
+      hora,
+      tipo: 'nota'
+    };
+
+    let trabajoActualizado: TrabajoOperacion | undefined;
 
     this.listaTrabajos.update(lista =>
-      lista.map(t => t.id === trabajoId ? { ...t, notas: texto } : t)
+      lista.map(t => {
+        if (t.id === trabajoId) {
+          const bitacoraActual = this.obtenerBitacora(t);
+          const actualizada = [...bitacoraActual, nuevaEntrada];
+          trabajoActualizado = {
+            ...t,
+            notas: texto,
+            bitacora: actualizada
+          };
+          return trabajoActualizado;
+        }
+        return t;
+      })
     );
 
-    await this.mostrarNotificacion('Nota técnica guardada correctamente');
+    this.notaTemporal[trabajoId] = '';
+    this.cdr.detectChanges();
+    if (trabajoActualizado) {
+      await this.operacionesService.sincronizarTrabajoEnBd(trabajoActualizado);
+    }
+    await this.mostrarNotificacion('Registro guardado en la bitácora');
   }
 
-  async agregarFotoCapacitor(trabajoId: number, usarCamara: boolean, event: Event) {
+  async eliminarEntradaBitacora(trabajoId: string, entradaId: number, event: Event) {
+    event.stopPropagation();
+    let trabajoActualizado: TrabajoOperacion | undefined;
+
+    this.listaTrabajos.update(lista =>
+      lista.map(t => {
+        if (t.id === trabajoId) {
+          const filtrada = this.obtenerBitacora(t).filter(b => b.id !== entradaId);
+          const ultimaNota = [...filtrada].reverse().find(b => b.tipo !== 'sistema');
+          trabajoActualizado = {
+            ...t,
+            bitacora: filtrada,
+            notas: ultimaNota ? ultimaNota.texto : ''
+          };
+          return trabajoActualizado;
+        }
+        return t;
+      })
+    );
+    this.cdr.detectChanges();
+    if (trabajoActualizado) {
+      await this.operacionesService.sincronizarTrabajoEnBd(trabajoActualizado);
+    }
+    await this.mostrarNotificacion('Registro eliminado');
+  }
+
+  async agregarFotoCapacitor(trabajoId: string, usarCamara: boolean, fileInputFallback: HTMLInputElement, event: Event) {
     event.stopPropagation();
     try {
       const imagen = await Camera.getPhoto({
-        quality: 80,
+        quality: 75,
+        width: 900,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
         source: usarCamara ? CameraSource.Camera : CameraSource.Photos
       });
 
       if (imagen?.dataUrl) {
-        this.insertarFotoEnTrabajo(trabajoId, imagen.dataUrl);
-        await this.mostrarNotificacion('Evidencia fotográfica añadida');
+        await this.insertarFotoEnTrabajo(trabajoId, imagen.dataUrl);
+        await this.mostrarNotificacion('Evidencia fotográfica guardada en BD');
       }
     } catch (err) {
-      // Si el usuario cancela o está en navegador sin permisos de cámara nativa, no rompe el flujo
-      console.log('Captura cancelada o usando selector web:', err);
+      if (fileInputFallback && !usarCamara) {
+        fileInputFallback.click();
+      }
     }
   }
 
-  cargarFotoDesdeInputWeb(trabajoId: number, event: any) {
-    const archivo = event?.target?.files?.[0];
-    if (!archivo) return;
+  cargarFotoDesdeInputWeb(trabajoId: string, event: any) {
+    const archivos: FileList | null = event?.target?.files;
+    if (!archivos || archivos.length === 0) return;
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      if (typeof reader.result === 'string') {
-        this.insertarFotoEnTrabajo(trabajoId, reader.result);
-        await this.mostrarNotificacion('Foto cargada en la orden');
-      }
-    };
-    reader.readAsDataURL(archivo);
+    Array.from(archivos).forEach(archivo => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        if (typeof reader.result === 'string') {
+          await this.insertarFotoEnTrabajo(trabajoId, reader.result);
+          this.cdr.detectChanges();
+        }
+      };
+      reader.readAsDataURL(archivo);
+    });
+
+    this.mostrarNotificacion('Evidencia fotográfica sincronizada');
     event.target.value = '';
   }
 
-  private insertarFotoEnTrabajo(trabajoId: number, dataUrl: string) {
+  private async insertarFotoEnTrabajo(trabajoId: string, dataUrl: string) {
+    const hora = this.obtenerHoraActual();
+    let trabajoActualizado: TrabajoOperacion | undefined;
+
     this.listaTrabajos.update(lista =>
       lista.map(t => {
         if (t.id === trabajoId) {
-          return { ...t, fotos: [...t.fotos, dataUrl] };
+          const nuevasFotos = [...t.fotos, dataUrl];
+          const bitacoraActual = this.obtenerBitacora(t);
+          trabajoActualizado = {
+            ...t,
+            fotos: nuevasFotos,
+            bitacora: [
+              ...bitacoraActual,
+              {
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                texto: `Evidencia fotográfica #${nuevasFotos.length} adjuntada`,
+                hora,
+                tipo: 'sistema'
+              }
+            ]
+          };
+          return trabajoActualizado;
         }
         return t;
       })
     );
+    this.cdr.detectChanges();
+    if (trabajoActualizado) {
+      await this.operacionesService.sincronizarTrabajoEnBd(trabajoActualizado);
+    }
   }
 
-  async eliminarFoto(trabajoId: number, indiceFoto: number, event: Event) {
+  async eliminarFoto(trabajoId: string, indiceFoto: number, event: Event) {
     event.stopPropagation();
+    let trabajoActualizado: TrabajoOperacion | undefined;
+
     this.listaTrabajos.update(lista =>
       lista.map(t => {
         if (t.id === trabajoId) {
-          return { ...t, fotos: t.fotos.filter((_, idx) => idx !== indiceFoto) };
+          trabajoActualizado = { ...t, fotos: t.fotos.filter((_, idx) => idx !== indiceFoto) };
+          return trabajoActualizado;
         }
         return t;
       })
     );
+    this.cdr.detectChanges();
+    if (trabajoActualizado) {
+      await this.operacionesService.sincronizarTrabajoEnBd(trabajoActualizado);
+    }
     await this.mostrarNotificacion('Foto eliminada');
   }
 
@@ -367,10 +435,6 @@ export class OperacionesHandymanPage {
     event.stopPropagation();
     window.open(`tel:${telefono}`, '_self');
   }
-
-  // ==========================================
-  // FILTROS GENERALES
-  // ==========================================
 
   cambiarFiltro(estado: string) {
     this.filtroEstado.set(estado);
@@ -402,6 +466,7 @@ export class OperacionesHandymanPage {
 
   obtenerClaseEstado(estado: string): string {
     switch (estado) {
+      case 'NUEVO': return 'badge-nuevo';
       case 'En camino': return 'badge-camino';
       case 'En curso': return 'badge-curso';
       case 'Finalizado': return 'badge-finalizado';
@@ -412,7 +477,7 @@ export class OperacionesHandymanPage {
   private async mostrarNotificacion(mensaje: string) {
     const toast = await this.toastCtrl.create({
       message: mensaje,
-      duration: 2000,
+      duration: 1800,
       position: 'bottom',
       color: 'dark'
     });

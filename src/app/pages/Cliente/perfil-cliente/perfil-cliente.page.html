@@ -1,0 +1,220 @@
+<!-- Header reutilizable de Cliente -->
+<app-header-cliente></app-header-cliente>
+
+<ion-content>
+  <div class="contenido">
+
+    <!-- Tarjeta Flotante Principal del Perfil (Mismo estilo que perfil-handyman) -->
+    <section class="card-perfil-flotante">
+      <div class="banner-superior"></div>
+
+      <div class="cuerpo-perfil">
+        <div class="avatar-wrapper">
+          <div class="avatar-circulo" (click)="inputFoto.click()">
+            @if (fotoUrl()) {
+              <img [src]="fotoUrl()" alt="Avatar Cliente" />
+            } @else {
+              <span>{{ nombre().charAt(0).toUpperCase() }}</span>
+            }
+            <button type="button" class="btn-camara-mini" aria-label="Cambiar foto">
+              <ion-icon name="camera-outline"></ion-icon>
+            </button>
+            <input #inputFoto type="file" accept="image/*" hidden (change)="cargarFotoPerfil($event)" />
+          </div>
+        </div>
+
+        <h1 class="nombre-usuario">{{ nombre() }}</h1>
+        <p class="correo-usuario">{{ email() }}</p>
+
+        <div class="insignia-verificada">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Cuenta Cliente Activa</span>
+        </div>
+
+        <!-- Botón de Editar Perfil directo en la tarjeta principal como en Handyman -->
+        <button type="button" class="btn-editar-principal" (click)="activarEdicion()">
+          <ion-icon name="create-outline"></ion-icon>
+          <span>Editar Perfil</span>
+        </button>
+
+        <!-- Resumen de actividad del Cliente -->
+        <div class="metricas-perfil-grid">
+          <div class="metrica-item">
+            <span class="num">{{ totalSolicitudes() }}</span>
+            <span class="lbl">SOLICITADOS</span>
+          </div>
+          <div class="divisor-v"></div>
+          <div class="metrica-item">
+            <span class="num">{{ totalFinalizados() }}</span>
+            <span class="lbl">FINALIZADOS</span>
+          </div>
+          <div class="divisor-v"></div>
+          <div class="metrica-item">
+            <span class="num">5.0</span>
+            <span class="lbl">NIVEL CLIENTE</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicios de Interés del Hogar -->
+    <section class="card-seccion">
+      <div class="cabecera-card">
+        <h2>Servicios frecuentes para mi hogar</h2>
+        <span>Toca para destacar</span>
+      </div>
+      <div class="chips-preferencias">
+        @for (cat of opcionesCategorias; track cat) {
+          <button
+            type="button"
+            class="chip-pref"
+            [class.seleccionado]="preferenciasHogar().includes(cat)"
+            (click)="alternarPreferencia(cat)">
+            <span>{{ cat }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Datos Personales y de Contacto -->
+    <section class="card-seccion">
+      <div class="cabecera-card">
+        <h2>Información de contacto y dirección</h2>
+        <button type="button" class="btn-link-editar" (click)="activarEdicion()">
+          <ion-icon name="create-outline"></ion-icon>
+          <span>Actualizar</span>
+        </button>
+      </div>
+
+      <div class="lista-datos">
+        <div class="item-dato">
+          <div class="icono-dato"><ion-icon name="person-outline"></ion-icon></div>
+          <div class="texto-dato">
+            <span class="etiqueta">Nombre completo</span>
+            <span class="valor">{{ nombre() }}</span>
+          </div>
+        </div>
+
+        <div class="item-dato">
+          <div class="icono-dato"><ion-icon name="mail-outline"></ion-icon></div>
+          <div class="texto-dato">
+            <span class="etiqueta">Correo electrónico</span>
+            <span class="valor">{{ email() }}</span>
+          </div>
+        </div>
+
+        <div class="item-dato">
+          <div class="icono-dato"><ion-icon name="call-outline"></ion-icon></div>
+          <div class="texto-dato">
+            <span class="etiqueta">Celular (WhatsApp)</span>
+            <span class="valor">{{ telefono() || '300 000 0000' }}</span>
+          </div>
+        </div>
+
+        <div class="item-dato">
+          <div class="icono-dato"><ion-icon name="location-outline"></ion-icon></div>
+          <div class="texto-dato">
+            <span class="etiqueta">Dirección principal de servicio</span>
+            <span class="valor">{{ direccionHogar() }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <button type="button" class="btn-cerrar-sesion" (click)="cerrarSesion()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      <span>Cerrar sesión</span>
+    </button>
+
+  </div>
+
+  <!-- =========================================================================
+       MODAL FLOTANTE "EDITAR PERFIL" IDÉNTICO AL DE PERFIL HANDYMAN
+       ========================================================================= -->
+  @if (editando()) {
+    <div class="modal-overlay" (click)="editando.set(false)">
+      <div class="modal-handyman-card" (click)="$event.stopPropagation()">
+        <button type="button" class="btn-cerrar-x" (click)="editando.set(false)" aria-label="Cerrar">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+
+        <div class="modal-encabezado-centro">
+          <h2>Editar Perfil</h2>
+          <p>Actualiza tu información personal</p>
+        </div>
+
+        <div class="modal-formulario-limpio">
+          <div class="campo-clean">
+            <label>Nombre completo</label>
+            <div class="input-icono-box">
+              <ion-icon name="person-circle-outline"></ion-icon>
+              <input
+                type="text"
+                [(ngModel)]="formNombre"
+                placeholder="Tu nombre completo" />
+            </div>
+          </div>
+
+          <div class="campo-clean">
+            <label>Correo electrónico</label>
+            <div class="input-icono-box">
+              <ion-icon name="mail-outline"></ion-icon>
+              <input
+                type="email"
+                [value]="email()"
+                readonly />
+            </div>
+          </div>
+
+          <div class="campo-clean">
+            <label>Celular (WhatsApp)</label>
+            <div class="input-icono-box">
+              <ion-icon name="call-outline"></ion-icon>
+              <input
+                type="tel"
+                [(ngModel)]="formTelefono"
+                placeholder="300 000 0000" />
+            </div>
+          </div>
+
+          <div class="campo-clean">
+            <label>Dirección habitual en Bogotá</label>
+            <div class="input-icono-box">
+              <ion-icon name="location-outline"></ion-icon>
+              <input
+                type="text"
+                [(ngModel)]="formDireccion"
+                placeholder="Chapinero · Bogotá" />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-guardar-modal"
+            [disabled]="guardando()"
+            (click)="guardarCambios()">
+            {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Barra de navegación inferior flotante idéntica a la de Handyman -->
+  <div class="nav-flotante-wrapper">
+    <nav class="nav-pildora">
+      <a routerLink="/home-cliente" class="nav-item">
+        <ion-icon name="home-outline"></ion-icon>
+        <span>Inicio</span>
+      </a>
+      <a routerLink="/operaciones-cliente" class="nav-item">
+        <ion-icon name="clipboard-outline"></ion-icon>
+        <span>Operaciones</span>
+      </a>
+      <a routerLink="/perfil-cliente" class="nav-item activo">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Perfil</span>
+      </a>
+    </nav>
+  </div>
+</ion-content>

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { getAuth } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   Auth,
@@ -11,6 +12,7 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   signInWithPopup,
+  signInWithCredential,
   sendPasswordResetEmail,
 } from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
@@ -103,10 +105,23 @@ export class AuthService {
 
   // ── LOGIN CON GOOGLE ───────────────────────────────────────────────────────
   async loginConGoogle(rolPorDefecto: UserRole = 'cliente'): Promise<AppUser> {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    const credenciales = await signInWithPopup(this.auth, provider);
-    return await this.asegurarPerfilOAuth(credenciales.user, rolPorDefecto);
+    let userCredential;
+    if (Capacitor.isNativePlatform()) {
+      // Flujo nativo para Android / Emulador (evita el bloqueo de popups)
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      if (result.credential?.idToken) {
+        const credential = GoogleAuthProvider.credential(result.credential.idToken);
+        userCredential = await signInWithCredential(this.auth, credential);
+      } else {
+        throw new Error('No se pudo obtener el idToken de Google nativo');
+      }
+    } else {
+      // Flujo para Web (PC)
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      userCredential = await signInWithPopup(this.auth, provider);
+    }
+    return await this.asegurarPerfilOAuth(userCredential.user, rolPorDefecto);
   }
 
   // ── LOGIN CON FACEBOOK ─────────────────────────────────────────────────────
@@ -135,9 +150,6 @@ export class AuthService {
     try {
       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
       
-      // IMPORTANTE: Usamos el endpoint de registro. 
-      // Asegúrate de que en FastAPI este endpoint use la dependencia "usuario_autenticado"
-      // (la flexible que te di antes) y NO la estricta.
       await firstValueFrom(
         this.http.post(
           `${environment.apiUrl}/usuarios/registro`,
@@ -153,8 +165,6 @@ export class AuthService {
       );
     } catch (apiError) {
       console.error('Error al crear perfil OAuth vía API:', apiError);
-      // Si falla el backend, lanzamos el error para que el componente lo maneje
-      // (En lugar de intentar escribir directo en Firestore y fallar por permisos).
       throw apiError;
     }
 
@@ -200,11 +210,10 @@ export class AuthService {
       );
       if (perfilApi) return perfilApi;
     } catch (e) {
-      // Si el backend devuelve 403 (perfil no existe), caemos al fallback de Firestore
       console.log('Perfil no encontrado en API, revisando Firestore...', e);
     }
 
-    // 2. Fallback: Leer directamente de Firestore (esto funcionará si las reglas de lectura son públicas para el dueño)
+    // 2. Fallback: Leer directamente de Firestore
     try {
       const snap = await getDoc(doc(this.firestore, `users/${uid}`));
       return snap.exists() ? (snap.data() as AppUser) : null;
@@ -214,12 +223,10 @@ export class AuthService {
     }
   }
 
-// BIEN: Usa el 'this.auth' que ya inyectaste de AngularFire
-async obtenerToken(): Promise<string | null> {
-  // Asegúrate de que this.auth es el que inyectaste al inicio de la clase
-  const user = this.auth.currentUser;
-  return user ? await user.getIdToken() : null;
-}
+  async obtenerToken(): Promise<string | null> {
+    const user = this.auth.currentUser;
+    return user ? await user.getIdToken() : null;
+  }
 
   async actualizarPerfilApi(datos: Partial<AppUser>): Promise<AppUser> {
     const token = await this.getIdToken();

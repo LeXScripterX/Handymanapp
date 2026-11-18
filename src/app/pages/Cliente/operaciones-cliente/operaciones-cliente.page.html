@@ -1,0 +1,361 @@
+<!-- Llamamos al componente reutilizable del Header de Cliente -->
+<app-header-cliente></app-header-cliente>
+
+<ion-content>
+  <div class="contenido">
+    
+    <!-- Cabecera superior con saludo, avatar y tarjetas de estado (Mismo diseño que Handyman) -->
+    <div class="header-seccion">
+      <div class="saludo-card-estilo">
+        <div class="perfil-saludo-wrapper">
+          <div class="avatar-usuario">
+            @if (fotoPerfil()) {
+              <img [src]="fotoPerfil()" alt="Perfil" class="foto-img" />
+            } @else {
+              <span class="inicial-avatar">{{ nombreCliente().charAt(0).toUpperCase() }}</span>
+            }
+            <span class="badge-online"></span>
+          </div>
+          <div class="info-saludo">
+            <h1 class="titulo-saludo">Hola, {{ nombreCliente() }}</h1>
+            <p class="subtitulo-saludo">Sigue en vivo el avance de tus servicios</p>
+          </div>
+        </div>
+        
+        <div class="mini-tarjetas-estados">
+          <div class="mini-card card-nuevo" (click)="cambiarFiltro('NUEVO')" [class.card-activo]="filtroEstado() === 'NUEVO'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalNuevos() }}</span>
+            </div>
+            <span class="texto-estado">Nuevos</span>
+          </div>
+
+          <div class="mini-card card-camino" (click)="cambiarFiltro('En camino')" [class.card-activo]="filtroEstado() === 'En camino'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalEnCamino() }}</span>
+            </div>
+            <span class="texto-estado">En camino</span>
+          </div>
+
+          <div class="mini-card card-curso" (click)="cambiarFiltro('En curso')" [class.card-activo]="filtroEstado() === 'En curso'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalEnCurso() }}</span>
+            </div>
+            <span class="texto-estado">En curso</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros estandarizados idénticos a Handyman -->
+      <div class="controles-filtrado">
+        <div class="filtros-chips">
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'todos'" (click)="cambiarFiltro('todos')">Todos</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'NUEVO'" (click)="cambiarFiltro('NUEVO')">Nuevos</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En camino'" (click)="cambiarFiltro('En camino')">En camino</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En curso'" (click)="cambiarFiltro('En curso')">En curso</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'Finalizado'" (click)="cambiarFiltro('Finalizado')">Finalizados</button>
+        </div>
+
+        <div class="filtro-fecha-wrapper">
+          <div 
+            class="input-fecha-box btn-filtro" 
+            [class.activo]="filtroFecha()" 
+            (click)="abrirSelectorFecha(inputFecha)">
+            <span class="texto-fecha">{{ filtroFecha() ? filtroFechaLegible() : 'Fecha' }}</span>
+            <input 
+              #inputFecha
+              type="date" 
+              [value]="filtroFecha()" 
+              (change)="filtrarPorFecha($event)" 
+              (input)="filtrarPorFecha($event)" 
+            />
+          </div>
+
+          @if (filtroFecha()) {
+            <button type="button" class="btn-filtro btn-limpiar" (click)="limpiarFecha()">
+              <span>Limpiar</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Listado de solicitudes agrupadas por fecha -->
+    @if (solicitudesAgrupadasPorFecha().length === 0) {
+      <div class="vacio-box">
+        <ion-icon name="file-tray-outline"></ion-icon>
+        <p class="vacio">No tienes solicitudes registradas con los filtros seleccionados.</p>
+      </div>
+    } @else {
+      <div class="lista-operaciones">
+        @for (grupo of solicitudesAgrupadasPorFecha(); track grupo.fechaOriginal) {
+          
+          <div class="divisor-fecha-grupo">
+            <div class="badge-timeline">
+              <span>{{ grupo.fechaFormateada }}</span>
+            </div>
+          </div>
+
+          @for (s of grupo.solicitudes; track s.id) {
+            <div 
+              class="card-operacion" 
+              [ngClass]="obtenerClaseEstado(s.estado)"
+              [class.expandida]="solicitudExpandidaId() === s.id">
+              
+              <!-- ZONA CLICABLE PARA DESPLEGAR / CONTRAER -->
+              <div class="zona-resumen-clicable" (click)="alternarExpansion(s.id)">
+                
+                <div class="cabecera-card">
+                  <div class="titulo-y-hora">
+                    <h3 class="servicio-titulo">{{ s.servicioTitulo || 'Servicio Solicitado' }}</h3>
+                    <div class="hora-badge">
+                      <ion-icon name="time-outline"></ion-icon>
+                      <span>{{ obtenerHoraLegible(s.creado) }}</span>
+                      @if (s.fotos && s.fotos.length > 0) {
+                        <span class="pill-indicador pill-fotos">
+                          <ion-icon name="camera-outline"></ion-icon>
+                          {{ s.fotos.length }}
+                        </span>
+                      }
+                      @if (obtenerBitacora(s).length > 0) {
+                        <span class="pill-indicador pill-notas">
+                          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                          {{ obtenerBitacora(s).length }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="estado-y-chevron">
+                    <span class="badge-estado" [ngClass]="obtenerClaseEstado(s.estado)">
+                      {{ obtenerEtiquetaEstadoUi(s.estado) }}
+                    </span>
+                    <button type="button" class="btn-chevron" aria-label="Desplegar opciones">
+                      <ion-icon [name]="solicitudExpandidaId() === s.id ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="cuerpo-card">
+                  <div class="dato-fila">
+                    <ion-icon name="construct-outline"></ion-icon>
+                    <span class="texto-cliente">Handyman: {{ s.handymanNombre || 'Daniel' }} · {{ s.direccion }}</span>
+                  </div>
+                </div>
+
+                <div class="footer-card">
+                  <div class="estado-resumen">
+                    @if (s.estado === 'completada') {
+                      <div class="calificacion-info">
+                        <span class="tag-pago">Servicio finalizado</span>
+                        <div class="estrellas">
+                          @for (estrella of [1, 2, 3, 4, 5]; track estrella) {
+                            <ion-icon 
+                              name="star" 
+                              [class.activa]="estrella <= (s.estrellas ?? 5)" 
+                              [class.inactiva]="estrella > (s.estrellas ?? 5)">
+                            </ion-icon>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="indicador-tiempo">
+                        <span class="punto-pulso" [ngClass]="obtenerClaseEstado(s.estado)"></span>
+                        <span>{{ s.mensaje }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="precio-box">
+                    <span class="valor-precio">{{ formatearPrecio(s.precio) }}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- PANEL DESPLEGABLE DEL CLIENTE (SEGUIMIENTO, CHAT BITÁCORA Y EVIDENCIAS) -->
+              @if (solicitudExpandidaId() === s.id) {
+                <div class="panel-desplegable" (click)="$event.stopPropagation()">
+                  
+                  <!-- 1. Contacto directo con el Handyman -->
+                  <div class="acciones-cliente-bar">
+                    <button type="button" class="btn-contacto" (click)="llamarHandyman(s.handymanTelefono, $event)">
+                      <div class="icono-contacto-wrap">
+                        <ion-icon name="call-outline"></ion-icon>
+                      </div>
+                      <span>Llamar a {{ s.handymanNombre || 'Handyman' }}</span>
+                    </button>
+                    <button type="button" class="btn-contacto" (click)="escribirWhatsApp(s, $event)">
+                      <div class="icono-contacto-wrap whatsapp">
+                        <ion-icon name="logo-whatsapp"></ion-icon>
+                      </div>
+                      <span>Escribir por WhatsApp</span>
+                    </button>
+                  </div>
+
+                  <!-- 2. Progreso en vivo del Handyman (Distintivo del Cliente frente al selector del Handyman) -->
+                  <div class="bloque-card-interna">
+                    <div class="cabecera-bloque">
+                      <span class="label-gestion">
+                        <ion-icon name="sparkles-outline"></ion-icon>
+                        Seguimiento en tiempo real
+                      </span>
+                      <span class="sub-pill-estado" [ngClass]="obtenerClaseEstado(s.estado)">
+                        {{ obtenerEtiquetaEstadoUi(s.estado) }}
+                      </span>
+                    </div>
+
+                    <div class="selector-estados-grid">
+                      <div class="btn-estado-item st-nuevo" [class.seleccionado]="obtenerPasoActual(s.estado) === 1">
+                        <ion-icon name="radio-button-on-outline"></ion-icon>
+                        <span>Nuevo</span>
+                      </div>
+                      <div class="btn-estado-item st-camino" [class.seleccionado]="obtenerPasoActual(s.estado) === 2">
+                        <ion-icon name="car-outline"></ion-icon>
+                        <span>En camino</span>
+                      </div>
+                      <div class="btn-estado-item st-curso" [class.seleccionado]="obtenerPasoActual(s.estado) === 3">
+                        <ion-icon name="construct-outline"></ion-icon>
+                        <span>En curso</span>
+                      </div>
+                      <div class="btn-estado-item st-finalizado" [class.seleccionado]="obtenerPasoActual(s.estado) === 4">
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <span>Finalizado</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 3. Bitácora Compartida / Chat con el Handyman -->
+                  <div class="bloque-card-interna">
+                    <div class="cabecera-bloque">
+                      <span class="label-gestion">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                        Bitácora y avances del servicio
+                      </span>
+                      <span class="contador-pill">{{ obtenerBitacora(s).length }} registros</span>
+                    </div>
+
+                    @if (obtenerBitacora(s).length === 0) {
+                      <div class="bitacora-vacia">
+                        <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                        <span>Aún no hay novedades registradas. Puedes dejarle una nota al Handyman abajo.</span>
+                      </div>
+                    } @else {
+                      <div class="bitacora-timeline">
+                        @for (item of obtenerBitacora(s); track item.id) {
+                          <div class="burbuja-bitacora" [class.es-sistema]="item.tipo === 'sistema'">
+                            <div class="burbuja-contenido">
+                              <p class="burbuja-texto">{{ item.texto }}</p>
+                              <div class="burbuja-meta">
+                                <span class="burbuja-hora">
+                                  <ion-icon name="time-outline"></ion-icon>
+                                  {{ item.hora }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    <div class="chat-input-barra">
+                      <input 
+                        type="text"
+                        class="input-bitacora-chat"
+                        placeholder="Escribe una indicación o mensaje para el Handyman..."
+                        [(ngModel)]="mensajeClienteTemporal[s.id]"
+                        (keydown.enter)="enviarMensajeBitacoraCliente(s, $event)"
+                      />
+                      <button 
+                        type="button" 
+                        class="btn-enviar-nota" 
+                        [class.activo]="(mensajeClienteTemporal[s.id] || '').trim().length > 0"
+                        (click)="enviarMensajeBitacoraCliente(s, $event)">
+                        <ion-icon name="send-outline"></ion-icon>
+                        <span>Enviar</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 4. Evidencia Fotográfica subida por el Handyman -->
+                  <div class="bloque-card-interna">
+                    <div class="cabecera-bloque">
+                      <span class="label-gestion">
+                        <ion-icon name="camera-outline"></ion-icon>
+                        Evidencia fotográfica del Handyman ({{ (s.fotos || []).length }})
+                      </span>
+                    </div>
+
+                    @if (!s.fotos || s.fotos.length === 0) {
+                      <div class="galeria-vacia">
+                        <div class="icono-camara-circulo">
+                          <ion-icon name="camera-outline"></ion-icon>
+                        </div>
+                        <span class="titulo-vacio-foto">Sin fotos adjuntas todavía</span>
+                        <span class="sub-vacio-foto">Aquí aparecerán al instante las fotos del antes y después que suba tu Handyman</span>
+                      </div>
+                    } @else {
+                      <div class="galeria-fotos">
+                        @for (foto of s.fotos; track $index) {
+                          <div class="item-foto">
+                            <img [src]="foto" alt="Evidencia del trabajo" />
+                            <span class="badge-num-foto">#{{ $index + 1 }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <!-- 5. Confirmación y Calificación del Cliente -->
+                  @if (s.estado !== 'completada' && s.estado !== 'rechazada' && s.estado !== 'pendiente') {
+                    <div class="bloque-card-interna cierre-cliente">
+                      <div class="cabecera-bloque">
+                        <span class="label-gestion">Calificar y confirmar finalización</span>
+                        <div class="selector-estrellas">
+                          @for (est of [1, 2, 3, 4, 5]; track est) {
+                            <ion-icon
+                              name="star"
+                              [class.activa]="est <= (calificacionTemporal[s.id] || 5)"
+                              (click)="seleccionarEstrellas(s.id, est, $event)">
+                            </ion-icon>
+                          }
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-confirmar-cierre"
+                        (click)="confirmarServicioCompletado(s, $event)">
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <span>Confirmar trabajo recibido a satisfacción</span>
+                      </button>
+                    </div>
+                  }
+
+                </div>
+              }
+
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Barra de navegación inferior flotante idéntica a la de Handyman -->
+  <div class="nav-flotante-wrapper">
+    <nav class="nav-pildora">
+      <a routerLink="/home-cliente" class="nav-item">
+        <ion-icon name="home-outline"></ion-icon>
+        <span>Inicio</span>
+      </a>
+      <a routerLink="/operaciones-cliente" class="nav-item activo">
+        <ion-icon name="clipboard-outline"></ion-icon>
+        <span>Operaciones</span>
+      </a>
+      <a routerLink="/perfil-cliente" class="nav-item">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Perfil</span>
+      </a>
+    </nav>
+  </div>
+</ion-content>

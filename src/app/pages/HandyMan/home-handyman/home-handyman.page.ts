@@ -25,24 +25,7 @@ import { AuthService } from '../../../services/auth.service';
 import { DecimalPipe } from '@angular/common';
 
 import { HeaderHandymanComponent } from '../header-handyman/header-handyman.component';
-// AGREGADO: Importamos el servicio
-import { OperacionesHandymanService } from '../../../services/operaciones-handyman.service';
-
-interface Solicitud {
-  cliente: string;
-  servicio: string;
-  categoriaZona: string;
-  precio: string;
-  distancia: string;
-  hace: string;
-}
-
-interface TrabajoCompletadoHoy {
-  id: number;
-  servicio: string;
-  monto: number;
-  calificacion: number;
-}
+import { OperacionesHandymanService, SolicitudPendienteHome } from '../../../services/operaciones-handyman.service';
 
 @Component({
   selector: 'app-home-handyman',
@@ -61,17 +44,27 @@ export class HomeHandymanPage {
   private authService = inject(AuthService);
   private menuCtrl = inject(MenuController);
   private router = inject(Router);
-  // AGREGADO: Inyectamos el servicio
   private operacionesService = inject(OperacionesHandymanService);
 
   nombre = signal('Daniel');
   fotoPerfil = signal('');
   disponible = signal(true);
 
-  trabajosFinalizadosHoy = signal<TrabajoCompletadoHoy[]>([
-    { id: 1, servicio: 'Instalación de tomacorrientes', monto: 50000, calificacion: 5 },
-    { id: 2, servicio: 'Reparación de grifo', monto: 35000, calificacion: 4.8 },
-  ]);
+  // Solicitudes entrantes en tiempo real desde la BD (estado 'pendiente')
+  solicitudes = this.operacionesService.solicitudesPendientes;
+
+  // Trabajos completados reales obtenidos de la BD
+  trabajosFinalizadosHoy = computed(() => {
+    return this.operacionesService
+      .listaTrabajos()
+      .filter(t => t.estado === 'Finalizado')
+      .map(t => ({
+        id: t.id,
+        servicio: t.servicio,
+        monto: t.precioNumerico || Number(String(t.precio).replace(/[^0-9]/g, '')) || 0,
+        calificacion: t.estrellas || 5
+      }));
+  });
 
   gananciasHoy = computed(() => {
     return this.trabajosFinalizadosHoy().reduce((acc, t) => acc + t.monto, 0);
@@ -83,29 +76,10 @@ export class HomeHandymanPage {
 
   calificacionPromedioHoy = computed(() => {
     const lista = this.trabajosFinalizadosHoy();
-    if (lista.length === 0) return 0;
+    if (lista.length === 0) return 5.0;
     const suma = lista.reduce((acc, t) => acc + t.calificacion, 0);
     return Number((suma / lista.length).toFixed(1));
   });
-
-  solicitudes = signal<Solicitud[]>([
-    { 
-      cliente: 'María Torres', 
-      servicio: 'Fuga en el baño', 
-      categoriaZona: 'Plomería · Chapinero', 
-      precio: '$85.000', 
-      distancia: '1.8 km', 
-      hace: 'hace 5 min' 
-    },
-    { 
-      cliente: 'Jorge Lemus', 
-      servicio: 'Cambio de tomacorriente', 
-      categoriaZona: 'Electricidad · Usaquén', 
-      precio: '$60.000', 
-      distancia: '3.1 km', 
-      hace: 'hace 12 min' 
-    },
-  ]);
 
   saludoInicial = computed(() => this.nombre().split(' ')[0] || '');
 
@@ -137,24 +111,34 @@ export class HomeHandymanPage {
       if (perfil.nombre) {
         this.nombre.set(perfil.nombre);
       }
-      if (perfil.fotoPerfil) {
-        this.fotoPerfil.set(perfil.fotoPerfil);
+      if (perfil.fotoUrl || perfil.fotoPerfil) {
+        this.fotoPerfil.set(perfil.fotoUrl || perfil.fotoPerfil);
       }
+      if (perfil.disponible !== undefined) {
+        this.disponible.set(perfil.disponible);
+      }
+    }
+
+    // Carga las solicitudes reales dirigidas a este Handyman desde FastAPI
+    await this.operacionesService.cargarDatosHandyman();
+  }
+
+  async alternarDisponibilidad() {
+    const nuevoValor = !this.disponible();
+    this.disponible.set(nuevoValor);
+    try {
+      await this.authService.actualizarPerfilApi({ disponible: nuevoValor });
+    } catch (e) {
+      console.warn('No se pudo actualizar disponibilidad en API:', e);
     }
   }
 
-  alternarDisponibilidad() {
-    this.disponible.update((v) => !v);
-  }
-
-  aceptar(solicitud: Solicitud) {
-    // AGREGADO: Envía los datos al servicio de operaciones
-    this.operacionesService.aceptarSolicitud(solicitud);
-    this.solicitudes.update((lista) => lista.filter((s) => s !== solicitud));
+  async aceptar(solicitud: SolicitudPendienteHome) {
+    await this.operacionesService.aceptarSolicitud(solicitud);
     this.router.navigate(['/operaciones-handyman']);
   }
 
-  rechazar(solicitud: Solicitud) {
-    this.solicitudes.update((lista) => lista.filter((s) => s !== solicitud));
+  async rechazar(solicitud: SolicitudPendienteHome) {
+    await this.operacionesService.rechazarSolicitud(solicitud.id);
   }
 }

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "165281406687",
+    "project_id": "handyman-a3204",
+    "storage_bucket": "handyman-a3204.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165281406687:android:dc8337dfce641b26fc136a",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "165281406687-kslgjrvpvc0ihv7ig71btvs5gkhqkrpi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ionic.starter",
+            "certificate_hash": "929eb4837cdcf5f91abb86358c7746f1c8423be9"
+          }
+        },
+        {
+          "client_id": "165281406687-0s100se7ssbqm6h6li9off3fotgg6urs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnXhzAIY_WMCIvkdh7pfu5X5MFdhT0cI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "165281406687-0s100se7ssbqm6h6li9off3fotgg6urs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

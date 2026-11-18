@@ -1,5 +1,6 @@
 // Variables de paleta y tipografía de marca
 $azul: #1f2d3a;
+$azul-claro: #3b82f6;
 $coral: #ef6a5a;
 $fondo: #f6f3ee;
 $borde: #e4ded7;
@@ -186,7 +187,8 @@ ion-content {
       align-items: center;
       justify-content: center;
       text-align: center;
-      width: 90px;
+      width: 78px;
+      min-width: 70px;
       height: 54px;
       box-sizing: border-box;
       flex-shrink: 0;
@@ -220,6 +222,17 @@ ion-content {
 
       &:hover {
         transform: translateY(-2px);
+      }
+
+      &.card-nuevo {
+        background: rgba(59, 130, 246, 0.08);
+        border-color: rgba(59, 130, 246, 0.2);
+        .numero-estado, .texto-estado { color: $azul-claro; }
+        &.card-activo {
+          background: rgba(59, 130, 246, 0.16);
+          border-color: $azul-claro;
+          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+        }
       }
 
       &.card-camino {
@@ -391,23 +404,24 @@ ion-content {
 .lista-operaciones {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .card-operacion {
   background: #ffffff;
-  border: 1px solid rgba(213, 207, 198, 0.7);
-  border-left: 4px solid $muted;
-  border-radius: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(213, 207, 198, 0.8);
+  border-left: 5px solid $muted;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(31, 45, 58, 0.04);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 
   &.expandida {
-    box-shadow: 0 10px 26px rgba(31, 45, 58, 0.09);
+    box-shadow: 0 12px 28px rgba(31, 45, 58, 0.08);
     border-color: $borde-fuerte;
   }
 
+  &.badge-nuevo { border-left-color: $azul-claro; }
   &.badge-camino { border-left-color: $verde; }
   &.badge-curso { border-left-color: $naranja; }
   &.badge-finalizado { border-left-color: $muted; }
@@ -422,7 +436,7 @@ ion-content {
     transition: background 0.15s ease;
 
     &:hover {
-      background: rgba(248, 250, 252, 0.6);
+      background: rgba(246, 243, 238, 0.45);
     }
   }
 
@@ -439,8 +453,8 @@ ion-content {
 
       .servicio-titulo {
         margin: 0;
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 16.5px;
+        font-weight: 800;
         color: $azul;
       }
 
@@ -456,13 +470,21 @@ ion-content {
         .pill-indicador {
           display: inline-flex;
           align-items: center;
-          gap: 3px;
-          background: #f1f5f9;
-          color: $azul;
-          padding: 2px 7px;
-          border-radius: 6px;
+          gap: 4px;
+          padding: 2px 8px;
+          border-radius: 999px;
           font-size: 11px;
           font-weight: 700;
+
+          &.pill-fotos {
+            background: rgba(239, 106, 90, 0.12);
+            color: $coral;
+          }
+
+          &.pill-notas {
+            background: rgba(59, 130, 246, 0.12);
+            color: $azul-claro;
+          }
         }
       }
     }
@@ -470,13 +492,13 @@ ion-content {
     .estado-y-chevron {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
 
       .btn-chevron {
         background: #f8fafc;
         border: 1px solid $borde;
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -490,16 +512,18 @@ ion-content {
     }
 
     .badge-estado {
-      padding: 4px 12px;
+      padding: 5px 12px;
       border-radius: 999px;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
+      letter-spacing: 0.3px;
       white-space: nowrap;
 
+      &.badge-nuevo { background: rgba(59, 130, 246, 0.12); color: $azul-claro; }
       &.badge-camino { background: rgba(47, 158, 88, 0.12); color: $verde; }
       &.badge-curso { background: rgba(245, 158, 11, 0.15); color: #d97706; }
-      &.badge-finalizado { background: rgba(123, 132, 140, 0.12); color: $muted; }
+      &.badge-finalizado { background: rgba(123, 132, 140, 0.14); color: $muted; }
     }
   }
 
@@ -512,7 +536,7 @@ ion-content {
       font-size: 13.5px;
 
       ion-icon { font-size: 16px; color: $muted; flex-shrink: 0; }
-      .texto-cliente { font-weight: 500; }
+      .texto-cliente { font-weight: 600; }
     }
   }
 
@@ -521,17 +545,37 @@ ion-content {
     justify-content: space-between;
     align-items: center;
     padding-top: 10px;
-    border-top: 1px solid rgba(213, 207, 198, 0.4);
+    border-top: 1px solid rgba(213, 207, 198, 0.45);
 
     .estado-resumen {
       .indicador-tiempo {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         font-size: 12.5px;
         font-weight: 600;
         color: $azul;
-        ion-icon { font-size: 13px; color: $coral; }
+
+        .punto-pulso {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          background: $coral;
+          box-shadow: 0 0 0 3px rgba(239, 106, 90, 0.2);
+
+          &.badge-nuevo {
+            background: $azul-claro;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          }
+          &.badge-camino {
+            background: $verde;
+            box-shadow: 0 0 0 3px rgba(47, 158, 88, 0.2);
+          }
+          &.badge-curso {
+            background: $naranja;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+          }
+        }
       }
 
       .calificacion-info {
@@ -552,9 +596,10 @@ ion-content {
     }
 
     .precio-box {
-      background: rgba(239, 106, 90, 0.08);
-      padding: 4px 10px;
-      border-radius: 8px;
+      background: rgba(239, 106, 90, 0.1);
+      border: 1px solid rgba(239, 106, 90, 0.22);
+      padding: 4px 12px;
+      border-radius: 10px;
 
       .valor-precio {
         font-size: 16px;
@@ -567,15 +612,15 @@ ion-content {
 }
 
 /* ==========================================================
-   ESTILOS DEL PANEL INTERACTIVO DESPLEGABLE
+   PANEL DESPLEGABLE REDISEÑADO Y ARMÓNICO
    ========================================================== */
 .panel-desplegable {
-  background: #faf9f6;
-  border-top: 1px dashed $borde-fuerte;
-  padding: 16px 18px 18px;
+  background: linear-gradient(180deg, #faf8f5 0%, #f4f0ea 100%);
+  border-top: 1px solid $borde;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   animation: fadeSlideDown 0.22s ease-out;
 }
 
@@ -594,12 +639,12 @@ ion-content {
 .acciones-cliente-bar {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 
   .btn-contacto {
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid $borde-fuerte;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid $borde;
     background: #ffffff;
     color: $azul;
     font-size: 12.5px;
@@ -607,27 +652,55 @@ ion-content {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
+    padding: 0 12px;
     cursor: pointer;
+    box-shadow: 0 2px 6px rgba(31, 45, 58, 0.03);
     transition: all 0.2s ease;
 
-    ion-icon {
-      font-size: 15px;
+    .icono-contacto-wrap {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(239, 106, 90, 0.12);
       color: $coral;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      &.ruta {
+        background: rgba(59, 130, 246, 0.12);
+        color: $azul-claro;
+      }
+
+      ion-icon { font-size: 15px; }
+    }
+
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &:hover {
-      background: #f1f5f9;
-      border-color: $azul;
+      border-color: $borde-fuerte;
       transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(31, 45, 58, 0.06);
     }
   }
 }
 
-.bloque-gestion {
+/* Contenedores tipo tarjeta para cada sección del acordeón */
+.bloque-card-interna {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(31, 45, 58, 0.025);
 
   .cabecera-bloque {
     display: flex;
@@ -641,31 +714,58 @@ ion-content {
     font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.45px;
     color: $azul;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 
     ion-icon {
-      font-size: 15px;
+      font-size: 16px;
       color: $coral;
     }
   }
+
+  .contador-pill {
+    font-size: 11px;
+    font-weight: 700;
+    color: $muted;
+    background: #f6f3ee;
+    border: 1px solid $borde;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .sub-pill-estado {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+
+    &.badge-nuevo { background: rgba(59, 130, 246, 0.12); color: $azul-claro; }
+    &.badge-camino { background: rgba(47, 158, 88, 0.12); color: $verde; }
+    &.badge-curso { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+    &.badge-finalizado { background: rgba(123, 132, 140, 0.14); color: $muted; }
+  }
 }
 
-/* Selector rápido de 3 estados */
+/* Selector rápido de 4 estados simétricos */
 .selector-estados-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
+
+  @media (min-width: 460px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
   .btn-estado-item {
     height: 40px;
     border-radius: 12px;
-    border: 1.5px solid $borde-fuerte;
-    background: #ffffff;
-    color: #64748b;
+    border: 1px solid $borde;
+    background: #f9fafb;
+    color: #4b5563;
     font-size: 12px;
     font-weight: 700;
     display: flex;
@@ -678,74 +778,198 @@ ion-content {
     ion-icon { font-size: 16px; }
 
     &:hover {
+      background: #f1f5f9;
       transform: translateY(-1px);
+    }
+
+    &.st-nuevo.seleccionado {
+      background: $azul-claro;
+      color: #ffffff;
+      border-color: $azul-claro;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.28);
     }
 
     &.st-camino.seleccionado {
       background: $verde;
       color: #ffffff;
       border-color: $verde;
-      box-shadow: 0 4px 10px rgba(47, 158, 88, 0.25);
+      box-shadow: 0 4px 12px rgba(47, 158, 88, 0.28);
     }
 
     &.st-curso.seleccionado {
       background: $naranja;
       color: #ffffff;
       border-color: $naranja;
-      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.28);
     }
 
     &.st-finalizado.seleccionado {
       background: $azul;
       color: #ffffff;
       border-color: $azul;
-      box-shadow: 0 4px 10px rgba(31, 45, 58, 0.25);
+      box-shadow: 0 4px 12px rgba(31, 45, 58, 0.28);
     }
   }
 }
 
-/* Área de Notas Técnicas */
-.textarea-notas {
-  width: 100%;
-  box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid $borde-fuerte;
+/* ==========================================================
+   BITÁCORA ESTILO CHAT / TIMELINE
+   ========================================================== */
+.bitacora-vacia {
+  background: #faf8f5;
+  border: 1px dashed $borde-fuerte;
   border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 13px;
-  color: $azul;
-  font-family: inherit;
-  resize: vertical;
-  outline: none;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $muted;
+  font-size: 12.5px;
+
+  ion-icon {
+    font-size: 22px;
+    color: $coral;
+    flex-shrink: 0;
+  }
+}
+
+.bitacora-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 210px;
+  overflow-y: auto;
+  padding-right: 4px;
+
+  .burbuja-bitacora {
+    background: #f6f3ee;
+    border: 1px solid $borde;
+    border-left: 3.5px solid $coral;
+    border-radius: 12px;
+    padding: 9px 12px;
+    transition: all 0.15s ease;
+
+    &.es-sistema {
+      background: #f8fafc;
+      border-left-color: $azul-claro;
+
+      .burbuja-texto {
+        color: #475569;
+        font-weight: 600;
+        font-size: 12px;
+      }
+    }
+
+    .burbuja-contenido {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .burbuja-texto {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: $azul;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .burbuja-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+
+      .burbuja-hora {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: $muted;
+        white-space: nowrap;
+      }
+
+      .btn-borrar-nota {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        padding: 2px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: color 0.15s ease;
+
+        &:hover {
+          color: #ef4444;
+        }
+      }
+    }
+  }
+}
+
+.chat-input-barra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #faf8f5;
+  border: 1px solid $borde-fuerte;
+  border-radius: 14px;
+  padding: 5px 6px 5px 12px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-  &:focus {
+  &:focus-within {
+    background: #ffffff;
     border-color: $coral;
     box-shadow: 0 0 0 3px rgba(239, 106, 90, 0.12);
   }
-}
 
-.btn-guardar-nota {
-  background: rgba(239, 106, 90, 0.12);
-  color: $coral;
-  border: 1px solid rgba(239, 106, 90, 0.3);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 11.5px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  .input-bitacora-chat {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: $azul;
+    outline: none;
+    font-family: inherit;
+    min-width: 0;
 
-  &:hover {
-    background: $coral;
-    color: #ffffff;
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  .btn-enviar-nota {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(239, 106, 90, 0.14);
+    color: $coral;
+    font-size: 12px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &.activo, &:hover {
+      background: $coral;
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(239, 106, 90, 0.3);
+    }
   }
 }
 
-/* Evidencia Fotográfica */
+/* ==========================================================
+   EVIDENCIA FOTOGRÁFICA ARMONIZADA
+   ========================================================== */
 .acciones-foto-botones {
   display: flex;
   gap: 6px;
@@ -753,83 +977,115 @@ ion-content {
   .btn-subir-foto {
     background: $azul;
     color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 5px 10px;
+    border: 1px solid $azul;
+    border-radius: 10px;
+    padding: 6px 12px;
     font-size: 11.5px;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &.secundario {
-      background: #ffffff;
+      background: #faf8f5;
       color: $azul;
-      border: 1px solid $borde-fuerte;
+      border-color: $borde-fuerte;
     }
 
     &:hover {
-      opacity: 0.92;
       transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(31, 45, 58, 0.12);
     }
   }
 }
 
 .galeria-vacia {
   border: 1.5px dashed $borde-fuerte;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 18px;
+  border-radius: 14px;
+  background: #faf8f5;
+  padding: 18px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  color: $muted;
-  font-size: 12.5px;
+  gap: 4px;
+  text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
 
-  ion-icon {
-    font-size: 26px;
+  .icono-camara-circulo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(239, 106, 90, 0.12);
     color: $coral;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+
+    ion-icon { font-size: 20px; }
+  }
+
+  .titulo-vacio-foto {
+    font-size: 13px;
+    font-weight: 700;
+    color: $azul;
+  }
+
+  .sub-vacio-foto {
+    font-size: 11.5px;
+    color: $muted;
   }
 
   &:hover {
     border-color: $coral;
-    background: rgba(239, 106, 90, 0.03);
+    background: rgba(239, 106, 90, 0.04);
   }
 }
 
 .galeria-fotos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
   gap: 10px;
 
   .item-foto {
     position: relative;
-    height: 84px;
+    height: 92px;
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid $borde-fuerte;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 3px 8px rgba(31, 45, 58, 0.08);
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
+    }
+
+    .badge-num-foto {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: rgba(31, 45, 58, 0.78);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
     }
 
     .btn-borrar-foto {
       position: absolute;
-      top: 4px;
-      right: 4px;
+      top: 5px;
+      right: 5px;
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: rgba(239, 68, 68, 0.9);
+      background: rgba(239, 68, 68, 0.92);
       color: #ffffff;
       border: none;
       display: flex;
@@ -838,6 +1094,33 @@ ion-content {
       cursor: pointer;
 
       ion-icon { font-size: 13px; }
+    }
+  }
+
+  .item-agregar-mas {
+    height: 92px;
+    border-radius: 12px;
+    border: 1.5px dashed $borde-fuerte;
+    background: #faf8f5;
+    color: $azul;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 20px;
+      color: $coral;
+    }
+
+    &:hover {
+      border-color: $coral;
+      background: rgba(239, 106, 90, 0.05);
     }
   }
 }

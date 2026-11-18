@@ -25,6 +25,13 @@
         
         <!-- Tarjetas de estado simétricas -->
         <div class="mini-tarjetas-estados">
+          <div class="mini-card card-nuevo" (click)="cambiarFiltro('NUEVO')" [class.card-activo]="filtroEstado() === 'NUEVO'">
+            <div class="kpi-cabecera">
+              <span class="numero-estado">{{ totalNuevos() }}</span>
+            </div>
+            <span class="texto-estado">Nuevos</span>
+          </div>
+
           <div class="mini-card card-camino" (click)="cambiarFiltro('En camino')" [class.card-activo]="filtroEstado() === 'En camino'">
             <div class="kpi-cabecera">
               <span class="numero-estado">{{ totalEnCamino() }}</span>
@@ -45,6 +52,7 @@
       <div class="controles-filtrado">
         <div class="filtros-chips">
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'todos'" (click)="cambiarFiltro('todos')">Todos</button>
+          <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'NUEVO'" (click)="cambiarFiltro('NUEVO')">Nuevos</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En camino'" (click)="cambiarFiltro('En camino')">En camino</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'En curso'" (click)="cambiarFiltro('En curso')">En curso</button>
           <button type="button" class="btn-filtro" [class.activo]="filtroEstado() === 'Finalizado'" (click)="cambiarFiltro('Finalizado')">Finalizados</button>
@@ -107,15 +115,15 @@
                       <ion-icon name="time-outline"></ion-icon>
                       <span>{{ t.horaCreacion }}</span>
                       @if (t.fotos.length > 0) {
-                        <span class="pill-indicador">
+                        <span class="pill-indicador pill-fotos">
                           <ion-icon name="camera-outline"></ion-icon>
                           {{ t.fotos.length }}
                         </span>
                       }
-                      @if (t.notas) {
-                        <span class="pill-indicador">
-                          <ion-icon name="document-text-outline"></ion-icon>
-                          Nota
+                      @if (obtenerBitacora(t).length > 0) {
+                        <span class="pill-indicador pill-notas">
+                          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                          {{ obtenerBitacora(t).length }}
                         </span>
                       }
                     </div>
@@ -155,7 +163,7 @@
                       </div>
                     } @else {
                       <div class="indicador-tiempo">
-                        <ion-icon name="radio-button-on-outline"></ion-icon>
+                        <span class="punto-pulso" [ngClass]="obtenerClaseEstado(t.estado)"></span>
                         <span>{{ t.infoExtra }}</span>
                       </div>
                     }
@@ -169,7 +177,7 @@
               </div>
 
               <!-- =======================================================
-                   PANEL DESPLEGABLE DE GESTIÓN EN CAMPO (ACORDEÓN)
+                   PANEL DESPLEGABLE DE GESTIÓN EN CAMPO (REDISEÑADO)
                    ======================================================= -->
               @if (trabajoExpandidoId() === t.id) {
                 <div class="panel-desplegable" (click)="$event.stopPropagation()">
@@ -177,19 +185,41 @@
                   <!-- 1. Acciones rápidas de contacto y ruta -->
                   <div class="acciones-cliente-bar">
                     <button type="button" class="btn-contacto" (click)="llamarCliente(t.telefono, $event)">
-                      <ion-icon name="call-outline"></ion-icon>
+                      <div class="icono-contacto-wrap">
+                        <ion-icon name="call-outline"></ion-icon>
+                      </div>
                       <span>Llamar a {{ t.cliente }}</span>
                     </button>
                     <button type="button" class="btn-contacto" (click)="abrirMapa(t.direccion, $event)">
-                      <ion-icon name="navigate-outline"></ion-icon>
+                      <div class="icono-contacto-wrap ruta">
+                        <ion-icon name="navigate-outline"></ion-icon>
+                      </div>
                       <span>Ver ruta en Mapa</span>
                     </button>
                   </div>
 
                   <!-- 2. Selector de Estado del Servicio -->
-                  <div class="bloque-gestion">
-                    <span class="label-gestion">Actualizar estado del servicio</span>
+                  <div class="bloque-card-interna">
+                    <div class="cabecera-bloque">
+                      <span class="label-gestion">
+                        <ion-icon name="sparkles-outline"></ion-icon>
+                        Estado actual del servicio
+                      </span>
+                      <span class="sub-pill-estado" [ngClass]="obtenerClaseEstado(t.estado)">
+                        {{ t.estado }}
+                      </span>
+                    </div>
+
                     <div class="selector-estados-grid">
+                      <button 
+                        type="button" 
+                        class="btn-estado-item st-nuevo" 
+                        [class.seleccionado]="t.estado === 'NUEVO'"
+                        (click)="cambiarEstadoTrabajo(t.id, 'NUEVO', $event)">
+                        <ion-icon name="radio-button-on-outline"></ion-icon>
+                        <span>Nuevo</span>
+                      </button>
+
                       <button 
                         type="button" 
                         class="btn-estado-item st-camino" 
@@ -219,35 +249,76 @@
                     </div>
                   </div>
 
-                  <!-- 3. Bitácora de Notas y Materiales -->
-                  <div class="bloque-gestion">
+                  <!-- 3. Bitácora Técnica / Materiales (Estilo Chat en Vivo) -->
+                  <div class="bloque-card-interna">
                     <div class="cabecera-bloque">
                       <span class="label-gestion">
                         <ion-icon name="document-text-outline"></ion-icon>
                         Bitácora técnica / Materiales
                       </span>
-                      <button type="button" class="btn-guardar-nota" (click)="guardarNota(t.id, $event)">
-                        <ion-icon name="save-outline"></ion-icon>
-                        <span>Guardar nota</span>
+                      <span class="contador-pill">{{ obtenerBitacora(t).length }} registros</span>
+                    </div>
+
+                    <!-- Historial de mensajes/notas guardadas -->
+                    @if (obtenerBitacora(t).length === 0) {
+                      <div class="bitacora-vacia">
+                        <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                        <span>Aún no hay notas registradas. Escribe diagnósticos, materiales o avances abajo.</span>
+                      </div>
+                    } @else {
+                      <div class="bitacora-timeline">
+                        @for (item of obtenerBitacora(t); track item.id) {
+                          <div class="burbuja-bitacora" [class.es-sistema]="item.tipo === 'sistema'">
+                            <div class="burbuja-contenido">
+                              <p class="burbuja-texto">{{ item.texto }}</p>
+                              <div class="burbuja-meta">
+                                <span class="burbuja-hora">
+                                  <ion-icon name="time-outline"></ion-icon>
+                                  {{ item.hora }}
+                                </span>
+                                <button 
+                                  type="button" 
+                                  class="btn-borrar-nota" 
+                                  title="Eliminar registro"
+                                  (click)="eliminarEntradaBitacora(t.id, item.id, $event)">
+                                  <ion-icon name="trash-outline"></ion-icon>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    <!-- Barra de escritura estilo chat -->
+                    <div class="chat-input-barra">
+                      <input 
+                        type="text"
+                        class="input-bitacora-chat"
+                        placeholder="Escribe un diagnóstico, repuesto o avance y presiona Enter..."
+                        [(ngModel)]="notaTemporal[t.id]"
+                        (keydown.enter)="guardarNota(t.id, $event)"
+                      />
+                      <button 
+                        type="button" 
+                        class="btn-enviar-nota" 
+                        [class.activo]="(notaTemporal[t.id] || '').trim().length > 0"
+                        (click)="guardarNota(t.id, $event)">
+                        <ion-icon name="send-outline"></ion-icon>
+                        <span>Guardar</span>
                       </button>
                     </div>
-                    <textarea 
-                      class="textarea-notas"
-                      rows="3"
-                      placeholder="Escribe diagnósticos, repuestos utilizados o acuerdos con el cliente..."
-                      [(ngModel)]="notaTemporal[t.id]">
-                    </textarea>
                   </div>
 
                   <!-- 4. Evidencia Fotográfica (Antes / Después) -->
-                  <div class="bloque-gestion">
+                  <div class="bloque-card-interna">
                     <div class="cabecera-bloque">
                       <span class="label-gestion">
                         <ion-icon name="camera-outline"></ion-icon>
                         Evidencia fotográfica ({{ t.fotos.length }})
                       </span>
                       <div class="acciones-foto-botones">
-                        <button type="button" class="btn-subir-foto" (click)="agregarFotoCapacitor(t.id, true, $event)">
+                        <button type="button" class="btn-subir-foto" (click)="agregarFotoCapacitor(t.id, true, fileInput, $event)">
                           <ion-icon name="camera-outline"></ion-icon>
                           <span>Cámara</span>
                         </button>
@@ -255,11 +326,11 @@
                           <ion-icon name="image-outline"></ion-icon>
                           <span>Galería</span>
                         </button>
-                        <!-- Input oculto de respaldo para subir desde PC o Galería -->
                         <input 
                           #fileInput 
                           type="file" 
                           accept="image/*" 
+                          multiple
                           hidden 
                           (change)="cargarFotoDesdeInputWeb(t.id, $event)" 
                         />
@@ -268,14 +339,18 @@
 
                     @if (t.fotos.length === 0) {
                       <div class="galeria-vacia" (click)="fileInput.click()">
-                        <ion-icon name="camera-outline"></ion-icon>
-                        <span>Añade fotos del antes y después del servicio</span>
+                        <div class="icono-camara-circulo">
+                          <ion-icon name="camera-outline"></ion-icon>
+                        </div>
+                        <span class="titulo-vacio-foto">Añade fotos del antes y después del servicio</span>
+                        <span class="sub-vacio-foto">Toca aquí para subir imágenes desde tu dispositivo</span>
                       </div>
                     } @else {
                       <div class="galeria-fotos">
                         @for (foto of t.fotos; track $index) {
                           <div class="item-foto">
                             <img [src]="foto" alt="Evidencia del trabajo" />
+                            <span class="badge-num-foto">#{{ $index + 1 }}</span>
                             <button 
                               type="button" 
                               class="btn-borrar-foto" 
@@ -285,6 +360,10 @@
                             </button>
                           </div>
                         }
+                        <button type="button" class="item-agregar-mas" (click)="fileInput.click()">
+                          <ion-icon name="camera-outline"></ion-icon>
+                          <span>Añadir más</span>
+                        </button>
                       </div>
                     }
                   </div>

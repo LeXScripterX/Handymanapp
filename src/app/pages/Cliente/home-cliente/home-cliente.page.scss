@@ -1,0 +1,624 @@
+$azul: #1f2d3a;
+$coral: #ef6a5a;
+$fondo: #f6f3ee;
+$borde: #e4ded7;
+$borde-fuerte: #d5cfc6;
+$muted: #7b848c;
+$verde: #2f9e58;
+$fuente: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+
+ion-content {
+  --background: #{$fondo};
+}
+
+.contenido {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: $azul;
+}
+
+/* 1. Tarjeta de Saludo idéntica a home-handyman */
+.tarjeta-saludo {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(31, 45, 58, 0.04);
+
+  .info-usuario {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .avatar-box {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: $azul;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $fuente;
+      font-size: 22px;
+      font-weight: 700;
+      flex-shrink: 0;
+
+      .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px;
+      }
+
+      .punto-estado {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: $verde;
+        border: 2px solid #ffffff;
+      }
+    }
+
+    .textos {
+      .hola {
+        margin: 0;
+        font-family: $fuente;
+        font-size: 23px;
+        font-weight: 700;
+        color: $azul;
+        line-height: 1.15;
+      }
+
+      .subestado {
+        margin: 3px 0 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: $verde;
+      }
+    }
+  }
+
+  .pill-ubicacion {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(239, 106, 90, 0.12);
+    color: $coral;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+/* 2. Tres Tarjetas KPI Simétricas */
+.grid-metricas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  .card-metrica {
+    background: #ffffff;
+    border: 1px solid $borde;
+    border-radius: 18px;
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(31, 45, 58, 0.03);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    .icono-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+
+      &.verde {
+        background: rgba(47, 158, 88, 0.12);
+        color: $verde;
+      }
+      &.gris {
+        background: rgba(31, 45, 58, 0.08);
+        color: $azul;
+      }
+      &.amarillo {
+        background: rgba(245, 158, 11, 0.14);
+        color: #f59e0b;
+      }
+    }
+
+    .valor {
+      font-family: $fuente;
+      font-size: 20px;
+      font-weight: 700;
+      color: $azul;
+      margin-top: 2px;
+    }
+
+    .etiqueta {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: $muted;
+      letter-spacing: 0.4px;
+    }
+  }
+}
+
+/* 3. Buscador y Categorías */
+.bloque-busqueda {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 18px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(31, 45, 58, 0.03);
+
+  .input-busqueda-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid $borde;
+    border-radius: 12px;
+    padding: 0 12px;
+    height: 42px;
+
+    ion-icon {
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      background: #ffffff !important;
+      color: $azul !important;
+      font-size: 13.5px;
+      outline: none;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+    }
+
+    .btn-clear {
+      background: none;
+      border: none;
+      color: $muted;
+      cursor: pointer;
+      display: flex;
+    }
+  }
+
+  .chips-categorias {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+
+    .chip-cat {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(213, 207, 198, 0.7);
+      background: #f8fafc;
+      color: #4b5563;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.activo {
+        background: $coral;
+        color: #ffffff;
+        border-color: $coral;
+        font-weight: 700;
+        box-shadow: 0 3px 8px rgba(239, 106, 90, 0.3);
+      }
+    }
+  }
+}
+
+/* 4. Tarjetas de Servicios */
+.seccion-solicitudes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .titulo-seccion {
+    margin: 0;
+    font-family: $fuente;
+    font-size: 19px;
+    font-weight: 700;
+    color: $azul;
+  }
+}
+
+.caja-vacia {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 42px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  color: $muted;
+
+  ion-icon {
+    font-size: 40px;
+    color: #cbd5e1;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13.5px;
+  }
+}
+
+.lista-tarjetas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tarjeta-servicio {
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 14px rgba(31, 45, 58, 0.04);
+
+  .fila-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+
+    .nombre-servicio {
+      margin: 0;
+      font-size: 16.5px;
+      font-weight: 800;
+      color: $azul;
+    }
+
+    .meta-handyman {
+      margin: 3px 0 0;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: $muted;
+    }
+
+    .precio-tag {
+      font-family: $fuente;
+      font-size: 18px;
+      font-weight: 800;
+      color: $coral;
+      background: rgba(239, 106, 90, 0.1);
+      padding: 4px 12px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+  }
+
+  .descripcion-corta {
+    margin: 0;
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.4;
+  }
+
+  .fila-meta-chips {
+    display: flex;
+    gap: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $muted;
+
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+
+      .estrella-icono {
+        color: #f59e0b;
+      }
+    }
+  }
+
+  .fila-botones {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+}
+
+.btn-aceptar {
+  height: 42px;
+  border-radius: 999px;
+  border: none;
+  background: $coral;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(239, 106, 90, 0.3);
+}
+
+.btn-rechazar {
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid $borde-fuerte;
+  background: #ffffff;
+  color: $azul;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* ==========================================================
+   MODAL LIMPIO IDÉNTICO AL DE PERFIL HANDYMAN
+   ========================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 45, 58, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-handyman-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 26px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 20px 50px rgba(31, 45, 58, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: aparecerModal 0.2s ease-out;
+
+  .btn-cerrar-x {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    color: $azul;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .modal-encabezado-centro {
+    text-align: center;
+    padding: 0 16px;
+
+    h2 {
+      margin: 0;
+      font-family: $fuente;
+      font-size: 24px;
+      font-weight: 700;
+      color: $azul;
+    }
+
+    p {
+      margin: 4px 0 0;
+      font-size: 13.5px;
+      color: $muted;
+      font-weight: 500;
+    }
+  }
+}
+
+.modal-formulario-limpio {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .fila-dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .campo-clean {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: $azul;
+    }
+
+    .input-icono-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 0 14px;
+      min-height: 48px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &.textarea-box {
+        align-items: flex-start;
+        padding: 12px 14px;
+      }
+
+      &:focus-within {
+        border-color: $coral;
+        box-shadow: 0 0 0 3px rgba(239, 106, 90, 0.12);
+      }
+
+      ion-icon {
+        font-size: 19px;
+        color: #94a3b8;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      input,
+      textarea {
+        flex: 1;
+        width: 100%;
+        border: none;
+        background: #ffffff !important;
+        color: $azul !important;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        resize: none;
+
+        &::placeholder {
+          color: #cbd5e1;
+        }
+      }
+    }
+  }
+
+  .btn-guardar-modal {
+    margin-top: 6px;
+    width: 100%;
+    height: 50px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, #f38273 0%, $coral 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(239, 106, 90, 0.3);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+    }
+  }
+}
+
+@keyframes aparecerModal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Barra de Navegación Inferior Flotante (Idéntica a Handyman) */
+.nav-flotante-wrapper {
+  position: fixed;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  z-index: 900;
+  pointer-events: none;
+}
+
+.nav-pildora {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 520px;
+  height: 62px;
+  background: #ffffff;
+  border: 1px solid $borde;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(31, 45, 58, 0.08);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px;
+
+  .nav-item {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: $azul;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 20px;
+    border-radius: 999px;
+    transition: color 0.2s ease;
+
+    ion-icon {
+      font-size: 20px;
+    }
+
+    &.activo {
+      color: $coral;
+      font-weight: 700;
+    }
+  }
+}
